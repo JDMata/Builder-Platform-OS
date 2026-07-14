@@ -11,16 +11,27 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "lint": "pnpm run lint:eslint && pnpm run lint:deps && pnpm run format:check",
+    "lint:eslint": "eslint .",
+    "lint:deps": "depcruise --config dependency-cruiser.config.cjs .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
+    "@eslint/js": "^10.0.1",
+    "dependency-cruiser": "^18.1.0",
+    "eslint": "^10.7.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.7.0",
+    "prettier": "^3.9.5",
     "turbo": "^2.10.5",
-    "typescript": "^7.0.2"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.64.0"
   }
 }

@@ -1,0 +1,15 @@
+# Build artifacts / dependencies
+node_modules/
+dist/
+coverage/
+.turbo/
+pnpm-lock.yaml
+
+# Prose is hand-authored and out of scope for this story — see CODING_STANDARDS.md
+# and the SAF-2 design note in docs/backlog/sprint-0-backlog.md.
+**/*.md
+docs/
+.ai/
+
+# Changesets manages its own markdown format
+.changeset/
