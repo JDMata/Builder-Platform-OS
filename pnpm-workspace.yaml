@@ -1,5 +1,12 @@
 packages:
   - "apps/*"
   - "packages/*"
+  # Vendor-family adapter folders are nested one level deeper than every
+  # other package (see PROJECT_STRUCTURE.md: packages/llm-adapters/anthropic,
+  # packages/mcp-adapters/stdio, etc.) — "packages/*" alone doesn't match
+  # them. Found when @sap-app-factory/adapter-llm-anthropic (SAF-9) silently
+  # never registered as a workspace package and no build/test task ran for
+  # it at all, with no error to signal the gap.
+  - "packages/*-adapters/*"
   - "plugins/*"
   - "tools/*"

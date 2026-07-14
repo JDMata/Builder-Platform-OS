@@ -19,6 +19,15 @@
 // "what its test suite depends on to run."
 const NOT_A_TEST_FILE = "(?<!\\.spec\\.ts)$";
 
+// Adapter-tier packages: concrete *-adapters/* families, persistence/object-store
+// adapters, AND the "core" orchestration packages (llm-core, mcp-core,
+// events-core) — found while scaffolding SAF-9: llm-core implements a port by
+// wrapping concrete adapters (ADR-0016's resilience wrapper), so it belongs to
+// the same tier as an adapter, not to application. Application gets it
+// injected at the composition root (apps/*), never imports it directly.
+const ADAPTER_TIER_PATH =
+  "^(packages/.*-adapters/|packages/persistence-postgres/|packages/object-storage-minio/|packages/graph-adapters/|packages/search-adapters/|packages/llm-core/|packages/mcp-core/|packages/events-core/)";
+
 module.exports = {
   forbidden: [
     {
@@ -42,9 +51,7 @@ module.exports = {
       comment: "Domain must not depend on adapters, apps, or plugins.",
       severity: "error",
       from: { path: "^packages/context-[^/]+/src/domain/.+" + NOT_A_TEST_FILE },
-      to: {
-        path: "^(packages/.*-adapters/|packages/persistence-postgres/|packages/object-storage-minio/|packages/graph-adapters/|packages/search-adapters/|apps/|plugins/)",
-      },
+      to: { path: ADAPTER_TIER_PATH + "|^(apps/|plugins/)" },
     },
     {
       name: "domain-no-ports",
@@ -88,12 +95,10 @@ module.exports = {
     {
       name: "application-no-adapters-or-apps-or-plugins",
       comment:
-        "Application depends only on its own domain and packages/ports — never a concrete adapter, an app, or a plugin directly.",
+        "Application depends only on its own domain and packages/ports — never a concrete adapter, an app, a plugin, or an orchestration 'core' package (llm-core/mcp-core/events-core) directly.",
       severity: "error",
       from: { path: "^packages/context-[^/]+/src/application/.+" + NOT_A_TEST_FILE },
-      to: {
-        path: "^(packages/.*-adapters/|packages/persistence-postgres/|packages/object-storage-minio/|packages/graph-adapters/|packages/search-adapters/|apps/|plugins/)",
-      },
+      to: { path: ADAPTER_TIER_PATH + "|^(apps/|plugins/)" },
     },
     {
       name: "application-no-npm-deps-except-ports",
@@ -120,13 +125,9 @@ module.exports = {
     {
       name: "adapters-no-application",
       comment:
-        "Adapters may depend on packages/ports, plugin-sdk, third-party SDKs, and testing-kit (dev) — never on any context's application layer directly.",
+        "Adapters (and the llm-core/mcp-core/events-core orchestration packages) may depend on packages/ports, plugin-sdk, third-party SDKs, and testing-kit (dev) — never on any context's application layer directly.",
       severity: "error",
-      from: {
-        path:
-          "^(packages/.*-adapters/|packages/persistence-postgres/|packages/object-storage-minio/|packages/graph-adapters/|packages/search-adapters/).+" +
-          NOT_A_TEST_FILE,
-      },
+      from: { path: ADAPTER_TIER_PATH + ".+" + NOT_A_TEST_FILE },
       to: { path: "^packages/context-[^/]+/src/application/" },
     },
   ],

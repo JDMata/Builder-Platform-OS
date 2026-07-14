@@ -52,6 +52,17 @@ export default tseslint.config(
       // Empty catch blocks are exactly the "swallowed error, just in case" pattern
       // CODING_STANDARDS.md prohibits.
       "no-empty": ["error", { allowEmptyCatch: false }],
+
+      // Off, not a deliberate CODING_STANDARDS.md rule — just bundled in
+      // recommendedTypeChecked above. Flags every interface-conformance stub
+      // whose Sprint 0 implementation has no real async work yet (an adapter
+      // returning Promise.resolve(mockValue), an async generator implementing
+      // AsyncIterable for streaming with nothing to await) — pure noise here,
+      // and the actual risk it partially guards against (a forgotten await)
+      // is already covered by no-floating-promises above. Found while
+      // scaffolding SAF-9's first two adapter stubs; will recur for every
+      // future one, so fixed at the config level rather than patched per file.
+      "@typescript-eslint/require-await": "off",
     },
   },
   {
