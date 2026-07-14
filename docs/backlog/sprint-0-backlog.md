@@ -13,7 +13,7 @@ Goal: prove every architectural seam in [docs/architecture/](../architecture/) e
 Tickets are grouped by theme; sequence roughly follows the numbered order (later tickets depend on earlier ones).
 
 ## Foundation
-- **SAF-1** — Initialize monorepo: pnpm workspace, Turborepo pipeline, root `tsconfig.base.json`, Changesets config.
+- **SAF-1** ✅ *(done 2026-07-14)* — Initialize monorepo: pnpm workspace, Turborepo pipeline, root `tsconfig.base.json`, Changesets config. Delivered: `package.json`, `pnpm-workspace.yaml`, `turbo.json` (`build`/`lint`/`typecheck`/`test`/`dev` tasks), `tsconfig.base.json` (strict, `noUncheckedIndexedAccess`, `NodeNext`/`verbatimModuleSyntax`), `.changeset/`, `.npmrc`, `.gitignore`. Verified: `pnpm install` and all four `turbo run` tasks succeed cleanly against the empty workspace; the base tsconfig was confirmed to both catch strict-mode/`noUncheckedIndexedAccess` violations and compile valid ESM cleanly (see the `"type": "module"` requirement now noted in [CODING_STANDARDS.md](../../CODING_STANDARDS.md)). No ADR change — implements [ADR-0001](../adr/0001-pnpm-turborepo-monorepo.md) as already decided.
 - **SAF-2** — Shared ESLint + Prettier config package; `dependency-cruiser.config.cjs` encoding the layering rules from [ADR-0002](../adr/0002-hexagonal-clean-layering.md).
 - **SAF-18** — `CONTRIBUTING.md`, `CODEOWNERS`, PR template (with the `needs-adr` checklist item from [12-risks-and-technical-debt.md](../architecture/12-risks-and-technical-debt.md)).
 - **SAF-19** — Architecture fitness CI checks: banned-SAP-keyword guard, plugin-import-boundary dependency-cruiser rule, package-README-required check.

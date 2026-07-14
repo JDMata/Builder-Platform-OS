@@ -32,7 +32,8 @@ These are the rules a PR is checked against, mechanically where possible. See [1
 
 ## TypeScript rules
 
-- `strict: true` and `noUncheckedIndexedAccess: true` in every `tsconfig.json` — no exceptions per package.
+- `strict: true` and `noUncheckedIndexedAccess: true` in every `tsconfig.json` — no exceptions per package. All packages extend the root `tsconfig.base.json`.
+- Every package's `package.json` declares `"type": "module"` — `tsconfig.base.json` uses `module`/`moduleResolution: NodeNext` with `verbatimModuleSyntax`, which requires each package to be unambiguously ESM (verified when `tsconfig.base.json` was introduced: the same source compiled clean as ESM and failed under the CommonJS default with no `"type": "module"` present).
 - `any` is banned by lint rule. Use `unknown` and narrow it at the boundary where untyped data enters the system (HTTP body, LLM response, MCP tool output, DB row).
 - Prefer `readonly` on object/array properties and function parameters wherever mutation isn't the explicit intent — most domain objects are immutable value objects or aggregates that expose intention-revealing methods rather than public setters.
 - Discriminated unions over boolean flags for anything with more than one meaningfully distinct state (a `WorkflowStep`'s `kind`, a `Result`'s `ok`/`error` variant). Exhaustiveness is enforced with a `never`-typed default case, not an unchecked `else`.
