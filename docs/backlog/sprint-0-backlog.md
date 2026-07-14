@@ -9,6 +9,8 @@ Goal: prove every architectural seam in [docs/architecture/](../architecture/) e
 > **Extended for the AI Workspace** ([ADR-0020](../adr/0020-ai-workspace-for-agent-definitions.md)): the `.ai/` folder itself (templates + one illustrative agent) is authored now, ahead of any sprint ticket, since it's pure file-based documentation/config with no runtime consumer. Two new Sprint 1/2 items were added (SAF-32 `agent-sdk` + loader, SAF-33 `knowledge-retrieval` MCP server) — building the runtime that would actually load and execute `.ai/` content, not yet in scope.
 >
 > **Extended for the Project Digital Twin** ([ADR-0021](../adr/0021-project-digital-twin-knowledge-graph.md)): four new Sprint 1/2 items (SAF-34 through SAF-37) cover the graph store, search, the new Governance/Project aggregates the graph projects from, and one illustrative agent — none built yet; this ADR decides the model, storage, and registries only.
+>
+> **⏸ Implementation paused after SAF-10** for an independent architecture inventory review — see [17-sprint0-architecture-inventory-review.md](../architecture/17-sprint0-architecture-inventory-review.md). Recommendation: continue with 5 minor adjustments before SAF-11 resumes (rename/relocate the two vendor-named-but-fully-generic adapters, add a `repositoryContractTests` factory before SAF-14, keep SAF-8b to a genuine skeleton pending the SAF-24 Temporal spike, build one app before all four in parallel, resolve the Notification context's fate). None of the five block SAF-11 itself.
 
 Tickets are grouped by theme; sequence roughly follows the numbered order (later tickets depend on earlier ones).
 

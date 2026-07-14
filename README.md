@@ -2,7 +2,7 @@
 
 > An AI-native engineering platform that builds SAP applications from business requirements — orchestrating AI agents and MCP servers to produce SAP Fiori, SAPUI5, CAP, RAP/ABAP, integration, documentation, tests, deployment pipelines, and user manuals.
 
-**Status: Architecture, engineering governance, Digital Twin, execution-profile, and AI Workspace designs all approved (2026-07-14). Sprint 0 implementation is underway, one backlog item at a time.** See [docs/backlog/sprint-0-backlog.md](docs/backlog/sprint-0-backlog.md) for progress. Every story follows Explain → Design → Implement → Test → Document → ADR-update, per [CONTRIBUTING.md](CONTRIBUTING.md) and [TECHNICAL_DEBT_POLICY.md](TECHNICAL_DEBT_POLICY.md).
+**Status: Sprint 0 implementation PAUSED at SAF-10 for an independent architecture inventory review (2026-07-14).** SAF-1 through SAF-10 are built (18 packages, 53 passing tests) — see [docs/architecture/17-sprint0-architecture-inventory-review.md](docs/architecture/17-sprint0-architecture-inventory-review.md) for the full audit and its recommendation ("continue with minor adjustments") before SAF-11 resumes. See [docs/backlog/sprint-0-backlog.md](docs/backlog/sprint-0-backlog.md) for per-story progress. Every story follows Explain → Design → Implement → Test → Document → ADR-update, per [CONTRIBUTING.md](CONTRIBUTING.md) and [TECHNICAL_DEBT_POLICY.md](TECHNICAL_DEBT_POLICY.md).
 
 ## Engineering governance (read these first — they govern every PR)
 
@@ -41,6 +41,7 @@
 | [docs/architecture/14-execution-profiles.md](docs/architecture/14-execution-profiles.md) | Execution profiles (Local POC / Hybrid / Enterprise) for **generated applications** — ports & adapters at the product boundary, not the platform's own runtime |
 | [docs/architecture/15-ai-workspace.md](docs/architecture/15-ai-workspace.md) | The [.ai/](.ai/README.md) AI Workspace — file-based authoring surface for the dozens of specialized agents the platform will eventually orchestrate |
 | [docs/architecture/16-project-digital-twin.md](docs/architecture/16-project-digital-twin.md) | The **Project Digital Twin** — a knowledge graph tracing every artifact a project produces (requirements through incidents) and the typed relationships between them |
+| [docs/architecture/17-sprint0-architecture-inventory-review.md](docs/architecture/17-sprint0-architecture-inventory-review.md) | **Independent architecture inventory review of everything built in SAF-1–10 — package-by-package audit, dependency graph, bounded-context review, technical debt assessment, scorecard, and Sprint 0 readiness gate. Read this before resuming implementation.** |
 | [docs/adr/README.md](docs/adr/README.md) | Architecture Decision Records index (21 ADRs — 12 original, 6 added by the self-review, 1 for execution profiles, 1 for the AI Workspace, 1 for the Digital Twin, several cross-referenced) |
 | [docs/backlog/sprint-0-backlog.md](docs/backlog/sprint-0-backlog.md) | Concrete Sprint 0 tickets, plus Sprint 1/2 carry-forward items elevated by the self-review |
 
