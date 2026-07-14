@@ -55,9 +55,12 @@ export default tseslint.config(
     },
   },
   {
-    // Root-level tooling config files are CommonJS/Node scripts, not application
-    // code — the rules above (no-console, type-checked linting) don't apply to them.
-    files: ["*.config.{js,cjs,mjs}", "eslint.config.mjs"],
+    // Tooling config files (root-level, and per-package vitest.config.ts etc.)
+    // are build/test-runner configuration, not application code — the rules
+    // above (no-console, type-checked linting) don't apply to them. Excluded
+    // from typed linting specifically so a package's own tsconfig.json
+    // (which only "include"s src/) doesn't need to also cover its config files.
+    files: ["*.config.{js,cjs,mjs}", "eslint.config.mjs", "**/*.config.{ts,mts,cts}"],
     extends: [tseslint.configs.disableTypeChecked],
     languageOptions: {
       globals: globals.node,
