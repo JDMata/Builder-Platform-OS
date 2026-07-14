@@ -73,6 +73,8 @@ sap-app-factory/
 │   │   └── redis-streams/                 # Scheduled migration target, not indefinitely deferred (ADR-0007 revision)
 │   │
 │   ├── persistence-postgres/              # Repository implementations (Drizzle), one module per bounded-context schema
+│   │   ├── identity/                      # Tenant repository, RLS proof (SAF-14)
+│   │   └── governance/                    # AuditEvent repository, monthly-partitioned-table proof (SAF-14)
 │   ├── read-models/                       # Event-fed projections for cross-aggregate/cross-context reporting (ADR-0014) — the ONLY place dashboard/list queries live
 │   ├── graph-adapters/
 │   │   ├── postgres-age/                  # Default — Apache AGE (Cypher-compatible) on the platform's existing Postgres instance (ADR-0021)
@@ -99,7 +101,7 @@ sap-app-factory/
 │   └── README.md                          # How to author a plugin against plugin-sdk
 │
 ├── infra/
-│   ├── docker-compose/                    # postgres, redis, minio, otel-collector, keycloak (dev IdP) — dev/local only
+│   ├── docker-compose/                    # postgres, otel-collector, keycloak (dev IdP) — dev/local only. redis/minio deliberately deferred (SAF-13, no scheduled Sprint 0 consumer yet) — see infra/README.md
 │   ├── terraform/                         # Environment provisioning (HA Postgres/Patroni, KMS, tenancy-tier infra) — not a Sprint 0 deliverable, placeholder
 │   ├── github-actions/                    # Reusable/composite workflow definitions
 │   └── otel-collector/                    # Collector config

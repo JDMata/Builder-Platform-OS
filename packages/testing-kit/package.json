@@ -18,6 +18,7 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
+    "@sap-app-factory/plugin-sdk": "workspace:*",
     "@sap-app-factory/ports": "workspace:*",
     "vitest": "^4.1.10"
   }

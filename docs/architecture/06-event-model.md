@@ -19,9 +19,11 @@ interface DomainEventEnvelope<T = unknown> {
 
 Event `type` strings are versioned (`.v1`, `.v2`) from day one — additive schema evolution is expected; breaking changes ship as a new version consumed side by side during migration, never as an in-place mutation of `v1`.
 
-## Delivery: transactional outbox on Postgres (Sprint 0), broker-ready seam
+`id` is typed `string` at the port, not `uuid` — producers are expected to use UUIDs in practice, but the port and its storage never enforce that format. `outbox.events.id` (below) is a `text` column for exactly this reason, keyed for uniqueness rather than UUID validity; ordering is tracked by a separate monotonic `seq` column, never by `id` (a random UUID sorts randomly, not by insertion order — this was found and fixed while building the adapter, see its README).
 
-**Decision:** an aggregate's state change and its resulting domain event are written in the *same* Postgres transaction to an `outbox` table; a relay process publishes from the outbox to the event bus port and marks rows delivered. See [ADR-0007](../adr/0007-event-driven-transactional-outbox.md).
+## Delivery: transactional outbox on Postgres (Sprint 0 — implemented, SAF-11), broker-ready seam
+
+**Decision:** an aggregate's state change and its resulting domain event are written in the *same* Postgres transaction to an `outbox` table; a relay process publishes from the outbox to the event bus port and marks rows delivered. See [ADR-0007](../adr/0007-event-driven-transactional-outbox.md) and `packages/events-adapters/postgres-outbox` for the implementation. Combining the outbox write with a real aggregate write in one shared transaction is proven once SAF-14 delivers the first repository — today `publish()` manages its own transaction, since no repository exists yet to share one with.
 
 ```mermaid
 sequenceDiagram
@@ -49,7 +51,7 @@ This guarantees **no event is lost if the process crashes between state change a
 | `requirements.document.captured.v1` | Requirements Intake | Workflow |
 | `workflow.run.started.v1` | Workflow | Governance, Notification |
 | `workflow.step.completed.v1` | Workflow | Workflow (advance), Governance |
-| `workflow.run.completed.v1` / `.failed.v1` | Workflow | Governance, Notification |
+| `workflow.run.completed.v1` / `.failed.v1` / `.cancelled.v1` | Workflow | Governance, Notification |
 | `generation.job.started.v1` / `.completed.v1` / `.failed.v1` | Generation | Governance, Notification |
 | `generation.artifact.review_requested.v1` / `.approved.v1` / `.rejected.v1` | Generation | Governance, Notification |
 | `governance.audit.recorded.v1` | Governance (derived from all of the above) | Audit sinks, compliance export |
@@ -61,6 +63,8 @@ This guarantees **no event is lost if the process crashes between state change a
 | `project.deployment.started.v1` / `.completed.v1` / `.failed.v1` | Project & Workspace (added post-review) | Digital Twin, Governance, Notification |
 | `digitaltwin.node.upserted.v1` / `.retired.v1` | Digital Twin (added post-review — derived, not a source event) | Search index, impact-analysis agents |
 | `digitaltwin.edge.upserted.v1` / `.retired.v1` | Digital Twin (added post-review) | Search index, impact-analysis agents |
+
+`.cancelled.v1` (added SAF-8b) was a genuine catalog gap: `WorkflowRunStatus` (SAF-8) already distinguished `cancelled` from `failed`, but this table only ever listed `.completed.v1`/`.failed.v1` — found while wiring the `WorkflowEnginePort` skeleton's event integration and fixed here rather than silently reusing `.failed.v1` for a cancellation.
 
 ## Consumption model
 

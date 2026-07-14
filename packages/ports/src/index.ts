@@ -75,3 +75,9 @@ export type {
 } from "./graph-store.port.js";
 
 export type { SearchIndexPort, SearchQuery, SearchResult } from "./search-index.port.js";
+
+export type {
+  CapabilityResolverPort,
+  CapabilityProviderType,
+  ResolvedCapabilityProvider,
+} from "./capability-resolver.port.js";

@@ -8,6 +8,8 @@ Before this decision, a `Step` was `{ kind: "agent-invocation" | "plugin-generat
 
 No code implements `Step`, `WorkflowDefinition`, `AgentInvocation`, or any part of this today (confirmed against the actual Sprint 0 codebase — see [17-sprint0-architecture-inventory-review.md](17-sprint0-architecture-inventory-review.md)). This is the cheapest moment to fix it.
 
+**Implementation status (SAF-12):** `Capability` and `CapabilityProvider` (with `resolveCapabilityProvider()`, the priority fallback rule) are now real domain code in `packages/context-capability-registry/src/domain/`, and `CapabilityResolverPort` is now real code in `packages/ports` (the 13th port, as this document anticipated). `Step`/`WorkflowDefinition` remain undecided as code — they arrive with the workflow engine adapter (SAF-8b) and, eventually, the `.ai/` loader (SAF-32) — so the sentence above is still accurate for those two specifically.
+
 ## The resolution chain
 
 ```mermaid
@@ -50,6 +52,8 @@ Building "Implementation" and "Resources" as their own new aggregates was consid
 ## Naming collision, resolved explicitly
 
 `CapabilityProvider` (new, Capability & Plugin Registry — "who fulfills a capability") is **not** `CapabilityBinding` (existing, MCP Registry — "which plugin/step may call which tool," the Zero Trust tool-access control point from [ADR-0004](../adr/0004-mcp-abstraction-layer.md)). Both names contain "Capability"; they answer different questions. Stated here once, explicitly, so it isn't rediscovered as confusion later.
+
+**A second one, found while building SAF-12:** `context-capability-registry`'s existing `CapabilityPlugin` (a registry record — id, pluginId, version, status; built in SAF-8, before this ADR) is not `@sap-app-factory/plugin-sdk`'s `CapabilityPlugin` (the lifecycle interface — manifest, `activate`/`validate`/`generate`/`deactivate` — that an installed plugin actually implements). The registry record points at an implementation of the interface; they live in different packages that never import each other, but the shared name is worth stating once rather than rediscovering later.
 
 ## Impact on the Workflow Engine
 

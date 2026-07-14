@@ -5,6 +5,7 @@ node_modules/
 dist/
 build/
 *.tsbuildinfo
+.next/
 
 # Turborepo
 .turbo/
@@ -20,3 +21,6 @@ coverage/
 # OS / editor
 .DS_Store
 *.log
+
+# Local tool settings (Claude Code) — personal to this machine, not project source
+.claude/

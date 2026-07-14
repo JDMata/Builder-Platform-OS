@@ -59,3 +59,5 @@ A `Step` is generic: `{ kind: "capability-request" | "human-approval", capabilit
 ## Sprint 0 deliverable
 
 `WorkflowEnginePort` interface + in-house adapter skeleton (schema + start/advance/signal stubs, no real step execution logic) and one contract test proving the port/adapter pair round-trips a trivial two-step workflow. No real agent orchestration yet.
+
+**Implemented (SAF-8b):** `packages/workflow-engine-adapters/in-memory` (`InMemoryWorkflowEngineAdapter`) — deliberately **in-memory**, not the Postgres+BullMQ adapter this document and ADR-0008 describe. [17-sprint0-architecture-inventory-review.md](17-sprint0-architecture-inventory-review.md) flagged building the real durable adapter *before* the SAF-24 Temporal-class spike as a sunk-cost risk to that spike's honesty; this stays a genuine skeleton (state machine, retry/timeout hooks, real `EventBusPort` integration — no persistence) until that spike runs. Passes `workflowEngineContractTests` for real, closing the gap [17-sprint0-architecture-inventory-review.md](17-sprint0-architecture-inventory-review.md) raised (that factory had never been run against a real adapter).

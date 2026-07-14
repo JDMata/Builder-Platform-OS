@@ -8,5 +8,10 @@ packages:
   # never registered as a workspace package and no build/test task ran for
   # it at all, with no error to signal the gap.
   - "packages/*-adapters/*"
+  # persistence-postgres/<context> is "one module per bounded-context schema"
+  # (PROJECT_STRUCTURE.md) — the same one-level-deeper nesting as the
+  # vendor-family adapter folders above, and the same glob gap would apply
+  # without this line (found proactively this time, from the SAF-9 lesson).
+  - "packages/persistence-postgres/*"
   - "plugins/*"
   - "tools/*"

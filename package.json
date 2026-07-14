@@ -20,7 +20,11 @@
     "format:check": "prettier --check .",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "changeset publish"
+    "release": "changeset publish",
+    "infra:up": "docker compose -f infra/docker-compose/docker-compose.yml up -d",
+    "infra:down": "docker compose -f infra/docker-compose/docker-compose.yml down",
+    "infra:reset": "docker compose -f infra/docker-compose/docker-compose.yml down -v",
+    "infra:logs": "docker compose -f infra/docker-compose/docker-compose.yml logs -f"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",

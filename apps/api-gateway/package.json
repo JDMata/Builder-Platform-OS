@@ -1,0 +1,20 @@
+{
+  "name": "@sap-app-factory/api-gateway",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "typecheck": "tsc -b tsconfig.build.json --noEmit",
+    "test": "vitest run --coverage",
+    "dev": "tsx watch src/main.ts",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "@vitest/coverage-v8": "^4.1.10",
+    "tsx": "^4.19.2",
+    "vitest": "^4.1.10"
+  }
+}

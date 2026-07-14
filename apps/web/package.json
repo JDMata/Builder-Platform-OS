@@ -1,0 +1,24 @@
+{
+  "name": "@sap-app-factory/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "next build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --coverage",
+    "dev": "next dev",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "@vitest/coverage-v8": "^4.1.10",
+    "vitest": "^4.1.10"
+  }
+}

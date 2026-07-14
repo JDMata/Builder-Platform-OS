@@ -8,10 +8,12 @@
 identity.*            project.*             requirements.*
 capability_registry.*  workflow.*            llm_gateway.*
 mcp_registry.*         generation.*          governance.*
-digital_twin.*         reporting.*
+digital_twin.*         reporting.*           outbox.*
 ```
 
 `digital_twin` (added post-review, [ADR-0021](../adr/0021-project-digital-twin-knowledge-graph.md)) and `reporting` (added post-review, [ADR-0014](../adr/0014-cqrs-read-models.md)) are both read-side, event-projected schemas — populated by subscribing to other schemas' domain events, never written to directly by a command-side use case. They differ only in query shape: `reporting` is tabular (dashboards, lists), `digital_twin` is graph-shaped (traversal, impact analysis).
+
+`outbox` (added with SAF-11, [ADR-0007](../adr/0007-event-driven-transactional-outbox.md)) is the one schema **not owned by a single bounded context** — it holds `outbox.events`, written by every context's application layer as part of the transactional-outbox pattern. A single shared table (rather than one outbox table per context schema) was chosen because Postgres transactions aren't schema-scoped: a command handler writing to, say, `workflow.workflow_runs` and `outbox.events` in one transaction is exactly as atomic as writing to two tables in the same schema would be. One shared table also means one relay polls/listens against one place, rather than one per context. The cross-context reference rule below doesn't apply to it — `outbox.events` is infrastructure, not a bounded-context aggregate.
 
 Rationale: physical schema separation gives each bounded context ([02-domain-model.md](02-domain-model.md)) a hard boundary that's visible in `\dn` and enforceable via Postgres grants (a context's own migration role owns its schema), while staying in one instance keeps Sprint 0 operationally simple. This also leaves a clean path to physically split a context into its own database later (pg_dump the schema, point a new connection at it) if it's extracted into its own service per the criteria in [04-service-boundaries.md](04-service-boundaries.md) — because no cross-schema foreign keys are allowed (rule below), that split is mechanical, not a rewrite.
 
@@ -19,7 +21,7 @@ Rationale: physical schema separation gives each bounded context ([02-domain-mod
 No foreign key ever crosses a schema boundary. Context B holding a reference to Context A's aggregate stores A's ID as a plain column (`requirement_id uuid`, no FK constraint) and resolves it through A's repository/API if it needs data — never through a join. This is the DDD aggregate boundary rule made physical.
 
 ### Multi-tenancy
-Every table carries `tenant_id uuid not null`. Sprint 0 does not build per-tenant physical isolation, but every table is designed so that Postgres Row-Level Security policies (`USING (tenant_id = current_setting('app.tenant_id')::uuid)`) can be turned on per context without a schema rewrite — RLS policies are written and tested in Sprint 0 even before there is a second tenant, so the pattern is proven, not retrofitted under pressure later.
+Every table carries `tenant_id text not null` (corrected from an earlier `uuid` — `RequestContext.tenantId` is typed `string` everywhere in the codebase, never constrained to UUID format, so a `uuid` column would reject the same non-UUID tenant ids the rest of the platform accepts; found while implementing SAF-14). Sprint 0 does not build per-tenant physical isolation, but every table is designed so that Postgres Row-Level Security policies (`USING (tenant_id = current_setting('app.tenant_id', true))`, missing-ok so an unset session variable fails closed rather than erroring or matching everything) can be turned on per context without a schema rewrite — RLS policies are written and tested in Sprint 0 even before there is a second tenant, so the pattern is proven, not retrofitted under pressure later.
 
 ## ORM / migration tool
 
@@ -76,3 +78,9 @@ Full-lifecycle artifact traceability ("Requirement implements CAP Service," "Dep
 ## Sprint 0 deliverable
 
 Drizzle schema + first migration for `identity` and `governance` schemas only (enough to seed a user/role/audit-event and prove the migration pipeline and RLS pattern), plus the docker-compose Postgres/Redis/MinIO services. The `governance.audit_event` migration is written as a partitioned table from this first migration (proving the pattern early, per the addition above), even though volume doesn't demand it yet. No other context's tables are built yet — they arrive with their owning feature work.
+
+**Implemented (SAF-14), with two scope adjustments stated explicitly:**
+1. **`User`/`Role`/`Permission`/`Session` are not built here.** They're `identity` context aggregates per [02-domain-model.md](02-domain-model.md), but building their RBAC schema is explicitly `auth-core`'s Sprint 0 deliverable ([08-authentication-and-rbac.md](08-authentication-and-rbac.md)), not this story's — pulling them forward would duplicate that story's scope. `Tenant` (already a real aggregate since SAF-8) proves the pattern instead.
+2. **The Redis/MinIO services this line still mentions were not added** — see [infra/README.md](../../infra/README.md) § Why Redis and MinIO aren't here yet (SAF-13's own reviewed decision, unchanged by this story).
+
+Delivered: `packages/persistence-postgres/identity` (`TenantRepository`) and `packages/persistence-postgres/governance` (`AuditEventRepository`, on the partitioned table). Both verified against a real Postgres, including a hard requirement found while doing so: the container's bootstrap user is a **superuser**, and Postgres superusers bypass RLS unconditionally regardless of `FORCE` — every repository must connect as a separate, non-superuser role (`saf_app`) for RLS to do anything at all. See either package's README for the full RLS strategy, and `testing-kit`'s new `repositoryContractTests` (built before either Drizzle package existed, per the mandated ordering) for the shared, generic tenant-isolation proof every future `persistence-postgres/<context>` module must also pass.

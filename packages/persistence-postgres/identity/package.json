@@ -1,0 +1,35 @@
+{
+  "name": "@sap-app-factory/persistence-postgres-identity",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "typecheck": "tsc -b tsconfig.build.json --noEmit",
+    "test": "vitest run --coverage",
+    "db:generate": "drizzle-kit generate --config=drizzle.config.ts",
+    "db:migrate": "drizzle-kit migrate --config=drizzle.config.ts"
+  },
+  "dependencies": {
+    "@sap-app-factory/context-identity": "workspace:*",
+    "@sap-app-factory/ports": "workspace:*",
+    "drizzle-orm": "^0.36.4",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@sap-app-factory/testing-kit": "workspace:*",
+    "@types/node": "^24.13.3",
+    "@types/pg": "^8.11.10",
+    "@vitest/coverage-v8": "^4.1.10",
+    "drizzle-kit": "^0.28.1",
+    "vitest": "^4.1.10"
+  }
+}

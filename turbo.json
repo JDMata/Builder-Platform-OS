@@ -5,8 +5,26 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
+    "@sap-app-factory/web#build": {
+      "dependsOn": ["^build"],
+      // Next.js outputs to .next/, not dist/ — found via turbo's own
+      // "no output files found" warning once apps/web existed. .next/cache/
+      // is excluded: it's Next's own incremental-build cache, large and
+      // liable to go stale in a way that produces a misleadingly "successful"
+      // turbo cache hit against a build that would behave differently fresh.
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
     "typecheck": {
       "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "@sap-app-factory/web#typecheck": {
+      // Depends on this package's OWN build too, not just upstream
+      // dependencies' — tsconfig.json's `.next/types/**/*.ts` include only
+      // exists after `next build`/`next dev` has generated it at least once.
+      // Same "build before typecheck" ordering lesson as SAF-8's ESLint/Build
+      // finding, applied to Next's generated types instead.
+      "dependsOn": ["^build", "build"],
       "outputs": []
     },
     "lint": {

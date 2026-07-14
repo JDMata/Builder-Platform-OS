@@ -1,0 +1,9 @@
+import { createServer } from "./server.js";
+
+const port = Number(process.env.SAF_API_GATEWAY_PORT ?? 3001);
+
+const server = createServer();
+server.listen(port);
+
+process.on("SIGTERM", () => server.close());
+process.on("SIGINT", () => server.close());

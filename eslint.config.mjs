@@ -17,6 +17,10 @@ export default tseslint.config(
       "**/coverage/**",
       "**/.turbo/**",
       "**/node_modules/**",
+      "**/.next/**",
+      // Next.js-generated, framework-mandated content ("This file should not
+      // be edited" is Next's own comment) — not application code to lint.
+      "**/next-env.d.ts",
       ".changeset/**",
       "docs/**",
       ".ai/**",
@@ -81,7 +85,7 @@ export default tseslint.config(
     // above (no-console, type-checked linting) don't apply to them. Excluded
     // from typed linting specifically so a package's own tsconfig.json
     // (which only "include"s src/) doesn't need to also cover its config files.
-    files: ["*.config.{js,cjs,mjs}", "eslint.config.mjs", "**/*.config.{ts,mts,cts}"],
+    files: ["**/*.config.{js,cjs,mjs}", "eslint.config.mjs", "**/*.config.{ts,mts,cts}"],
     extends: [tseslint.configs.disableTypeChecked],
     languageOptions: {
       globals: globals.node,
