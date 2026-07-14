@@ -9,6 +9,16 @@
  *
  * @type {import('dependency-cruiser').IConfiguration}
  */
+
+// Test files (*.spec.ts) are dev-time-only and never ship — they legitimately
+// need to import a test framework (vitest) and are exempt from the
+// production-code layering rules below. Found while scaffolding SAF-8's first
+// real domain unit tests: without this exclusion, every domain *.spec.ts
+// importing `vitest` was flagged as a "runtime third-party dependency"
+// violation, which conflated "what the shipped module depends on" with
+// "what its test suite depends on to run."
+const NOT_A_TEST_FILE = "(?<!\\.spec\\.ts)$";
+
 module.exports = {
   forbidden: [
     {
@@ -24,24 +34,32 @@ module.exports = {
       comment:
         "A context's domain layer must not depend on any application layer (its own or another context's) — domain has zero framework/use-case dependencies. See ARCHITECTURE_PRINCIPLES.md § Dependency rules.",
       severity: "error",
-      from: { path: "^packages/context-[^/]+/src/domain/" },
+      from: { path: "^packages/context-[^/]+/src/domain/.+" + NOT_A_TEST_FILE },
       to: { path: "^packages/context-[^/]+/src/application/" },
     },
     {
       name: "domain-no-adapters-or-apps-or-plugins",
       comment: "Domain must not depend on adapters, apps, or plugins.",
       severity: "error",
-      from: { path: "^packages/context-[^/]+/src/domain/" },
+      from: { path: "^packages/context-[^/]+/src/domain/.+" + NOT_A_TEST_FILE },
       to: {
         path: "^(packages/.*-adapters/|packages/persistence-postgres/|packages/object-storage-minio/|packages/graph-adapters/|packages/search-adapters/|apps/|plugins/)",
       },
     },
     {
+      name: "domain-no-ports",
+      comment:
+        "Domain depends on nothing outside its own context's domain folder — not even packages/ports, which is layer 3 (application depends on it, domain does not). Found while scaffolding SAF-8's first real domain code.",
+      severity: "error",
+      from: { path: "^packages/context-[^/]+/src/domain/.+" + NOT_A_TEST_FILE },
+      to: { path: "^packages/ports/" },
+    },
+    {
       name: "domain-no-runtime-third-party-deps",
       comment:
-        "Domain may only use third-party packages as type-only imports (e.g. utility types) — never a runtime dependency. See ARCHITECTURE_PRINCIPLES.md § Dependency rules.",
+        "Domain may only use third-party packages as type-only imports (e.g. utility types) — never a runtime dependency. See ARCHITECTURE_PRINCIPLES.md § Dependency rules. Test files are exempt — see NOT_A_TEST_FILE above.",
       severity: "error",
-      from: { path: "^packages/context-[^/]+/src/domain/" },
+      from: { path: "^packages/context-[^/]+/src/domain/.+" + NOT_A_TEST_FILE },
       to: {
         dependencyTypes: [
           "npm",
@@ -62,7 +80,7 @@ module.exports = {
       comment:
         "A context's application layer may depend only on its OWN context's domain, never another context's domain or application layer. Cross-context communication is event-only (ADR-0007) or via ports, never a direct import.",
       severity: "error",
-      from: { path: "^packages/context-([^/]+)/src/application/" },
+      from: { path: "^packages/context-([^/]+)/src/application/.+" + NOT_A_TEST_FILE },
       to: {
         path: "^packages/context-(?!$1/)[^/]+/src/(domain|application)/",
       },
@@ -72,7 +90,7 @@ module.exports = {
       comment:
         "Application depends only on its own domain and packages/ports — never a concrete adapter, an app, or a plugin directly.",
       severity: "error",
-      from: { path: "^packages/context-[^/]+/src/application/" },
+      from: { path: "^packages/context-[^/]+/src/application/.+" + NOT_A_TEST_FILE },
       to: {
         path: "^(packages/.*-adapters/|packages/persistence-postgres/|packages/object-storage-minio/|packages/graph-adapters/|packages/search-adapters/|apps/|plugins/)",
       },
@@ -82,7 +100,7 @@ module.exports = {
       comment:
         "Application depends only on its own domain and packages/ports — never an arbitrary third-party npm package directly. Confirmed via SAF-7 fixture testing that a workspace-linked `@sap-app-factory/ports` import resolves with dependencyType 'undetermined' pointing at packages/ports/dist, not 'npm' — so this rule's pathNot exception is what actually allows it through, not the dependencyTypes filter.",
       severity: "error",
-      from: { path: "^packages/context-[^/]+/src/application/" },
+      from: { path: "^packages/context-[^/]+/src/application/.+" + NOT_A_TEST_FILE },
       to: {
         pathNot: "^packages/ports/",
         dependencyTypes: [
@@ -105,7 +123,9 @@ module.exports = {
         "Adapters may depend on packages/ports, plugin-sdk, third-party SDKs, and testing-kit (dev) — never on any context's application layer directly.",
       severity: "error",
       from: {
-        path: "^(packages/.*-adapters/|packages/persistence-postgres/|packages/object-storage-minio/|packages/graph-adapters/|packages/search-adapters/)",
+        path:
+          "^(packages/.*-adapters/|packages/persistence-postgres/|packages/object-storage-minio/|packages/graph-adapters/|packages/search-adapters/).+" +
+          NOT_A_TEST_FILE,
       },
       to: { path: "^packages/context-[^/]+/src/application/" },
     },

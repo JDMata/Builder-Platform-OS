@@ -45,6 +45,96 @@ importers:
         specifier: ^4.1.10
         version: 4.1.10(@vitest/coverage-v8@4.1.10)(vite@8.1.4)
 
+  packages/context-capability-registry:
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^4.1.10
+        version: 4.1.10(vitest@4.1.10)
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@vitest/coverage-v8@4.1.10)(vite@8.1.4)
+
+  packages/context-digital-twin:
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^4.1.10
+        version: 4.1.10(vitest@4.1.10)
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@vitest/coverage-v8@4.1.10)(vite@8.1.4)
+
+  packages/context-generation:
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^4.1.10
+        version: 4.1.10(vitest@4.1.10)
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@vitest/coverage-v8@4.1.10)(vite@8.1.4)
+
+  packages/context-governance:
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^4.1.10
+        version: 4.1.10(vitest@4.1.10)
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@vitest/coverage-v8@4.1.10)(vite@8.1.4)
+
+  packages/context-identity:
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^4.1.10
+        version: 4.1.10(vitest@4.1.10)
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@vitest/coverage-v8@4.1.10)(vite@8.1.4)
+
+  packages/context-llm-gateway:
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^4.1.10
+        version: 4.1.10(vitest@4.1.10)
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@vitest/coverage-v8@4.1.10)(vite@8.1.4)
+
+  packages/context-mcp-registry:
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^4.1.10
+        version: 4.1.10(vitest@4.1.10)
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@vitest/coverage-v8@4.1.10)(vite@8.1.4)
+
+  packages/context-project:
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^4.1.10
+        version: 4.1.10(vitest@4.1.10)
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@vitest/coverage-v8@4.1.10)(vite@8.1.4)
+
+  packages/context-requirements:
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^4.1.10
+        version: 4.1.10(vitest@4.1.10)
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@vitest/coverage-v8@4.1.10)(vite@8.1.4)
+
+  packages/context-workflow:
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^4.1.10
+        version: 4.1.10(vitest@4.1.10)
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@vitest/coverage-v8@4.1.10)(vite@8.1.4)
+
   packages/ports: {}
 
   packages/testing-kit:

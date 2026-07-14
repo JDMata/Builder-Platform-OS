@@ -28,11 +28,11 @@ gitGraph
 **Tooling:** GitHub Actions + Turborepo remote caching (affected-package-only pipelines — a change to one plugin doesn't rebuild/retest the whole monorepo).
 
 ### Pipeline stages (every PR)
-1. **Lint** — ESLint + Prettier check + `dependency-cruiser` boundary check (layering violations fail here, not in review)
-2. **Typecheck** — `tsc -b` across the project-reference graph
-3. **Unit test** — Vitest, per affected package, coverage floors enforced ([10](10-coding-standards-and-naming.md))
-4. **Contract test** — port/adapter contract suites (`testing-kit`)
-5. **Build** — affected packages/apps
+1. **Build** — affected packages/apps. Runs first, not fifth: every package resolves its workspace dependencies through its `package.json` `exports` field (pointing at `dist/`, never source directly), so cross-package type-aware lint/typecheck cannot resolve a single import until dependencies are built — confirmed empirically while scaffolding SAF-8 (a stale/missing `dist` produced cascading `no-unsafe-*` ESLint errors with no real type error behind them). Documented here as a corrected ordering, not the original design.
+2. **Lint** — ESLint + Prettier check + `dependency-cruiser` boundary check (layering violations fail here, not in review)
+3. **Typecheck** — `tsc -b` across the project-reference graph
+4. **Unit test** — Vitest, per affected package, coverage floors enforced ([10](10-coding-standards-and-naming.md))
+5. **Contract test** — port/adapter contract suites (`testing-kit`)
 6. **Integration test** — ephemeral docker-compose (Postgres/Redis/MinIO/Keycloak) + Playwright for `web`, spun up only for PRs touching `apps/*` or adapters
 7. **Security scan** — dependency audit (`pnpm audit` / OSV), secret scanning, SAST (CodeQL)
 8. **Architecture fitness checks** — banned-keyword guard, plugin-isolation guard (see [12](12-risks-and-technical-debt.md))
