@@ -52,6 +52,7 @@ sap-app-factory/
 │   │   ├── graph-store.port.ts            # upsertNode/retireNode/upsertEdge/retireEdge/traverse/snapshot (ADR-0021)
 │   │   └── search-index.port.ts           # Structured + semantic search over Digital Twin nodes and knowledge content (ADR-0021)
 │   │
+│   ├── resilience-kit/                     # Generic, port-agnostic retry/timeout primitive shared by llm-core and mcp-core (ADR-0016) — extracted during SAF-10 to avoid duplicating the algorithm llm-core implemented for SAF-9
 │   ├── llm-core/                          # LLM Gateway domain/application logic + shared resilience wrapper (ADR-0016)
 │   ├── llm-adapters/
 │   │   ├── anthropic/

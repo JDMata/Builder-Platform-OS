@@ -1,5 +1,5 @@
 {
-  "name": "@sap-app-factory/llm-core",
+  "name": "@sap-app-factory/mcp-core",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@sap-app-factory/testing-kit": "workspace:*",
-    "@vitest/coverage-v8": "^4.1.10",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "@vitest/coverage-v8": "^4.1.10"
   }
 }

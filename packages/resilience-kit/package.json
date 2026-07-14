@@ -1,5 +1,5 @@
 {
-  "name": "@sap-app-factory/llm-core",
+  "name": "@sap-app-factory/resilience-kit",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -16,13 +16,9 @@
     "typecheck": "tsc -b tsconfig.build.json --noEmit",
     "test": "vitest run --coverage"
   },
-  "dependencies": {
-    "@sap-app-factory/ports": "workspace:*",
-    "@sap-app-factory/resilience-kit": "workspace:*"
-  },
   "devDependencies": {
-    "@sap-app-factory/testing-kit": "workspace:*",
-    "@vitest/coverage-v8": "^4.1.10",
-    "vitest": "^4.1.10"
+    "@types/node": "^24.13.3",
+    "vitest": "^4.1.10",
+    "@vitest/coverage-v8": "^4.1.10"
   }
 }

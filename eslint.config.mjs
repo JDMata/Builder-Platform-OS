@@ -63,6 +63,16 @@ export default tseslint.config(
       // scaffolding SAF-9's first two adapter stubs; will recur for every
       // future one, so fixed at the config level rather than patched per file.
       "@typescript-eslint/require-await": "off",
+
+      // Standard convention: a leading underscore marks a parameter as
+      // intentionally unused (e.g. `_ctx: RequestContext` in a Sprint 0 stub
+      // that must accept RequestContext to satisfy a port's signature but has
+      // no use for it yet). Off by default in recommendedTypeChecked's
+      // no-unused-vars; found while scaffolding SAF-10's stdio adapter, and
+      // this recurs anywhere a stub implements a port method it doesn't fully
+      // need yet — configuring the convention beats prefixing every call site
+      // with `void _ctx;` or deleting the parameter and breaking the interface.
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     },
   },
   {
