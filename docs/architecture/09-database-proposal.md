@@ -8,7 +8,10 @@
 identity.*            project.*             requirements.*
 capability_registry.*  workflow.*            llm_gateway.*
 mcp_registry.*         generation.*          governance.*
+digital_twin.*         reporting.*
 ```
+
+`digital_twin` (added post-review, [ADR-0021](../adr/0021-project-digital-twin-knowledge-graph.md)) and `reporting` (added post-review, [ADR-0014](../adr/0014-cqrs-read-models.md)) are both read-side, event-projected schemas — populated by subscribing to other schemas' domain events, never written to directly by a command-side use case. They differ only in query shape: `reporting` is tabular (dashboards, lists), `digital_twin` is graph-shaped (traversal, impact analysis).
 
 Rationale: physical schema separation gives each bounded context ([02-domain-model.md](02-domain-model.md)) a hard boundary that's visible in `\dn` and enforceable via Postgres grants (a context's own migration role owns its schema), while staying in one instance keeps Sprint 0 operationally simple. This also leaves a clean path to physically split a context into its own database later (pg_dump the schema, point a new connection at it) if it's extracted into its own service per the criteria in [04-service-boundaries.md](04-service-boundaries.md) — because no cross-schema foreign keys are allowed (rule below), that split is mechanical, not a rewrite.
 
@@ -66,6 +69,9 @@ A single instance per environment with no replication is a single point of failu
 
 ### Cross-aggregate reporting (was missing)
 Aggregate repositories are the wrong shape for dashboard/reporting queries at 500+ projects. **Added:** a dedicated `reporting` schema holds event-fed projections, queried directly instead of through write-side repositories — see [ADR-0014](../adr/0014-cqrs-read-models.md).
+
+### Project Digital Twin graph storage (added post-review)
+Full-lifecycle artifact traceability ("Requirement implements CAP Service," "Deployment contains Application Version") needs graph traversal queries a relational schema alone handles awkwardly at depth. **Added:** a `digital_twin` schema queried through **Apache AGE**, an open-source, Cypher-compatible graph extension running inside the same Postgres instance — real graph query semantics without a new database technology to operate. Behind a new `ports/graph-store.port.ts`, so a dedicated graph engine (Neo4j, Neptune, or a managed equivalent) remains available as a later adapter swap if traversal performance at true scale demands it. See [ADR-0021](../adr/0021-project-digital-twin-knowledge-graph.md) and [16-project-digital-twin.md](16-project-digital-twin.md).
 
 ## Sprint 0 deliverable
 

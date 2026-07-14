@@ -30,3 +30,4 @@ Six ADRs (0006, 0007, 0008, 0009) carry a **Review update** section added by the
 | [0018](0018-package-granularity-revision.md) | Package granularity revision: one package per context | Proposed *(new — review)* |
 | [0019](0019-execution-profiles-for-generated-applications.md) | Execution profiles for generated applications (Local POC / Hybrid / Enterprise) | Proposed *(new — extends architecture to the platform's generated output, not its own runtime)* |
 | [0020](0020-ai-workspace-for-agent-definitions.md) | AI Workspace (`.ai/`) for agent definitions | Proposed *(new — file-based authoring surface for agents/prompts/policies/workflows/knowledge)* |
+| [0021](0021-project-digital-twin-knowledge-graph.md) | Project Digital Twin as an event-projected knowledge graph | Proposed *(new — full-lifecycle artifact traceability, property graph on Apache AGE)* |

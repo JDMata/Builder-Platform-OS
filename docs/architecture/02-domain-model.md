@@ -14,8 +14,9 @@ graph TB
     LLM["LLM Gateway<br/>(ProviderConfig, ModelProfile, PromptTemplate, UsageRecord, CostBudget)"]
     MCP["MCP Registry<br/>(McpServerRegistration, McpTool, CapabilityBinding)"]
     GEN["Generation / Artifact<br/>(Artifact, ArtifactVersion, GenerationJob, ReviewGate)"]
-    GOV["Governance & Audit<br/>(AuditEvent, PolicyRule, ApprovalGate, ComplianceRecord)"]
+    GOV["Governance & Audit<br/>(AuditEvent, PolicyRule, ApprovalGate, ComplianceRecord,<br/>Risk, Incident, Problem, Change)"]
     NOTIF["Notification<br/>(NotificationChannel, NotificationEvent)"]
+    DT["Digital Twin / Traceability<br/>(DigitalTwinNode, DigitalTwinEdge,<br/>NodeTypeDefinition, RelationshipTypeDefinition, Snapshot)"]
 
     REQ -->|"RequirementCaptured"| WF
     WF -->|"selects via"| CAP
@@ -29,7 +30,14 @@ graph TB
     IAM -->|"authorizes"| PROJ
     GOV -->|"raises"| NOTIF
     WF -->|"raises"| NOTIF
+    REQ -. "projects as nodes" .-> DT
+    GEN -. "projects as nodes" .-> DT
+    PROJ -. "projects as nodes" .-> DT
+    GOV -. "projects as nodes" .-> DT
+    WF -. "projects edges" .-> DT
 ```
+
+`DT` (Digital Twin / Traceability) is a deliberate fan-in: it subscribes to events from every other context but is never depended on by them — see [16-project-digital-twin.md](16-project-digital-twin.md).
 
 Arrows are **domain events**, not method calls — see [06-event-model.md](06-event-model.md). Contexts never share tables; cross-context references are by opaque ID only.
 
@@ -39,10 +47,10 @@ Arrows are **domain events**, not method calls — see [06-event-model.md](06-ev
 Owns authentication identity and authorization data. Aggregates: `Tenant`, `User`, `Role`, `Permission`, `Session`. Downstream of an external IdP for authentication (see [08](08-authentication-and-rbac.md)); this context owns *authorization* (who can do what, where), not credential storage.
 
 ### Project & Workspace
-The unit a delivery team works in. Aggregates: `Workspace` (a tenant's organizational grouping), `Project` (one SAP delivery engagement — gains `requiredExecutionProfiles: ExecutionProfileId[]` post-review, see [14-execution-profiles.md](14-execution-profiles.md)), `RepositoryBinding` (link to a GitHub repo), `Environment` (dev/test/prod target descriptor — generic, e.g. `{ name, kind, connectionRef }`, never SAP-typed here), `TargetSystemConnection` (a credential-bearing reference to a customer's SAP BTP/CF/Kyma/on-prem system — added post-review as its own aggregate rather than a generic secret, see [ADR-0015](../adr/0015-target-system-credential-management.md); the connection itself carries only an encrypted reference, never plaintext credential material — also the resolution target for an `ExecutionProfile`'s Enterprise-tier `AdapterBindingRef`s).
+The unit a delivery team works in. Aggregates: `Workspace` (a tenant's organizational grouping), `Project` (one SAP delivery engagement — gains `requiredExecutionProfiles: ExecutionProfileId[]` post-review, see [14-execution-profiles.md](14-execution-profiles.md)), `RepositoryBinding` (link to a GitHub repo), `Environment` (dev/test/prod target descriptor — generic, e.g. `{ name, kind, connectionRef }`, never SAP-typed here), `TargetSystemConnection` (a credential-bearing reference to a customer's SAP BTP/CF/Kyma/on-prem system — added post-review as its own aggregate rather than a generic secret, see [ADR-0015](../adr/0015-target-system-credential-management.md); the connection itself carries only an encrypted reference, never plaintext credential material — also the resolution target for an `ExecutionProfile`'s Enterprise-tier `AdapterBindingRef`s), `Deployment` and `ApplicationVersion` (added post-review — `ApplicationVersion` is a named, immutable bundle of `Artifact`/`ArtifactVersion` references constituting one release; `Deployment` records that a specific `ApplicationVersion` was deployed to a specific `Environment` under a specific execution profile, with a status; see [16-project-digital-twin.md](16-project-digital-twin.md)).
 
 ### Requirements Intake
-Captures and structures business requirements before generation starts. Aggregates: `RequirementDocument`, `Requirement`, `Clarification` (a question raised back to a human), `AcceptanceCriterion`. This is deliberately modeled as its own context so intake can evolve (structured forms, document upload, chat-based elicitation) without touching orchestration.
+Captures and structures business requirements before generation starts. Aggregates: `RequirementDocument`, `Requirement` (gains a `kind` field post-review — `business | functional | non-functional | user-story` — so a User Story is a shape of `Requirement`, not a separate aggregate; see [16-project-digital-twin.md](16-project-digital-twin.md)), `Clarification` (a question raised back to a human), `AcceptanceCriterion`. This is deliberately modeled as its own context so intake can evolve (structured forms, document upload, chat-based elicitation) without touching orchestration.
 
 ### Capability & Plugin Registry
 The seam where SAP-specific knowledge is allowed to exist — but only as data the core reads, never as code the core executes inline. Aggregates: `CapabilityPlugin` (an installed plugin), `PluginManifest` (declared inputs/outputs, required MCP capabilities, required LLM capabilities, supported `ArtifactType`s, and — added post-review, see [14-execution-profiles.md](14-execution-profiles.md) — `supportedExecutionProfiles` and `portCategoriesUsed`), `ArtifactType` (an opaque, plugin-declared string like `"fiori-elements-app"` — the core treats it as an identifier, not a type it understands), `ExecutionProfile` (a named map from each of a fixed `PortCategory` enum — persistence, authentication, authorization, messaging, storage, sap-connectivity, external-api — to an opaque `AdapterBindingRef`, describing how a *generated application* is wired for Local POC, Hybrid, or Enterprise execution; see [ADR-0019](../adr/0019-execution-profiles-for-generated-applications.md)). As with plugins, the core stores and resolves `ExecutionProfile`s without knowing what SQLite, HANA, or XSUAA actually are — that mapping lives entirely inside plugin implementations.
@@ -60,10 +68,13 @@ Provider-agnostic tool access. Aggregates: `McpServerRegistration` (an installed
 What actually gets produced. Aggregates: `Artifact` (a generated file/bundle, opaque `artifactType` + storage reference into MinIO — gains `generatedForExecutionProfile: ExecutionProfileId` post-review, see [14-execution-profiles.md](14-execution-profiles.md)), `ArtifactVersion` (same addition), `GenerationJob` (one plugin execution that produced artifact(s) — its `GenerationInput` gains `targetExecutionProfile: ExecutionProfileId`), `ReviewGate` (human review/approval attached to an artifact before it can be promoted).
 
 ### Governance & Audit
-ITIL/PMO alignment made structural rather than aspirational. Aggregates: `AuditEvent` (append-only, derived from domain events), `PolicyRule` (policy-as-code reference, evaluated by `auth-core`), `ApprovalGate` (change-record-style approval, e.g. before deploying generated code), `ComplianceRecord` (links a workflow run back to the requirement and approvals that authorized it — the PMO traceability chain: requirement → workflow run → artifact → approval → deployment).
+ITIL/PMO alignment made structural rather than aspirational. Aggregates: `AuditEvent` (append-only, derived from domain events), `PolicyRule` (policy-as-code reference, evaluated by `auth-core`), `ApprovalGate` (change-record-style approval, e.g. before deploying generated code), `ComplianceRecord` (links a workflow run back to the requirement and approvals that authorized it — the PMO traceability chain: requirement → workflow run → artifact → approval → deployment), and — added post-review, the concrete realization of the ITIL-alignment principle stated since Sprint 0 — `Risk`, `Incident`, `Problem`, `Change` (see [16-project-digital-twin.md](16-project-digital-twin.md)).
 
 ### Notification
 Fan-out of relevant events to humans/systems (email, Slack, Teams, webhook). Kept as its own context so it can be swapped/extended without touching producers — producers only publish domain events, they never know who's listening.
+
+### Digital Twin / Traceability
+Added post-review ([ADR-0021](../adr/0021-project-digital-twin-knowledge-graph.md)). Owns the graph structure representing every artifact a project produces and the typed relationships between them — never the artifact content itself. Aggregates: `DigitalTwinNode` (a typed, versioned reference to a node in some other context — `sourceRef: { context, aggregateId, version }` — plus minimal display fields), `DigitalTwinEdge` (a typed, provenance-tagged relationship between two nodes — `provenance: 'declared' | 'ai-inferred'`), `NodeTypeDefinition` and `RelationshipTypeDefinition` (registries of opaque, declared type strings — the same "no SAP-specific taxonomy in core code" pattern already used for `ArtifactType` and `PortCategory`), `DigitalTwinSnapshot` (an immutable, named capture of the graph's full state at a milestone, e.g. a `Deployment`). Populated entirely by projecting domain events already emitted by every other context — see [16-project-digital-twin.md](16-project-digital-twin.md).
 
 ## Aggregate design rules
 
@@ -81,3 +92,5 @@ Added post-review ([13-principal-architect-self-review.md](13-principal-architec
 ## Read models (cross-cutting, not part of any single context)
 
 Added post-review ([13-principal-architect-self-review.md](13-principal-architect-self-review.md) §5.2): cross-aggregate, cross-context reporting/dashboard queries are served by event-fed projections in `packages/read-models/*`, not by aggregate repositories. See [ADR-0014](../adr/0014-cqrs-read-models.md).
+
+The Digital Twin / Traceability context (above) is the same read-side, event-projection relationship as `read-models` — populated from events, never written to directly by command-side use cases — applied to a graph-shaped query need (traversal, impact analysis) instead of a tabular one (dashboards, lists). It was promoted to a full bounded context rather than folded into `read-models` because it carries its own rules beyond a passive projection: provenance/confidence on edges, append-only versioning, and snapshotting. See [16-project-digital-twin.md](16-project-digital-twin.md).

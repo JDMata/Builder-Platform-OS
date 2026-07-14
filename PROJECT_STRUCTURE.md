@@ -34,7 +34,8 @@ sap-app-factory/
 │   ├── context-llm-gateway/
 │   ├── context-mcp-registry/
 │   ├── context-generation/
-│   ├── context-governance/                # AuditEvent, PolicyRule, ApprovalGate; PII vault / crypto-shredding concerns (ADR-0017)
+│   ├── context-governance/                # AuditEvent, PolicyRule, ApprovalGate; Risk/Incident/Problem/Change (ADR-0021); PII vault / crypto-shredding concerns (ADR-0017)
+│   ├── context-digital-twin/              # DigitalTwinNode/Edge, NodeTypeDefinition/RelationshipTypeDefinition registries, Snapshot — graph structure only, never artifact content (ADR-0021)
 │   │
 │   ├── ports/                             # Interfaces only — no implementation, no third-party imports
 │   │   ├── llm-provider.port.ts
@@ -47,7 +48,9 @@ sap-app-factory/
 │   │   ├── policy-engine.port.ts
 │   │   ├── rate-limiter.port.ts           # Per-tenant/provider/plugin quotas
 │   │   ├── tenant-connection-resolver.port.ts  # Resolves tenant → physical DB/schema/region (ADR-0013)
-│   │   └── request-context.ts             # RequestContext type ({ tenantId, actorId, correlationId, tenancyTier }) threaded through every port method
+│   │   ├── request-context.ts             # RequestContext type ({ tenantId, actorId, correlationId, tenancyTier }) threaded through every port method
+│   │   ├── graph-store.port.ts            # upsertNode/retireNode/upsertEdge/retireEdge/traverse/snapshot (ADR-0021)
+│   │   └── search-index.port.ts           # Structured + semantic search over Digital Twin nodes and knowledge content (ADR-0021)
 │   │
 │   ├── llm-core/                          # LLM Gateway domain/application logic + shared resilience wrapper (ADR-0016)
 │   ├── llm-adapters/
@@ -69,6 +72,11 @@ sap-app-factory/
 │   │
 │   ├── persistence-postgres/              # Repository implementations (Drizzle), one module per bounded-context schema
 │   ├── read-models/                       # Event-fed projections for cross-aggregate/cross-context reporting (ADR-0014) — the ONLY place dashboard/list queries live
+│   ├── graph-adapters/
+│   │   ├── postgres-age/                  # Default — Apache AGE (Cypher-compatible) on the platform's existing Postgres instance (ADR-0021)
+│   │   └── dedicated-graph-engine/        # Future adapter slot (Neo4j/Neptune/managed) — not built until traversal scale demands it
+│   ├── search-adapters/
+│   │   └── postgres-fts-pgvector/         # Default — Postgres full-text search + pgvector embeddings for semantic search (ADR-0021)
 │   ├── object-storage-minio/
 │   ├── auth-core/                         # AuthN session handling + PolicyEnginePort + OPA/Cedar adapter
 │   │
@@ -136,7 +144,8 @@ sap-app-factory/
 - **"Is this a port or adapter consumed by a *generated application* at its own runtime (persistence, auth, authz, messaging, storage, SAP connectivity, external APIs)?"** → `packages/generated-app-kit/`, never `packages/ports/` (which is for the platform's own runtime) and never hand-rolled inside a plugin. See [ADR-0019](docs/adr/0019-execution-profiles-for-generated-applications.md).
 - **"Does a new bounded context or a new deployable app need scaffolding?"** → run the generator in `tools/generators`, don't hand-write the boilerplate.
 - **"Am I defining a specialized AI agent's purpose, permissions, memory, or prompt?"** → `.ai/`, following its templates — never a bare string embedded in application code, and never a database row edited outside PR review. See [ADR-0020](docs/adr/0020-ai-workspace-for-agent-definitions.md).
+- **"Am I tracing/relating one artifact to another (a Requirement to a CAP Service, a Deployment to an Incident)?"** → a `DigitalTwinEdge` in `context-digital-twin`, referencing existing aggregates by ID — never a new foreign key bolted onto an unrelated context. See [ADR-0021](docs/adr/0021-project-digital-twin-knowledge-graph.md).
 
 ## Why this structure, briefly
 
-Every top-level folder maps to exactly one of the architectural layers in [ARCHITECTURE_PRINCIPLES.md](ARCHITECTURE_PRINCIPLES.md): `apps/` is the composition-root layer, `packages/context-*` is domain+application, `packages/ports` is the abstraction seam, `*-adapters`/`persistence-postgres`/`object-storage-minio` are the adapter layer, `plugins/` is the SAP-specific extension layer kept structurally outside the core, and `packages/read-models` is the one deliberate exception to "queries go through aggregate repositories" (see [ADR-0014](docs/adr/0014-cqrs-read-models.md)). If a new file doesn't obviously fit one of these, that's a signal to ask before creating a new top-level convention — see [CONTRIBUTING.md](CONTRIBUTING.md).
+Every top-level folder maps to exactly one of the architectural layers in [ARCHITECTURE_PRINCIPLES.md](ARCHITECTURE_PRINCIPLES.md): `apps/` is the composition-root layer, `packages/context-*` is domain+application, `packages/ports` is the abstraction seam, `*-adapters`/`persistence-postgres`/`object-storage-minio` are the adapter layer, `plugins/` is the SAP-specific extension layer kept structurally outside the core, and `packages/read-models`/`context-digital-twin` are the deliberate exceptions to "queries go through aggregate repositories" — both are read-side, event-projected views (tabular and graph-shaped, respectively; see [ADR-0014](docs/adr/0014-cqrs-read-models.md) and [ADR-0021](docs/adr/0021-project-digital-twin-knowledge-graph.md)). If a new file doesn't obviously fit one of these, that's a signal to ask before creating a new top-level convention — see [CONTRIBUTING.md](CONTRIBUTING.md).

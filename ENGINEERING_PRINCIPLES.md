@@ -48,7 +48,7 @@ Every capability is designed as a versioned, documented API contract before a UI
 Code that requires a live external service to unit test is a design defect, not an inconvenience. Domain logic tests run in milliseconds with zero mocks; every port has a shared contract test suite run against every adapter. See coverage floors in [CODING_STANDARDS.md](CODING_STANDARDS.md).
 
 ### Documentation First
-A package, port, or ADR-worthy decision without documentation does not merge. Documentation is written before or alongside the code it describes, not backfilled — see [10-coding-standards-and-naming.md](docs/architecture/10-coding-standards-and-naming.md) and the fitness function requiring a README per package.
+A package, port, or ADR-worthy decision without documentation does not merge. Documentation is written before or alongside the code it describes, not backfilled — see [10-coding-standards-and-naming.md](docs/architecture/10-coding-standards-and-naming.md) and the fitness function requiring a README per package. This extends to every project the platform delivers: every generated artifact — requirement, service, screen, test, deployment — is a traceable node in that project's [Digital Twin](docs/architecture/16-project-digital-twin.md), not a file whose relationship to everything else lives only in someone's memory.
 
 ### Security First
 Security is a design input, not a post-implementation review step. Every new capability is threat-modeled against [SECURITY_BASELINE.md](SECURITY_BASELINE.md) before it ships, not after.

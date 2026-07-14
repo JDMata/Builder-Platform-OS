@@ -54,6 +54,13 @@ This guarantees **no event is lost if the process crashes between state change a
 | `generation.artifact.review_requested.v1` / `.approved.v1` / `.rejected.v1` | Generation | Governance, Notification |
 | `governance.audit.recorded.v1` | Governance (derived from all of the above) | Audit sinks, compliance export |
 | `mcp.tool.invocation_denied.v1` | MCP Registry (policy violation) | Governance, Notification |
+| `governance.risk.identified.v1` / `.mitigated.v1` | Governance (added post-review, [ADR-0021](../adr/0021-project-digital-twin-knowledge-graph.md)) | Digital Twin, Notification |
+| `governance.incident.reported.v1` / `.resolved.v1` | Governance (added post-review) | Digital Twin, Notification |
+| `governance.problem.identified.v1` / `.resolved.v1` | Governance (added post-review) | Digital Twin, Notification |
+| `governance.change.requested.v1` / `.approved.v1` / `.rejected.v1` | Governance (added post-review) | Digital Twin, Notification |
+| `project.deployment.started.v1` / `.completed.v1` / `.failed.v1` | Project & Workspace (added post-review) | Digital Twin, Governance, Notification |
+| `digitaltwin.node.upserted.v1` / `.retired.v1` | Digital Twin (added post-review — derived, not a source event) | Search index, impact-analysis agents |
+| `digitaltwin.edge.upserted.v1` / `.retired.v1` | Digital Twin (added post-review) | Search index, impact-analysis agents |
 
 ## Consumption model
 

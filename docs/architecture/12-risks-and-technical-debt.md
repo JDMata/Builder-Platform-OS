@@ -45,6 +45,16 @@
 | R24 | `.ai/` content is reviewed less rigorously than code because it "looks like configuration," despite changing production agent behavior just as materially | Medium | Medium | Stated explicitly as a ground rule in `.ai/README.md`: same PR review discipline as `CODING_STANDARDS.md`, no exemption |
 | R25 | Indirect prompt injection via `knowledge/` content that was ever adapted from an external source | Medium | Medium | Retrieved knowledge is treated as untrusted input at the point it re-enters an agent's context, reusing the existing input-validation-at-boundary rule rather than a new mechanism; combined with the existing rule that any tool call touching a credential/target system/egress requires approval regardless of an agent's own declared permissions |
 
+### Added with the Project Digital Twin ([ADR-0021](../adr/0021-project-digital-twin-knowledge-graph.md), [16-project-digital-twin.md](16-project-digital-twin.md))
+
+| # | Risk | Impact | Likelihood | Mitigation |
+|---|---|---|---|---|
+| R26 | The Digital Twin becomes a second source of truth that drifts from the aggregates it represents | High | High without an explicit rule — the default failure mode of any graph/projection layer | Nodes store only a `sourceRef` + minimal display fields; populated exclusively by projecting domain events, never written to directly — identical discipline to `read-models` ([ADR-0014](../adr/0014-cqrs-read-models.md)) |
+| R27 | Relationship-type sprawl — dozens of agents proposing near-duplicate ad hoc relationship strings (`"implements"`, `"implements-partially"`, ...) | Medium-High | High without registration | `RelationshipTypeDefinition`/`NodeTypeDefinition` registries, CI-checked before use — the third application of the opaque-registered-type pattern already used for `ArtifactType` and `PortCategory` |
+| R28 | AI-inferred relationships treated as ground truth, silently corrupting impact analysis or traceability-completeness checks | High | Medium-High if not enforced | Mandatory `provenance`/confidence tagging; inferred edges never count as ground truth until confirmed via `ReviewGate` |
+| R29 | Graph query performance degrades at 500+ projects over a 10-year archive | Medium | Medium | `GraphStorePort` keeps a dedicated graph engine available as an adapter swap; partitioning/archival discipline already established for other high-volume tables applies to node/edge history; queries are project-scoped by default, never cross-project |
+| R30 | Cross-project similarity search (future AI reasoning) accidentally leaks across tenants | High | Low if the existing rule is followed, High if it's forgotten | Explicitly scoped to `RequestContext`/tenant isolation, no exception, stated directly in the design doc rather than left implicit |
+
 ## Technical debt prevention strategy: architecture fitness functions
 
 Principles are only as strong as their enforcement. Every principle in [00-vision-and-principles.md](00-vision-and-principles.md) maps to a mechanical, CI-failing check — a "fitness function" — so violations are caught before merge, not during a future audit:
@@ -66,6 +76,8 @@ Principles are only as strong as their enforcement. Every principle in [00-visio
 | Generated-app port parity (added with execution profiles, R19) | Shared contract-test suite in `generated-app-kit`, required to pass for both the mock and Enterprise adapter of every one of the seven ports before either can merge | CI "Contract test" stage |
 | No duplicated generated-app adapters (added with execution profiles, R20) | Dependency check on application-generating plugins verifying they import `generated-app-kit`'s adapters rather than defining their own mock persistence/auth/SAP-API implementations | CI "Architecture fitness checks" |
 | `.ai/` content schema and safety (added with AI Workspace, R22/R24/R25) | Planned (Sprint 1/2, not yet active — see backlog): CI validation that every `agent.md`/`prompt.md`/`policy.md`/`workflow.md` matches its template's required fields, and a banned-content scan for secrets or customer-identifying data under `.ai/knowledge/` | CI "Architecture fitness checks" (once the loader exists) |
+| Digital Twin node/edge type registration (added with Digital Twin, R27) | Planned (Sprint 1/2, not yet active — see backlog): CI check that every `nodeType`/`relationshipType` used anywhere is present in the `NodeTypeDefinition`/`RelationshipTypeDefinition` registry before merge | CI "Architecture fitness checks" (once the loader exists) |
+| No unreviewed AI-inferred edges as ground truth (added with Digital Twin, R28) | Planned: query-layer check that any traceability-completeness or impact-analysis read filters out `provenance: 'ai-inferred'` edges unless explicitly confirmed | CI "Contract test" stage (once the graph store adapter exists) |
 
 ## Cadence
 

@@ -40,7 +40,8 @@
 | [docs/architecture/13-principal-architect-self-review.md](docs/architecture/13-principal-architect-self-review.md) | **Adversarial self-review at 500+ projects / dozens of MCP servers / hundreds of workflows / enterprise SaaS scale — read this to see what changed and why** |
 | [docs/architecture/14-execution-profiles.md](docs/architecture/14-execution-profiles.md) | Execution profiles (Local POC / Hybrid / Enterprise) for **generated applications** — ports & adapters at the product boundary, not the platform's own runtime |
 | [docs/architecture/15-ai-workspace.md](docs/architecture/15-ai-workspace.md) | The [.ai/](.ai/README.md) AI Workspace — file-based authoring surface for the dozens of specialized agents the platform will eventually orchestrate |
-| [docs/adr/README.md](docs/adr/README.md) | Architecture Decision Records index (20 ADRs — 12 original, 6 added by the self-review, 1 for execution profiles, 1 for the AI Workspace, several cross-referenced) |
+| [docs/architecture/16-project-digital-twin.md](docs/architecture/16-project-digital-twin.md) | The **Project Digital Twin** — a knowledge graph tracing every artifact a project produces (requirements through incidents) and the typed relationships between them |
+| [docs/adr/README.md](docs/adr/README.md) | Architecture Decision Records index (21 ADRs — 12 original, 6 added by the self-review, 1 for execution profiles, 1 for the AI Workspace, 1 for the Digital Twin, several cross-referenced) |
 | [docs/backlog/sprint-0-backlog.md](docs/backlog/sprint-0-backlog.md) | Concrete Sprint 0 tickets, plus Sprint 1/2 carry-forward items elevated by the self-review |
 
 ## Review gate

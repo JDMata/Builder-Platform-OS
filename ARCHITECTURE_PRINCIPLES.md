@@ -95,6 +95,16 @@ This document states the enforceable rules behind [ENGINEERING_PRINCIPLES.md](EN
 - A `Step` of kind `agent-invocation` references an `AgentDefinition` by id and pinned version — a `WorkflowRun` never resolves "whichever agent version is current."
 - Full detail: [15-ai-workspace.md](docs/architecture/15-ai-workspace.md), [ADR-0020](docs/adr/0020-ai-workspace-for-agent-definitions.md).
 
+## Digital Twin & traceability rules
+
+- Every project's Digital Twin is a graph **overlay**, never a second source of truth — a `DigitalTwinNode` stores a `sourceRef` and minimal display fields only; the real data stays owned by whichever context produced it (`Requirement`, `Artifact`, `Deployment`, `Risk`, ...).
+- The graph is populated exclusively by projecting domain events already emitted by other contexts — never written to directly by a command-side use case.
+- Node types and relationship types are opaque, registry-declared strings (`NodeTypeDefinition`, `RelationshipTypeDefinition`) — never a hardcoded core enum, and never used before being registered. This is the same pattern already applied to `ArtifactType` and `PortCategory`.
+- Every edge carries `provenance: 'declared' | 'ai-inferred'`. An inferred edge is never treated as ground truth for impact analysis or traceability-completeness checks until confirmed via `ReviewGate`.
+- Nodes and edges are never hard-deleted — a node's state is an append-only version history; an edge that becomes invalid is marked `retired`, never removed.
+- Graph storage lives behind `ports/graph-store.port.ts` — Apache AGE on the platform's existing Postgres instance by default, with a dedicated graph engine as a documented future adapter, never a hardcoded dependency on one graph technology.
+- Full detail: [16-project-digital-twin.md](docs/architecture/16-project-digital-twin.md), [ADR-0021](docs/adr/0021-project-digital-twin-knowledge-graph.md).
+
 ## Authentication abstraction
 
 - The platform is never an identity provider. `api-gateway` federates to an external OIDC provider (Entra ID, Okta, SAP IAS, Keycloak) via Authorization Code + PKCE; no passwords are ever stored.

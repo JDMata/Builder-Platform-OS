@@ -58,6 +58,10 @@ Four named strategies only — `static-bundle`, `retrieval-augmented`, `run-scop
 2. **Sprint 1/2 (backlog, not yet built):** a `packages/agent-sdk` package (parallel to `plugin-sdk`) formalizing `AgentDefinition`/`PromptTemplate`/`PolicyRule`/`WorkflowDefinition` as TypeScript types, plus a sync/loader that ingests `.ai/` content into the platform's registries on merge to `main`, plus CI validation (schema lint, banned-content checks — no secrets, no real customer data in `knowledge/`).
 3. **Later:** once `agent-sdk` and the registry are proven internally against the platform's own agents, the same schema becomes the customer/partner-facing mechanism for authoring new agents — the product literally ships using the same `.ai/` conventions the platform team dogfoods, the same way a generated application's hexagonal structure mirrors the platform's own.
 
+## Relationship to the Project Digital Twin
+
+Added post-review ([ADR-0021](../adr/0021-project-digital-twin-knowledge-graph.md)): every project's Digital Twin ([16-project-digital-twin.md](16-project-digital-twin.md)) is itself a natural retrieval target for an agent's `retrieval-augmented` context-loading strategy, exposed as a `digital-twin-search`/`graph-query` MCP tool alongside `knowledge-retrieval` — an agent asking "what already implements this requirement" queries the twin the same way it queries `.ai/knowledge/`, through the same MCP abstraction, with no new context-loading strategy required. The impact-analysis and root-cause-assistance agents described in that document are themselves ordinary `.ai/agents/*` definitions.
+
 ## Self-review: does this introduce technical debt?
 
 Scoped review, same standard as [13-principal-architect-self-review.md](13-principal-architect-self-review.md) and [14-execution-profiles.md](14-execution-profiles.md) §6.
