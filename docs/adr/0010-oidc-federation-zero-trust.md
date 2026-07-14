@@ -1,5 +1,5 @@
 # 0010 — Authentication via OIDC federation, Zero Trust, no custom IdP
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14
 
 ## Context

@@ -1,5 +1,5 @@
 # 0012 — OpenTelemetry as mandatory observability standard
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14
 
 ## Context

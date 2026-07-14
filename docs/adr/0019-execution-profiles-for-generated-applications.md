@@ -1,5 +1,5 @@
 # 0019 — Execution profiles for generated applications (Local POC / Hybrid / Enterprise)
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14
 
 ## Scope note (read first)

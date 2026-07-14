@@ -1,5 +1,5 @@
 # 0016 — Mandatory resilience patterns for LLM and MCP adapters
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14 (added in principal-architect review, see [13-principal-architect-self-review.md](../architecture/13-principal-architect-self-review.md) §1.2, §9)
 
 ## Context

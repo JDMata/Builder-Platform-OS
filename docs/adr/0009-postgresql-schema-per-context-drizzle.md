@@ -1,5 +1,5 @@
 # 0009 — PostgreSQL, schema-per-context, Drizzle ORM
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14
 
 ## Context

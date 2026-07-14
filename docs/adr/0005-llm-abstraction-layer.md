@@ -1,5 +1,5 @@
 # 0005 — LLM provider abstraction layer (llm-core + llm-adapters)
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14
 
 ## Context

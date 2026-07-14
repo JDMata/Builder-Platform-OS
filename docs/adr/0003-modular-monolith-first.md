@@ -1,5 +1,5 @@
 # 0003 — Modular monolith first; microservices only on proven need
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14
 
 ## Context

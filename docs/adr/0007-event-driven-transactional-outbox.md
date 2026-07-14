@@ -1,5 +1,5 @@
 # 0007 — Event-driven core via Postgres transactional outbox
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14
 
 ## Context

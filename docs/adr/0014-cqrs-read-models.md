@@ -1,5 +1,5 @@
 # 0014 — CQRS-lite read models for cross-aggregate reporting
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14 (added in principal-architect review, see [13-principal-architect-self-review.md](../architecture/13-principal-architect-self-review.md) §5.2, §8.3)
 
 ## Context

@@ -1,5 +1,5 @@
 # 0001 — pnpm workspaces + Turborepo for the monorepo
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14
 
 ## Context

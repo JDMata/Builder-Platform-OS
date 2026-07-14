@@ -1,5 +1,5 @@
 # 0002 — Hexagonal/Clean layering enforced by dependency-cruiser
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14
 
 ## Context

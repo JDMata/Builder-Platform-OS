@@ -1,5 +1,5 @@
 # 0021 — Project Digital Twin as an event-projected knowledge graph
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14
 
 ## Context

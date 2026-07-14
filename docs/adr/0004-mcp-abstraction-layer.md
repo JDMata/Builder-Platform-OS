@@ -1,5 +1,5 @@
 # 0004 — MCP abstraction layer (mcp-core + mcp-adapters)
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14
 
 ## Context

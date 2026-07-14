@@ -1,5 +1,5 @@
 # 0018 — Package granularity revision: one package per context, not per layer
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14 (added in principal-architect review, see [13-principal-architect-self-review.md](../architecture/13-principal-architect-self-review.md) §3.1, §8.1)
 
 ## Context

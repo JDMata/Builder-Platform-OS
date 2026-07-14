@@ -2,7 +2,7 @@
 
 > An AI-native engineering platform that builds SAP applications from business requirements — orchestrating AI agents and MCP servers to produce SAP Fiori, SAPUI5, CAP, RAP/ABAP, integration, documentation, tests, deployment pipelines, and user manuals.
 
-**Status: Architecture approved. Engineering governance in place. No product/feature code written yet.** This repository currently contains the architecture, engineering governance package, and backlog required to build the platform without accumulating structural debt. Do not add SAP-specific logic, generators, or business features until [CONTRIBUTING.md](CONTRIBUTING.md) and the linked governance documents have been read and the Sprint 0 backlog is executed.
+**Status: Architecture, engineering governance, Digital Twin, execution-profile, and AI Workspace designs all approved (2026-07-14). Sprint 0 implementation is underway, one backlog item at a time.** See [docs/backlog/sprint-0-backlog.md](docs/backlog/sprint-0-backlog.md) for progress. Every story follows Explain → Design → Implement → Test → Document → ADR-update, per [CONTRIBUTING.md](CONTRIBUTING.md) and [TECHNICAL_DEBT_POLICY.md](TECHNICAL_DEBT_POLICY.md).
 
 ## Engineering governance (read these first — they govern every PR)
 
@@ -46,4 +46,4 @@
 
 ## Review gate
 
-Every ADR in [docs/adr/](docs/adr/) is currently **Proposed**. Per the operating agreement for this project, no application code is written until these are reviewed and their status is moved to **Accepted** (or revised and re-proposed). Flag disagreements against the ADR itself, not the summary documents, so the decision trail stays intact. Start with [13-principal-architect-self-review.md](docs/architecture/13-principal-architect-self-review.md) — it's the fastest path to understanding what changed since the first draft and why.
+All 21 ADRs in [docs/adr/](docs/adr/) are **Accepted** as of 2026-07-14. Any future decision that revises one is proposed the same way the rest were: an ADR (or a dated "Review update" section on an existing one), reviewed before its implementing PR merges — see [TECHNICAL_DEBT_POLICY.md](TECHNICAL_DEBT_POLICY.md). Start with [13-principal-architect-self-review.md](docs/architecture/13-principal-architect-self-review.md) if you want the fastest path to understanding what changed since the first draft and why.

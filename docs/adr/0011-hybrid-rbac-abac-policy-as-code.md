@@ -1,5 +1,5 @@
 # 0011 — Hybrid RBAC + ABAC via policy-as-code
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14
 
 ## Context

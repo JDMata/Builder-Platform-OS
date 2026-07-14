@@ -1,5 +1,5 @@
 # 0017 — Data retention, partitioned archival, and crypto-shredding for erasure
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14 (added in principal-architect review, see [13-principal-architect-self-review.md](../architecture/13-principal-architect-self-review.md) §2.5, §6.4)
 
 ## Context

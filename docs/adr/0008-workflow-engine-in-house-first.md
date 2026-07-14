@@ -1,5 +1,5 @@
 # 0008 — Workflow engine: in-house adapter first, Temporal path kept open
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14
 
 ## Context

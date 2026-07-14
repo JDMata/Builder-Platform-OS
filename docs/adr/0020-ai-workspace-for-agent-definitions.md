@@ -1,5 +1,5 @@
 # 0020 — AI Workspace (`.ai/`) for agent definitions
-Status: Proposed
+Status: Accepted
 Date: 2026-07-14
 
 ## Context
