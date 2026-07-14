@@ -36,6 +36,15 @@
 | R20 | Application-generating plugins each reimplement their own mock persistence/auth/SAP-API adapters, duplicating maintenance and drifting independently | Medium-High | High if not centralized from the first application-generating plugin | `packages/generated-app-kit` is the single shared, versioned adapter library every such plugin depends on, never reimplements |
 | R21 | Contract-testing Enterprise-tier adapters (real HANA Cloud, XSUAA, Destination Service) on every CI run is slow and requires live BTP entitlements | Medium | Medium | Reuse the platform's existing fast-PR/slow-nightly CI cadence pattern: mock-adapter contract tests on every PR, Enterprise-adapter contract tests against sandboxed BTP resources on a slower cadence |
 
+### Added with the `.ai/` AI Workspace ([ADR-0020](../adr/0020-ai-workspace-for-agent-definitions.md), [15-ai-workspace.md](15-ai-workspace.md))
+
+| # | Risk | Impact | Likelihood | Mitigation |
+|---|---|---|---|---|
+| R22 | An agent's "Memory" becomes an ungoverned shadow data store (a private cache/vector store/file an agent alone reads and writes) | High | High without an explicit rule — this is the default failure mode of ad hoc agent memory | Memory is scoped and persisted only through the existing `Repository<T>` port and `RequestContext`, subject to the same tenant isolation and retention/crypto-shredding rules as all other project data — stated as a hard rule in `.ai/README.md`, not left to convention |
+| R23 | Boilerplate (escalation rules, tool-permission scopes, prompt preambles) is copy-pasted and independently drifts across "dozens of specialized agents" | Medium-High | High without shared structure | `.ai/templates/*`, `.ai/prompts/_shared/*`, and policy-by-reference (never restated) — the same "factor it once" pattern already applied to `generated-app-kit` and the LLM/MCP resilience wrapper |
+| R24 | `.ai/` content is reviewed less rigorously than code because it "looks like configuration," despite changing production agent behavior just as materially | Medium | Medium | Stated explicitly as a ground rule in `.ai/README.md`: same PR review discipline as `CODING_STANDARDS.md`, no exemption |
+| R25 | Indirect prompt injection via `knowledge/` content that was ever adapted from an external source | Medium | Medium | Retrieved knowledge is treated as untrusted input at the point it re-enters an agent's context, reusing the existing input-validation-at-boundary rule rather than a new mechanism; combined with the existing rule that any tool call touching a credential/target system/egress requires approval regardless of an agent's own declared permissions |
+
 ## Technical debt prevention strategy: architecture fitness functions
 
 Principles are only as strong as their enforcement. Every principle in [00-vision-and-principles.md](00-vision-and-principles.md) maps to a mechanical, CI-failing check — a "fitness function" — so violations are caught before merge, not during a future audit:
@@ -56,6 +65,7 @@ Principles are only as strong as their enforcement. Every principle in [00-visio
 | Partitioned high-volume tables (added post-review, R15) | Migration lint verifying `audit_event`, `agent_invocation`, and `workflow_step` migrations declare partitioning before any non-partitioned variant can merge | CI "Architecture fitness checks" |
 | Generated-app port parity (added with execution profiles, R19) | Shared contract-test suite in `generated-app-kit`, required to pass for both the mock and Enterprise adapter of every one of the seven ports before either can merge | CI "Contract test" stage |
 | No duplicated generated-app adapters (added with execution profiles, R20) | Dependency check on application-generating plugins verifying they import `generated-app-kit`'s adapters rather than defining their own mock persistence/auth/SAP-API implementations | CI "Architecture fitness checks" |
+| `.ai/` content schema and safety (added with AI Workspace, R22/R24/R25) | Planned (Sprint 1/2, not yet active — see backlog): CI validation that every `agent.md`/`prompt.md`/`policy.md`/`workflow.md` matches its template's required fields, and a banned-content scan for secrets or customer-identifying data under `.ai/knowledge/` | CI "Architecture fitness checks" (once the loader exists) |
 
 ## Cadence
 

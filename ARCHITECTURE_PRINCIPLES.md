@@ -85,6 +85,16 @@ This document states the enforceable rules behind [ENGINEERING_PRINCIPLES.md](EN
 - Every port's mock and real adapters must pass the same shared contract-test suite — this is what makes "works in Local POC" a reliable predictor of "works in Enterprise," not an assumption.
 - Full detail: [14-execution-profiles.md](docs/architecture/14-execution-profiles.md), [ADR-0019](docs/adr/0019-execution-profiles-for-generated-applications.md).
 
+## Agent definition rules (`.ai/` workspace)
+
+- Every specialized AI agent is defined as a file (`.ai/agents/<id>/agent.md`), not a database row edited outside change control — reviewed, versioned, and rolled back exactly like code.
+- An agent definition declares all eleven required fields (Purpose, Responsibilities, Allowed MCP tools, Inputs, Outputs, Memory, Escalation rules, Approval requirements, Context loading strategy, Prompt version, Tool permissions) using the standard template — never a bare prompt string with implicit behavior.
+- Memory is scoped (none/run/project/tenant) and persisted only through the existing `Repository<T>` port and `RequestContext` — never a private store an agent alone owns.
+- Escalation, approval, and tool-permission rules are policy-as-code (`.ai/policies/*`), referenced by id — never freeform conditions embedded in a prompt.
+- Tool permissions reuse and generalize the scoped capability token mechanism already established for plugins ([ADR-0006](docs/adr/0006-plugin-architecture.md)) — never a second, agent-specific permission model.
+- A `Step` of kind `agent-invocation` references an `AgentDefinition` by id and pinned version — a `WorkflowRun` never resolves "whichever agent version is current."
+- Full detail: [15-ai-workspace.md](docs/architecture/15-ai-workspace.md), [ADR-0020](docs/adr/0020-ai-workspace-for-agent-definitions.md).
+
 ## Authentication abstraction
 
 - The platform is never an identity provider. `api-gateway` federates to an external OIDC provider (Entra ID, Okta, SAP IAS, Keycloak) via Authorization Code + PKCE; no passwords are ever stored.

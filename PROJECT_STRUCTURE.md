@@ -8,6 +8,14 @@ Everything under `plugins/` and the `*-adapters` directories is stub-only until 
 
 ```
 sap-app-factory/
+├── .ai/                                   # AI Workspace — version-controlled agent/prompt/policy/workflow/knowledge authoring surface (ADR-0020)
+│   ├── agents/                            # One subfolder per specialized agent: agent.md (11 required fields) + CHANGELOG.md
+│   ├── prompts/                           # Versioned, immutable prompt text per agent + _shared/ fragments
+│   ├── policies/                          # Escalation / approval / tool-permission policy-as-code (escalation/, approval/, tool-permissions/)
+│   ├── workflows/                         # Multi-agent WorkflowDefinition sources, versioned
+│   ├── knowledge/                         # Retrieval corpus — public/internal/synthetic only, never customer data
+│   └── templates/                         # Skeletons for authoring the above consistently — prevents drift across dozens of agents
+│
 ├── apps/                                 # Deployable units only — four total, see ARCHITECTURE_PRINCIPLES.md § Service boundaries
 │   ├── web/                              # Next.js control-plane UI (React, TS, Tailwind, UI5 Web Components)
 │   ├── api-gateway/                      # BFF + public API, AuthN/AuthZ enforcement point, OIDC relying party
@@ -127,6 +135,7 @@ sap-app-factory/
 - **"Is this a cross-cutting interface with no implementation (an abstraction every layer depends on)?"** → `packages/ports/`, never mixed into a context or adapter package.
 - **"Is this a port or adapter consumed by a *generated application* at its own runtime (persistence, auth, authz, messaging, storage, SAP connectivity, external APIs)?"** → `packages/generated-app-kit/`, never `packages/ports/` (which is for the platform's own runtime) and never hand-rolled inside a plugin. See [ADR-0019](docs/adr/0019-execution-profiles-for-generated-applications.md).
 - **"Does a new bounded context or a new deployable app need scaffolding?"** → run the generator in `tools/generators`, don't hand-write the boilerplate.
+- **"Am I defining a specialized AI agent's purpose, permissions, memory, or prompt?"** → `.ai/`, following its templates — never a bare string embedded in application code, and never a database row edited outside PR review. See [ADR-0020](docs/adr/0020-ai-workspace-for-agent-definitions.md).
 
 ## Why this structure, briefly
 
