@@ -2,15 +2,30 @@
 
 > An AI-native engineering platform that builds SAP applications from business requirements — orchestrating AI agents and MCP servers to produce SAP Fiori, SAPUI5, CAP, RAP/ABAP, integration, documentation, tests, deployment pipelines, and user manuals.
 
-**Status: Sprint 0 — Foundation.** No product features are implemented yet. This repository currently contains the architecture, standards, and backlog required to build the platform without accumulating structural debt. Do not add SAP-specific logic, generators, or business features until the documents below have been reviewed and the Sprint 0 backlog is executed.
+**Status: Architecture approved. Engineering governance in place. No product/feature code written yet.** This repository currently contains the architecture, engineering governance package, and backlog required to build the platform without accumulating structural debt. Do not add SAP-specific logic, generators, or business features until [CONTRIBUTING.md](CONTRIBUTING.md) and the linked governance documents have been read and the Sprint 0 backlog is executed.
 
-## Start here
+## Engineering governance (read these first — they govern every PR)
+
+| Document | For |
+|---|---|
+| [ENGINEERING_PRINCIPLES.md](ENGINEERING_PRINCIPLES.md) | Vision, long-term philosophy, and the non-negotiable principles (SOLID, Clean/Hexagonal Architecture, DDD, Event-Driven, Plugin, AI First, API First, Testability, Documentation First, Security First, Zero Trust, maintainability over speed, no vendor lock-in) |
+| [ARCHITECTURE_PRINCIPLES.md](ARCHITECTURE_PRINCIPLES.md) | Enforceable rules: service boundaries, package/dependency rules, event/workflow/plugin rules, MCP/LLM/persistence/authentication abstractions |
+| [CODING_STANDARDS.md](CODING_STANDARDS.md) | Naming, folder conventions, TypeScript rules, logging, error handling, DI, testing, comments, documentation |
+| [SECURITY_BASELINE.md](SECURITY_BASELINE.md) | AuthN/AuthZ, secrets, encryption, audit, Zero Trust, RBAC, environment separation, secure coding, OWASP mapping |
+| [TECHNICAL_DEBT_POLICY.md](TECHNICAL_DEBT_POLICY.md) | What counts as debt, what's prohibited outright, refactoring/architecture-review/ADR/code-review policy |
+| [DEFINITION_OF_READY.md](DEFINITION_OF_READY.md) | When a backlog item may enter a sprint |
+| [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md) | Every requirement for a story to be considered complete |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to actually work on this project, day to day |
+| [ADR_TEMPLATE.md](ADR_TEMPLATE.md) | Standard template for new Architecture Decision Records |
+| [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) | The canonical monorepo tree and placement rules |
+
+## Start here (architecture record)
 
 | Read this | For |
 |---|---|
 | [docs/architecture/00-vision-and-principles.md](docs/architecture/00-vision-and-principles.md) | Product vision, non-negotiable principles, explicit non-goals for Sprint 0 |
 | [docs/architecture/01-high-level-architecture.md](docs/architecture/01-high-level-architecture.md) | System context, logical architecture, layering |
-| [docs/folder-structure.md](docs/folder-structure.md) | The actual monorepo tree and what belongs where |
+| [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) | The actual monorepo tree and what belongs where |
 | [docs/architecture/02-domain-model.md](docs/architecture/02-domain-model.md) | Bounded contexts, aggregates, context map |
 | [docs/architecture/03-monorepo-and-packages.md](docs/architecture/03-monorepo-and-packages.md) | Monorepo tooling, package boundaries, versioning |
 | [docs/architecture/04-service-boundaries.md](docs/architecture/04-service-boundaries.md) | What is a deployable service vs. a library |

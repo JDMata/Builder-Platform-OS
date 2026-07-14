@@ -1,17 +1,6 @@
 # Architecture Decision Records
 
-All ADRs use this template:
-
-```markdown
-# NNNN — Title
-Status: Proposed | Accepted | Superseded by NNNN
-Date: YYYY-MM-DD
-
-## Context
-## Decision
-## Consequences
-## Alternatives considered
-```
+All ADRs use the standard template: [ADR_TEMPLATE.md](../../ADR_TEMPLATE.md). See [TECHNICAL_DEBT_POLICY.md](../../TECHNICAL_DEBT_POLICY.md) for when a new ADR is required.
 
 **Every ADR below is currently `Proposed`.** No related implementation work starts until an ADR is moved to `Accepted` (edit the ADR's Status line as part of the review). If a decision is rejected, don't delete the file — change status to `Superseded by NNNN` and write the replacement, so the reasoning trail (including why the first approach was rejected) survives.
 
