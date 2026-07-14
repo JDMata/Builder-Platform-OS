@@ -1,0 +1,18 @@
+# 0006 — Plugin architecture for SAP-specific capabilities
+Status: Proposed
+Date: 2026-07-14
+
+## Context
+"No SAP-specific logic inside the core platform" is a stated principle, but the platform's entire purpose is producing SAP artifacts. Without a concrete mechanism, SAP knowledge will inevitably leak into core orchestration code as "just one special case" under delivery pressure, and that leakage compounds over a 10-year horizon.
+
+## Decision
+All SAP product knowledge (Fiori, SAPUI5, CAP Node/Java, RAP/ABAP, Integration Suite, BTP/CF/Kyma deployment specifics) is implemented as a `CapabilityPlugin` conforming to the minimal `packages/plugin-sdk` contract (manifest + `activate/validate/generate/deactivate` lifecycle — see [05-plugin-architecture.md](../architecture/05-plugin-architecture.md)), discovered and loaded by a plugin loader in `orchestrator`, and invoked only by capability ID resolved through the Capability & Plugin Registry — never by direct import of a named plugin from core code.
+
+## Consequences
+- Core orchestration code has literally no import path to a specific plugin, only to the loader/registry abstraction — enforced by a dependency-cruiser rule ([ADR-0002](0002-hexagonal-clean-layering.md)) plus a banned-keyword CI guard as a second line of defense ([12-risks-and-technical-debt.md](../architecture/12-risks-and-technical-debt.md)).
+- Plugins can, in principle, be authored and versioned independently (including eventually by partners), because the contract package is small and stable.
+- Plugin execution isolation starts as an in-process function call in Sprint 0 (acceptable — no plugin has real logic yet) but is explicitly tracked as needing process/container-level isolation before third-party or high-risk plugins are onboarded (risk R3 in [12-risks-and-technical-debt.md](../architecture/12-risks-and-technical-debt.md)).
+
+## Alternatives considered
+- **SAP-type-specific branches inside orchestrator/domain code** (`if (artifactType === 'fiori')`): rejected — this is precisely the anti-pattern the plugin architecture exists to prevent; it is the path of least resistance and therefore the one that must be structurally blocked.
+- **A full plugin marketplace/sandboxed runtime from Sprint 0**: rejected as premature — no plugins with real logic exist yet; building sandboxing infrastructure before there's anything to sandbox is its own form of speculative complexity. The contract is designed so isolation can be added later without changing plugin authors' code.
