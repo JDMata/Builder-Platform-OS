@@ -37,8 +37,8 @@ This document states the enforceable rules behind [ENGINEERING_PRINCIPLES.md](EN
 ## Workflow rules
 
 - `orchestrator` depends only on `WorkflowEnginePort` — never on a concrete workflow engine's SDK or execution model.
-- A `WorkflowRun` pins the exact `WorkflowDefinition` version, `PromptTemplate` version, and resolved `ModelProfile` mapping it started with — never "whatever is current" — so any run is reproducible and auditable later.
-- Workflow steps are generic (`agent-invocation`, `plugin-generation`, `human-approval`) and reference capabilities by ID resolved through the Capability & Plugin Registry — the engine never interprets what a step's capability actually does.
+- A `WorkflowRun` pins the exact `WorkflowDefinition` version, `PromptTemplate` version, resolved `ModelProfile` mapping, and resolved `CapabilityProvider` (per step) it started with — never "whatever is current" — so any run is reproducible and auditable later.
+- Workflow steps are generic (`capability-request`, `human-approval`) and reference a `Capability` by ID, resolved through the Capability & Plugin Registry to a concrete provider — the engine never interprets what a step's capability actually does, and the workflow definition never names a specific agent or plugin directly (see Capability model rules, below).
 - The build-vs-adopt decision between an in-house engine and a proven durable-execution engine (Temporal or equivalent) is made on a fixed timebox against real data, not deferred indefinitely.
 - Full detail: [07-workflow-engine.md](docs/architecture/07-workflow-engine.md), [ADR-0008](docs/adr/0008-workflow-engine-in-house-first.md).
 
@@ -92,8 +92,18 @@ This document states the enforceable rules behind [ENGINEERING_PRINCIPLES.md](EN
 - Memory is scoped (none/run/project/tenant) and persisted only through the existing `Repository<T>` port and `RequestContext` — never a private store an agent alone owns.
 - Escalation, approval, and tool-permission rules are policy-as-code (`.ai/policies/*`), referenced by id — never freeform conditions embedded in a prompt.
 - Tool permissions reuse and generalize the scoped capability token mechanism already established for plugins ([ADR-0006](docs/adr/0006-plugin-architecture.md)) — never a second, agent-specific permission model.
-- A `Step` of kind `agent-invocation` references an `AgentDefinition` by id and pinned version — a `WorkflowRun` never resolves "whichever agent version is current."
+- An `AgentDefinition` is never named directly by a workflow `Step` — it declares `providesCapabilities: CapabilityId[]` and is resolved as one possible provider of a capability (see Capability model rules, below). A `WorkflowRun` still pins the exact `AgentDefinition` version it resolved to, never "whichever version is current."
 - Full detail: [15-ai-workspace.md](docs/architecture/15-ai-workspace.md), [ADR-0020](docs/adr/0020-ai-workspace-for-agent-definitions.md).
+
+## Capability model rules
+
+- A workflow `Step` requests a **capability** (e.g. "Generate Functional Specification") — it never names a specific agent, plugin, or any other provider directly. `Step` has two kinds: `capability-request` and `human-approval`.
+- A `Capability` is provider-agnostic: inputs, outputs, preconditions, required permissions, approval requirements, required context, expected `ArtifactType`s, and quality gates — all as policy-as-code references, never a hardcoded provider.
+- A `CapabilityProvider` is one eligible fulfiller of a capability — `providerType: 'agent' | 'plugin' | 'human' | 'external-service'` — ordered by priority into an automatic fallback chain, the same shape as `ModelProfile`'s fallback chain ([ADR-0016](docs/adr/0016-mandatory-resilience-patterns.md)).
+- "Implementation" and "Resources" in the capability-resolution chain are never new aggregates — they are the provider's own already-existing fields (`AgentDefinition`'s pinned prompt version and allowed MCP tools, or `PluginManifest`'s version and required MCP/LLM capabilities).
+- Resolving a capability to a concrete provider crosses a context boundary (Workflow → Capability & Plugin Registry) through `ports/capability-resolver.port.ts` — never a direct cross-context import. A `WorkflowRun` pins the exact resolved provider (`providerType`, `providerId`, `providerVersion`) at the moment it's chosen, per aggregate design rule 6.
+- `CapabilityProvider` (Capability & Plugin Registry — who fulfills a capability) is not `CapabilityBinding` (MCP Registry — which plugin/step may call which tool) — the two names are easy to confuse and describe different things.
+- Full detail: [18-capability-model.md](docs/architecture/18-capability-model.md), [ADR-0022](docs/adr/0022-capability-model-provider-abstraction.md).
 
 ## Digital Twin & traceability rules
 

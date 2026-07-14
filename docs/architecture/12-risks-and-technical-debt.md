@@ -55,6 +55,14 @@
 | R29 | Graph query performance degrades at 500+ projects over a 10-year archive | Medium | Medium | `GraphStorePort` keeps a dedicated graph engine available as an adapter swap; partitioning/archival discipline already established for other high-volume tables applies to node/edge history; queries are project-scoped by default, never cross-project |
 | R30 | Cross-project similarity search (future AI reasoning) accidentally leaks across tenants | High | Low if the existing rule is followed, High if it's forgotten | Explicitly scoped to `RequestContext`/tenant isolation, no exception, stated directly in the design doc rather than left implicit |
 
+### Added with the Capability Model ([ADR-0022](../adr/0022-capability-model-provider-abstraction.md), [18-capability-model.md](18-capability-model.md))
+
+| # | Risk | Impact | Likelihood | Mitigation |
+|---|---|---|---|---|
+| R31 | A `Capability` is registered with zero eligible `CapabilityProvider`s, becoming a dead end the first time a workflow requests it | Medium-High | Medium without a check | Fitness function requiring at least one registered provider before a `Capability` can be referenced by a `WorkflowDefinition` — the same "no orphan reference" discipline already applied elsewhere |
+| R32 | `CapabilityProvider` (this decision) confused with the pre-existing `CapabilityBinding` (MCP Registry — tool-access authorization) — both names contain "Capability" and describe different things | Low-Medium | Medium, given how similar the names read | Documented explicitly, side by side, in [18-capability-model.md](18-capability-model.md) rather than left for someone to rediscover as confusion |
+| R33 | Escalation/approval logic duplicated per `CapabilityProvider` instead of centralized on the `Capability`, letting the "same" business rule drift between an agent's own fields and a plugin's `ReviewGate` usage | Medium | Medium if not stated as the default | Stated as the intended default in [18-capability-model.md](18-capability-model.md) and [15-ai-workspace.md](15-ai-workspace.md) — governance moves to the `Capability` level over time, not duplicated per provider |
+
 ## Technical debt prevention strategy: architecture fitness functions
 
 Principles are only as strong as their enforcement. Every principle in [00-vision-and-principles.md](00-vision-and-principles.md) maps to a mechanical, CI-failing check — a "fitness function" — so violations are caught before merge, not during a future audit:
@@ -78,6 +86,7 @@ Principles are only as strong as their enforcement. Every principle in [00-visio
 | `.ai/` content schema and safety (added with AI Workspace, R22/R24/R25) | Planned (Sprint 1/2, not yet active — see backlog): CI validation that every `agent.md`/`prompt.md`/`policy.md`/`workflow.md` matches its template's required fields, and a banned-content scan for secrets or customer-identifying data under `.ai/knowledge/` | CI "Architecture fitness checks" (once the loader exists) |
 | Digital Twin node/edge type registration (added with Digital Twin, R27) | Planned (Sprint 1/2, not yet active — see backlog): CI check that every `nodeType`/`relationshipType` used anywhere is present in the `NodeTypeDefinition`/`RelationshipTypeDefinition` registry before merge | CI "Architecture fitness checks" (once the loader exists) |
 | No unreviewed AI-inferred edges as ground truth (added with Digital Twin, R28) | Planned: query-layer check that any traceability-completeness or impact-analysis read filters out `provenance: 'ai-inferred'` edges unless explicitly confirmed | CI "Contract test" stage (once the graph store adapter exists) |
+| No orphan capabilities (added with the Capability Model, R31) | Planned (once `WorkflowDefinition`/`Capability` are implemented, not yet built): a `WorkflowDefinition` referencing a `Capability` with zero registered `CapabilityProvider`s fails validation before the definition can be published | CI "Architecture fitness checks" (once implemented) |
 
 ## Cadence
 

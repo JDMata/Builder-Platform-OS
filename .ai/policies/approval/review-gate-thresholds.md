@@ -8,7 +8,7 @@ status: draft
 # Policy: Review gate thresholds
 
 ## Condition
-A workflow step of kind `plugin-generation` has produced an `Artifact` intended for promotion beyond a developer's own Local POC execution profile (see [ADR-0019](../../docs/adr/0019-execution-profiles-for-generated-applications.md)) — i.e., promotion to a shared Hybrid or Enterprise environment.
+A `capability-request` step (fulfilled by any provider — plugin, agent, or future human/external service, see [ADR-0022](../../docs/adr/0022-capability-model-provider-abstraction.md)) has produced an `Artifact` intended for promotion beyond a developer's own Local POC execution profile (see [ADR-0019](../../docs/adr/0019-execution-profiles-for-generated-applications.md)) — i.e., promotion to a shared Hybrid or Enterprise environment.
 
 ## Action
 Create a `ReviewGate` on the `Artifact`. Requires role `Reviewer` or `DeliveryLead` (see [SECURITY_BASELINE.md](../../SECURITY_BASELINE.md) RBAC baseline). If the target `Environment.kind == 'prod'`, separation of duties applies: the approver must not be the same actor who triggered the generation run.

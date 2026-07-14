@@ -17,6 +17,9 @@ Turns a raw, human-authored business requirement into a structured, testable `Re
 - Does **not** decide architecture or technology choices (that's `solution-architect`'s responsibility) — it structures intent, it doesn't design a solution.
 - Does **not** trigger any generation, deployment, or external system call — its output is data (`RequirementDocument`), not an action.
 
+## Provides capabilities
+- `structure-business-requirement` — priority `1`. Illustrative: no other provider is registered for this capability yet, so priority is currently moot — see [ADR-0022](../../docs/adr/0022-capability-model-provider-abstraction.md).
+
 ## Allowed MCP tools
 
 | Tool | Why this agent needs it |
@@ -43,7 +46,7 @@ No other tools are reachable by this agent — it has no need for SAP Connectivi
 - `escalation/ambiguous-requirement` — any requirement this agent cannot structure with reasonable confidence becomes a `Clarification`, not a best-effort guess.
 
 ## Approval requirements
-- None at this stage — a `RequirementDocument` is intake data, not an action with side effects. Approval requirements begin downstream, at the workflow steps that act on it (e.g., a `plugin-generation` step's own `ReviewGate`).
+- None at this stage — a `RequirementDocument` is intake data, not an action with side effects. Approval requirements begin downstream, at the workflow steps that act on it (e.g., a `capability-request` step whose capability declares its own `ReviewGate`-backed quality gate).
 
 ## Context loading strategy
 - `retrieval-augmented` — pulls relevant `knowledge/sap-domain/*` entries via the `knowledge-retrieval` MCP tool to recognize known SAP terminology in the requirement text.

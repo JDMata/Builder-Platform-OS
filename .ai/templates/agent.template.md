@@ -15,6 +15,13 @@ One paragraph: why this agent exists and what part of the "SAP delivery organiza
 - What this agent does. Be specific — "reviews generated CAP service code for CDS anti-patterns," not "helps with quality."
 - What this agent explicitly does **not** do (list at least one — the boundary is as important as the scope, and prevents this agent's responsibilities from silently expanding over time).
 
+## Provides capabilities
+*(Added per [ADR-0022](../../docs/adr/0022-capability-model-provider-abstraction.md) — a 12th field, beyond the original 11 [ADR-0020](../../docs/adr/0020-ai-workspace-for-agent-definitions.md) required.)* Which `Capability` id(s) (`context-capability-registry`) this agent is registered as a `CapabilityProvider` for, and at what `priority` relative to any other provider of the same capability. A workflow `Step` never names this agent directly — it requests the capability, and resolution picks this agent only if it's the highest-priority eligible provider.
+
+- `<capability-id>` — priority `<n>`
+
+Escalation/approval rules that apply regardless of *which* provider fulfills a capability belong on the `Capability` itself, not repeated here — only list agent-specific exceptions below.
+
 ## Allowed MCP tools
 List every MCP tool this agent may call, by exact registered tool name. This is an allow-list, not a suggestion — anything not listed here is unreachable by this agent regardless of what the underlying LLM tries to do (enforced via the scoped capability token mechanism already used for plugins, see [ADR-0006](../../docs/adr/0006-plugin-architecture.md)).
 

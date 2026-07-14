@@ -11,13 +11,12 @@ What business outcome this workflow produces (e.g., "from an approved requiremen
 
 ## Steps
 
-List steps in order. Each step is one of the three kinds the platform's `WorkflowEngine` already understands (see [07-workflow-engine.md](../../docs/architecture/07-workflow-engine.md)) — this file never introduces a fourth kind.
+List steps in order. Each step is one of the two kinds the platform's `WorkflowEngine` already understands (see [07-workflow-engine.md](../../docs/architecture/07-workflow-engine.md)) — this file never introduces a third kind, and never names a specific agent or plugin directly ([ADR-0022](../../docs/adr/0022-capability-model-provider-abstraction.md)).
 
-| # | Kind | Capability reference | Notes |
+| # | Kind | Capability | Notes |
 |---|---|---|---|
-| 1 | `agent-invocation` | `agents/<agent-id>@v<N>` | |
-| 2 | `plugin-generation` | `<plugin-id>` / `<artifactType>` | |
-| 3 | `human-approval` | `policies/approval/<policy-id>` | Reviewer role required: `<RoleName>` |
+| 1 | `capability-request` | `<capability-id>` | Resolved at run time to a `CapabilityProvider` — never hardcode which agent/plugin fulfills it here |
+| 2 | `human-approval` | — | `policies/approval/<policy-id>` — Reviewer role required: `<RoleName>` |
 
 ## Escalation / failure handling
 What happens if a step fails or an agent escalates mid-run (retry, fall back to a human, abort the run) — reference the relevant `policies/escalation/*` file rather than restating conditions here.

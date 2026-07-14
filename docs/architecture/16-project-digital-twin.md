@@ -108,8 +108,12 @@ Relationship types are **opaque, registry-declared strings** — the third appli
 | Governance | `threatens` → `threatened-by` | Risk → Requirement, Risk → Deployment |
 | Governance | `mitigates` → `mitigated-by` | Change → Risk |
 | Versioning | `supersedes` → `superseded-by` | ArtifactVersion N → N-1 |
+| Fulfillment | `fulfilled-by` → `fulfills` | Artifact/GenerationJob → CapabilityProvider (added per [ADR-0022](../adr/0022-capability-model-provider-abstraction.md)) |
+| Fulfillment | `requires-capability` → `required-by` | WorkflowRun/Step → Capability (added per [ADR-0022](../adr/0022-capability-model-provider-abstraction.md)) |
 
 Every relationship type declares its inverse explicitly, so traversal direction never depends on remembering which way a given type "usually" reads — a query for "what implements Requirement X" and "what does CAP Service Y implement" are the same edge, walked in opposite directions.
+
+**Note on the Capability Model ([ADR-0022](../adr/0022-capability-model-provider-abstraction.md)):** `Capability` and `CapabilityProvider` are new node types, and `fulfilled-by`/`requires-capability` are the two new relationship types above — added the same way every prior extension added its own types, with zero change to `GraphStorePort`, node/edge versioning, or provenance tagging. This is the first real test of the claim that the opaque, registry-declared type pattern would absorb new concepts without a redesign, and it holds.
 
 ## 4. Versioning strategy
 

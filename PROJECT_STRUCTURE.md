@@ -50,7 +50,8 @@ sap-app-factory/
 │   │   ├── tenant-connection-resolver.port.ts  # Resolves tenant → physical DB/schema/region (ADR-0013)
 │   │   ├── request-context.ts             # RequestContext type ({ tenantId, actorId, correlationId, tenancyTier }) threaded through every port method
 │   │   ├── graph-store.port.ts            # upsertNode/retireNode/upsertEdge/retireEdge/traverse/snapshot (ADR-0021)
-│   │   └── search-index.port.ts           # Structured + semantic search over Digital Twin nodes and knowledge content (ADR-0021)
+│   │   ├── search-index.port.ts           # Structured + semantic search over Digital Twin nodes and knowledge content (ADR-0021)
+│   │   └── capability-resolver.port.ts    # Resolves a Capability to a concrete CapabilityProvider (agent/plugin/human/external-service) — 13th port (ADR-0022)
 │   │
 │   ├── resilience-kit/                     # Generic, port-agnostic retry/timeout primitive shared by llm-core and mcp-core (ADR-0016) — extracted during SAF-10 to avoid duplicating the algorithm llm-core implemented for SAF-9
 │   ├── llm-core/                          # LLM Gateway domain/application logic + shared resilience wrapper (ADR-0016)
@@ -146,6 +147,7 @@ sap-app-factory/
 - **"Does a new bounded context or a new deployable app need scaffolding?"** → run the generator in `tools/generators`, don't hand-write the boilerplate.
 - **"Am I defining a specialized AI agent's purpose, permissions, memory, or prompt?"** → `.ai/`, following its templates — never a bare string embedded in application code, and never a database row edited outside PR review. See [ADR-0020](docs/adr/0020-ai-workspace-for-agent-definitions.md).
 - **"Am I tracing/relating one artifact to another (a Requirement to a CAP Service, a Deployment to an Incident)?"** → a `DigitalTwinEdge` in `context-digital-twin`, referencing existing aggregates by ID — never a new foreign key bolted onto an unrelated context. See [ADR-0021](docs/adr/0021-project-digital-twin-knowledge-graph.md).
+- **"Does a workflow step need to name who/what performs the work?"** → it never does — a `Step` references a `Capability` (`context-capability-registry`), resolved to a `CapabilityProvider` (agent, plugin, human, or external service) via `ports/capability-resolver.port.ts`. See [ADR-0022](docs/adr/0022-capability-model-provider-abstraction.md).
 
 ## Why this structure, briefly
 

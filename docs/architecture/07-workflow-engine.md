@@ -52,7 +52,9 @@ stateDiagram-v2
     Cancelled --> [*]
 ```
 
-A `Step` is generic: `{ kind: "agent-invocation" | "plugin-generation" | "human-approval", capabilityRef, input }`. The engine never interprets `capabilityRef` — it resolves through the Capability & Plugin Registry ([05](05-plugin-architecture.md)) or the LLM Gateway ([02](02-domain-model.md)).
+A `Step` is generic: `{ kind: "capability-request" | "human-approval", capabilityId, input }`.
+
+**Revised per [ADR-0022](../adr/0022-capability-model-provider-abstraction.md):** `Step` originally had a third kind, `"agent-invocation"`, which named a specific `AgentDefinition` directly — inconsistent with `"plugin-generation"`, which already resolved indirectly through a capability-shaped lookup. The two merge into one `"capability-request"` kind: the engine never interprets `capabilityId` itself — it resolves through `ports/capability-resolver.port.ts` to a concrete `CapabilityProvider` (an agent, a plugin, or in future a human/external service — see [18-capability-model.md](18-capability-model.md)), which is then invoked the same way regardless of which kind of provider it turns out to be. The workflow definition never names a provider; only the platform's capability registry does, which is what makes "swap which agent/plugin/human fulfills this step" a registry change instead of a workflow-definition edit.
 
 ## Sprint 0 deliverable
 

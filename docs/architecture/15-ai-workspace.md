@@ -36,7 +36,7 @@ Four of the six folders map onto concepts **that already existed** before this e
 
 ## New domain model addition: `AgentDefinition`
 
-Added to the Agent Orchestration / Workflow context ([02-domain-model.md](02-domain-model.md)): `AgentDefinition { id, version, purpose, responsibilities, allowedMcpTools: ToolBindingRef[], inputs, outputs, memoryScope: 'none'|'run'|'project'|'tenant', escalationPolicyRefs: PolicyRuleId[], approvalPolicyRefs: PolicyRuleId[], contextLoadingStrategy: ContextLoadingStrategy[], pinnedPromptVersion: PromptTemplateId, toolPermissions: Record<ToolBindingRef, ToolPermissionPolicyId> }`. A `Step` of kind `agent-invocation` references one `AgentDefinition` by id + version, exactly as a `plugin-generation` step already references a capability by id — no new `Step` kind was needed.
+Added to the Agent Orchestration / Workflow context ([02-domain-model.md](02-domain-model.md)): `AgentDefinition { id, version, purpose, responsibilities, allowedMcpTools: ToolBindingRef[], inputs, outputs, memoryScope: 'none'|'run'|'project'|'tenant', escalationPolicyRefs: PolicyRuleId[], approvalPolicyRefs: PolicyRuleId[], contextLoadingStrategy: ContextLoadingStrategy[], pinnedPromptVersion: PromptTemplateId, toolPermissions: Record<ToolBindingRef, ToolPermissionPolicyId>, providesCapabilities: CapabilityId[] }` — the last field added per [ADR-0022](../adr/0022-capability-model-provider-abstraction.md). No new `Step` kind was needed when `AgentDefinition` was first introduced, and per that later ADR, a `Step` no longer names an `AgentDefinition` at all — it references a `Capability`, resolved to a `CapabilityProvider` that may or may not be this agent (see [18-capability-model.md](18-capability-model.md)).
 
 ### Memory: deliberately not a new abstraction
 
@@ -57,6 +57,10 @@ Four named strategies only — `static-bundle`, `retrieval-augmented`, `run-scop
 1. **Now (architecture only):** `.ai/` folder structure, templates, and one illustrative worked example (`requirements-analyst`) — proves the schema holds together, nothing is loaded by any runtime.
 2. **Sprint 1/2 (backlog, not yet built):** a `packages/agent-sdk` package (parallel to `plugin-sdk`) formalizing `AgentDefinition`/`PromptTemplate`/`PolicyRule`/`WorkflowDefinition` as TypeScript types, plus a sync/loader that ingests `.ai/` content into the platform's registries on merge to `main`, plus CI validation (schema lint, banned-content checks — no secrets, no real customer data in `knowledge/`).
 3. **Later:** once `agent-sdk` and the registry are proven internally against the platform's own agents, the same schema becomes the customer/partner-facing mechanism for authoring new agents — the product literally ships using the same `.ai/` conventions the platform team dogfoods, the same way a generated application's hexagonal structure mirrors the platform's own.
+
+## Relationship to the Capability Model
+
+Added per [ADR-0022](../adr/0022-capability-model-provider-abstraction.md): an `AgentDefinition` is never directly targeted by a workflow `Step` again — it becomes one possible **provider** of a `Capability`, gaining one conceptual field, `providesCapabilities: CapabilityId[]`. Its existing eleven required fields are unchanged and now map exactly onto "Implementation" (`Prompt version`) and "Resources" (`Allowed MCP tools`/`Tool permissions`) in the capability resolution chain — see [18-capability-model.md](18-capability-model.md). `Escalation rules` and `Approval requirements` that apply regardless of *which* provider fulfills a capability belong on the `Capability` itself going forward, not duplicated per agent — existing `.ai/agents/*` content is unaffected by this decision alone (there is one agent today, and it does not yet declare a capability it provides).
 
 ## Relationship to the Project Digital Twin
 

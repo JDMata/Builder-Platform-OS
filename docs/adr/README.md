@@ -2,7 +2,7 @@
 
 All ADRs use the standard template: [ADR_TEMPLATE.md](../../ADR_TEMPLATE.md). See [TECHNICAL_DEBT_POLICY.md](../../TECHNICAL_DEBT_POLICY.md) for when a new ADR is required.
 
-**All 21 ADRs below are `Accepted`** (approved 2026-07-14, alongside the engineering standards, Digital Twin, Local-first/execution-profile, and AI Workspace architecture). Sprint 0 implementation begins against this accepted set. If a decision is later rejected or replaced, don't delete the file — change status to `Superseded by NNNN` and write the replacement, so the reasoning trail (including why the first approach was rejected) survives.
+**All 22 ADRs below are `Accepted`** (approved 2026-07-14, alongside the engineering standards, Digital Twin, Local-first/execution-profile, AI Workspace, and Capability Model architecture). Sprint 0 implementation begins against this accepted set. If a decision is later rejected or replaced, don't delete the file — change status to `Superseded by NNNN` and write the replacement, so the reasoning trail (including why the first approach was rejected) survives.
 
 ## Index
 
@@ -31,3 +31,4 @@ Six ADRs (0006, 0007, 0008, 0009) carry a **Review update** section added by the
 | [0019](0019-execution-profiles-for-generated-applications.md) | Execution profiles for generated applications (Local POC / Hybrid / Enterprise) | Accepted |
 | [0020](0020-ai-workspace-for-agent-definitions.md) | AI Workspace (`.ai/`) for agent definitions | Accepted |
 | [0021](0021-project-digital-twin-knowledge-graph.md) | Project Digital Twin as an event-projected knowledge graph | Accepted |
+| [0022](0022-capability-model-provider-abstraction.md) | Capability model: workflows request capabilities, never specific agents | Accepted *(closes a real Step-kind inconsistency; 2 new aggregates + 1 new port, reusing AgentDefinition/PluginManifest fields instead of 2 more new aggregates)* |

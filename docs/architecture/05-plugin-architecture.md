@@ -45,7 +45,11 @@ A plugin whose output is a runnable application (CAP Node/Java, Fiori — as opp
 
 1. Plugins live in `plugins/<name>` (Sprint 0) or are installed as versioned npm packages implementing `@sap-app-factory/plugin-sdk` (future — this is why the contract package is separate and minimal).
 2. At startup, a **Plugin Loader** (in `orchestrator`) reads each plugin's manifest and registers it into the **Capability & Plugin Registry** domain context — the registry is core, the plugins are not.
-3. `WorkflowDefinition`s and `Step`s reference capabilities by `artifactType`/capability ID, resolved through the registry at run time — core orchestration code never imports a plugin package by name.
+3. `WorkflowDefinition`s and `Step`s reference a `Capability` by id, resolved through the registry to a concrete `CapabilityProvider` at run time (see [ADR-0022](../adr/0022-capability-model-provider-abstraction.md) and [18-capability-model.md](18-capability-model.md)) — core orchestration code never imports a plugin package by name, and a workflow definition never names a plugin (or an agent) directly.
+
+### Plugins as capability providers
+
+Per [ADR-0022](../adr/0022-capability-model-provider-abstraction.md): plugins **expose** capabilities, and can also **provide** them. Installing a plugin can register a new `Capability` into the registry (e.g., installing a CAP-service generator registers "Generate CAP Service," with the plugin itself as a `CapabilityProvider`), or it can register as an *additional* provider for a capability that already exists — the same capability might, over time, be fulfilled by more than one plugin, an AI agent, or (per the platform's stated future) a human consultant or external service, chosen by priority-ordered fallback exactly like `ModelProfile`'s. `PluginManifest.producesArtifactTypes` is unchanged; it now additionally implies which capability(ies) the plugin is eligible to provide.
 
 ## Isolation & Zero Trust
 
