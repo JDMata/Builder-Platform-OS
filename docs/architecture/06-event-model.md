@@ -38,7 +38,9 @@ sequenceDiagram
     Relay->>DB: mark row delivered
 ```
 
-This guarantees **no event is lost if the process crashes between state change and publish**, without needing a distributed transaction or a broker as a Sprint 0 dependency. The `EventBusPort` interface is identical whether the adapter is "Postgres LISTEN/NOTIFY + outbox table" (Sprint 0) or "Kafka/NATS/Redis Streams" (later, when cross-process/cross-service fan-out or replay-at-scale is actually needed) — consumers subscribe to the port, not to Postgres.
+This guarantees **no event is lost if the process crashes between state change and publish**, without needing a distributed transaction or a broker as a Sprint 0 dependency. The `EventBusPort` interface is identical whether the adapter is "Postgres LISTEN/NOTIFY + outbox table" (Sprint 0) or "Redis Streams" (Sprint 1-2, see revision below) — consumers subscribe to the port, not to Postgres.
+
+> **Correction (post-review):** an earlier version of this document described Sprint 0 subscribers as wired "in-process." That can't be literally true — `orchestrator` and `worker` are separate deployable processes ([04-service-boundaries.md](04-service-boundaries.md)), so an event published by one cannot reach an in-process subscriber living in the other. What actually provides cross-process delivery in Sprint 0 is the relay itself: **each process runs its own relay/subscriber**, listening via Postgres `NOTIFY` (with the polling fallback catching anything missed while disconnected) against the shared `outbox` table. "In-process" was shorthand for "no message broker," not an accurate description of the IPC mechanism — see [13-principal-architect-self-review.md](13-principal-architect-self-review.md) §6.1 for how this was found.
 
 ## Core event catalog (Sprint 0 schema only, no business logic behind them yet)
 
@@ -55,8 +57,12 @@ This guarantees **no event is lost if the process crashes between state change a
 
 ## Consumption model
 
-Sprint 0 wires subscribers **in-process** (a subscriber registry inside `orchestrator`/`worker` calling handlers synchronously off the relay) — no message broker to operate yet. Because everything goes through `EventBusPort`, moving to genuine async pub/sub across services later is an adapter swap, not a rewrite of producers or consumers.
+Each process (`orchestrator`, `worker`) runs its own relay/subscriber registry against the shared outbox table, invoking its own handlers as events arrive — no message broker to operate in Sprint 0. Because everything goes through `EventBusPort`, moving to genuine async pub/sub across services later is an adapter swap, not a rewrite of producers or consumers. If more than one replica of the same process runs the relay, claims on outbox rows use `SELECT ... FOR UPDATE SKIP LOCKED` (or equivalent) so replicas don't double-publish the same event.
 
 ## Idempotency
 
 Every consumer handler is required to be idempotent keyed on `id` (event UUID) — the outbox relay uses at-least-once delivery semantics, never exactly-once. This is stated explicitly so no future contributor "optimizes" a handler into assuming single delivery.
+
+## Transport revision: Redis Streams brought forward (post-review)
+
+Principal-architect self-review ([13-principal-architect-self-review.md](13-principal-architect-self-review.md) §6.3, [ADR-0007 revision](../adr/0007-event-driven-transactional-outbox.md)) found that Postgres `LISTEN`/`NOTIFY` does not hold at target event volume: payloads are capped (~8000 bytes), notify traffic competes with regular OLTP load on the same instance, and disconnected consumers miss notifications outright. **Revised plan:** adopt the `events-adapters/redis-streams` adapter as an explicit Sprint 1-2 milestone rather than an indefinite "later" — Redis is already a stack dependency, so this is a materially smaller lift than adopting Kafka/NATS, and it removes the notify-volume ceiling well before dozens of MCP servers and hundreds of workflows are generating events concurrently. The outbox table and its transactional write-side guarantee are unaffected by this change; only the fan-out transport moves.

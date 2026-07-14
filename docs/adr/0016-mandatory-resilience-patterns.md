@@ -1,0 +1,19 @@
+# 0016 — Mandatory resilience patterns for LLM and MCP adapters
+Status: Proposed
+Date: 2026-07-14 (added in principal-architect review, see [13-principal-architect-self-review.md](../architecture/13-principal-architect-self-review.md) §1.2, §9)
+
+## Context
+Neither `ports/llm-provider.port.ts` nor `ports/mcp-connection.port.ts` ([ADR-0004](0004-mcp-abstraction-layer.md), [ADR-0005](0005-llm-abstraction-layer.md)) originally specified timeout, retry, or circuit-breaking behavior — left as an implicit, per-adapter concern. At dozens of MCP servers and multiple LLM providers, partial failure (a slow/unreachable MCP server, a rate-limited or degraded LLM provider) is the normal operating condition, not an edge case. Worse, once `orchestrator`/`worker` run multiple replicas ([13-principal-architect-self-review.md](../architecture/13-principal-architect-self-review.md) §1.2), per-replica in-memory circuit-breaker state means each replica independently rediscovers the same failing dependency, multiplying failed calls during the detection window.
+
+## Decision
+`llm-core` and `mcp-core` provide a shared resilience envelope — timeout, bounded retry with jittered backoff, circuit breaker, and bulkhead (so one slow dependency can't exhaust the connection/thread pool shared by others) — applied to every adapter call through a common wrapper, not reimplemented per adapter. Circuit-breaker and rate-limit state is stored in Redis (already a stack dependency), shared across all `orchestrator`/`worker` replicas rather than held in per-replica memory. `ModelProfile` gains an optional ordered fallback chain (alternative provider/model pairs), evaluated automatically on circuit-open. `McpServerRegistration` gains a health-check cadence and an operator- and workflow-visible circuit state, so a workflow definition can declare graceful degradation (e.g., skip an optional enrichment step) rather than fail outright when a non-critical MCP server is down.
+
+## Consequences
+- Every current and future adapter gets consistent resilience behavior for free by going through the shared wrapper — no adapter author reimplements retry/circuit-breaking, and none can accidentally skip it.
+- Redis becomes load-bearing for resilience state, not just caching/queues — its availability requirements go up accordingly (already mitigated by treating Redis as reconstructible/non-authoritative per [09-database-proposal.md](../architecture/09-database-proposal.md); circuit-breaker state resets safely to "closed" if Redis data is lost, at worst causing a brief burst of retries, not incorrect behavior).
+- Workflow authors get a new failure mode to design for explicitly (a capability being "circuit open") rather than assuming every step either fully succeeds or fully fails the run.
+
+## Alternatives considered
+- **Leave resilience behavior to each adapter's discretion**: rejected — guarantees inconsistent behavior across ~dozens of MCP adapters and produces exactly the duplicated-failure-during-detection-window problem across replicas that this ADR exists to prevent.
+- **Circuit-breaker state in per-replica memory (status quo)**: rejected for the reasons in [13-principal-architect-self-review.md](../architecture/13-principal-architect-self-review.md) §1.2 — doesn't hold once `orchestrator`/`worker` run more than one replica, which is required at target scale regardless of the workflow-engine or service-extraction decisions.
+- **A dedicated resilience-as-a-service sidecar (e.g., service mesh-level circuit breaking)**: rejected for now — adds an infrastructure dependency (mesh) disproportionate to the problem; an in-library shared wrapper backed by Redis achieves the same cross-replica consistency far more cheaply, consistent with modular-monolith-first ([ADR-0003](0003-modular-monolith-first.md)).

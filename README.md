@@ -22,9 +22,10 @@
 | [docs/architecture/10-coding-standards-and-naming.md](docs/architecture/10-coding-standards-and-naming.md) | Coding standards and naming conventions |
 | [docs/architecture/11-git-and-cicd-strategy.md](docs/architecture/11-git-and-cicd-strategy.md) | Branching model, CI/CD pipeline |
 | [docs/architecture/12-risks-and-technical-debt.md](docs/architecture/12-risks-and-technical-debt.md) | Risk register, technical debt prevention (fitness functions) |
-| [docs/adr/README.md](docs/adr/README.md) | Architecture Decision Records index |
-| [docs/backlog/sprint-0-backlog.md](docs/backlog/sprint-0-backlog.md) | Concrete Sprint 0 tickets |
+| [docs/architecture/13-principal-architect-self-review.md](docs/architecture/13-principal-architect-self-review.md) | **Adversarial self-review at 500+ projects / dozens of MCP servers / hundreds of workflows / enterprise SaaS scale — read this to see what changed and why** |
+| [docs/adr/README.md](docs/adr/README.md) | Architecture Decision Records index (18 ADRs — 12 original, 6 added by the self-review, 4 amended) |
+| [docs/backlog/sprint-0-backlog.md](docs/backlog/sprint-0-backlog.md) | Concrete Sprint 0 tickets, plus Sprint 1/2 carry-forward items elevated by the self-review |
 
 ## Review gate
 
-Every ADR in [docs/adr/](docs/adr/) is currently **Proposed**. Per the operating agreement for this project, no application code is written until these are reviewed and their status is moved to **Accepted** (or revised and re-proposed). Flag disagreements against the ADR itself, not the summary documents, so the decision trail stays intact.
+Every ADR in [docs/adr/](docs/adr/) is currently **Proposed**. Per the operating agreement for this project, no application code is written until these are reviewed and their status is moved to **Accepted** (or revised and re-proposed). Flag disagreements against the ADR itself, not the summary documents, so the decision trail stays intact. Start with [13-principal-architect-self-review.md](docs/architecture/13-principal-architect-self-review.md) — it's the fastest path to understanding what changed since the first draft and why.

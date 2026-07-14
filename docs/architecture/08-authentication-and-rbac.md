@@ -56,6 +56,17 @@ Permissions are expressed as `resource:action` pairs scoped to a hierarchy: `ten
 - Policies are versioned, unit-tested (policy-as-code test suite in `testing-kit`), and reviewed like code — this is also what makes the model PMO/ITIL-auditable: every authorization decision is traceable to a specific policy version.
 - `api-gateway` performs coarse-grained checks (can this user call this endpoint at all); `application/*` use cases perform fine-grained, resource-scoped checks via the same port — defense in depth, one policy engine, two enforcement points.
 
+## Post-review additions
+
+### Tenant isolation defense-in-depth (not RLS alone)
+Principal-architect self-review ([13-principal-architect-self-review.md](13-principal-architect-self-review.md) §2.1) found that Row-Level Security keyed on a Postgres session setting ([09-database-proposal.md](09-database-proposal.md)) was the *only* tenant-isolation control — one code path that opens a connection without setting it is a cross-tenant leak. **Added:** every port method now takes an explicit `RequestContext` (`tenantId`, `actorId`, `correlationId`, `tenancyTier` — see [02-domain-model.md](02-domain-model.md)) threaded from `api-gateway` down to the repository call, so tenant scoping is enforced at the application layer independently of RLS, not only at the database layer. The corresponding fitness function (an automated cross-tenant-read test suite run in CI) is tracked in [12-risks-and-technical-debt.md](12-risks-and-technical-debt.md).
+
+### Tool-call authorization beyond plugin-level capability binding
+Principal-architect self-review ([13-principal-architect-self-review.md](13-principal-architect-self-review.md) §2.3) found that MCP capability bindings ([ADR-0004](../adr/0004-mcp-abstraction-layer.md)) scope *which* tools a plugin may call, but say nothing about an agent being manipulated (via injected content in requirements text or MCP tool output) into misusing a tool it's technically allowed to call — e.g., exfiltrating data through a legitimately-bound integration tool. **Added policy rule:** any tool call that touches a target system, a credential, or crosses the tenant boundary (egress) requires either a pre-approved allow-list scoped to the specific *workflow step* (not just the plugin) or a human `ReviewGate`, evaluated by the same policy engine — a policy-as-code addition, not new infrastructure.
+
+### New permission: `connection:use` vs. `connection:manage`
+Following [ADR-0015](../adr/0015-target-system-credential-management.md), the permission set gains `connection:manage` (configure a `TargetSystemConnection`) and `connection:use` (trigger an operation that consumes it) as distinct permissions, enabling separation of duties for tenants that require it — the person who configures a connection to a customer's production SAP landscape need not be the one authorized to trigger a deployment through it.
+
 ## Sprint 0 deliverable
 
-`auth-core` package with: session handling against the dev Keycloak instance, `PolicyEnginePort` interface + a minimal OPA adapter loading a single example policy bundle, and the role/permission schema in Postgres (empty seed data only, no UI).
+`auth-core` package with: session handling against the dev Keycloak instance, `PolicyEnginePort` interface + a minimal OPA adapter loading a single example policy bundle, the role/permission schema in Postgres (empty seed data only, no UI), and the `RequestContext` type threaded through the port interfaces from the start (cheap to add now, expensive to retrofit once every port implementation assumes ambient tenant state).

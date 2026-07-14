@@ -50,6 +50,23 @@ erDiagram
 
 (FK-looking lines above are logical/ID references per the cross-context rule, not physical foreign keys where they cross schema boundaries.)
 
+## Post-review additions
+
+### Partitioning and archival (was missing)
+Principal-architect self-review ([13-principal-architect-self-review.md](13-principal-architect-self-review.md) §1.1, §6.4) found no partitioning or archival plan for the fastest-growing tables. A conservative estimate (500 projects × ~50 runs/project/year × 20 steps × 2 invocations) puts `agent_invocation` at 1M+ rows/year, tens of millions within the platform's 10-year horizon — `audit_event` and `workflow_step` grow similarly. **Added:** these three tables are created as monthly range-partitioned tables (on `created_at`) from their first migration; aging data is archived to MinIO and its partition dropped, per [ADR-0017](../adr/0017-data-retention-crypto-shredding.md), rather than deleted row-by-row against a live, indexed table.
+
+### High availability (was missing)
+A single instance per environment with no replication is a single point of failure for every tenant sharing it. **Added:** streaming replication with automated failover (e.g., Patroni or a managed-service equivalent) is a required Sprint 1/2 operational capability for the pooled tier, not deferred indefinitely.
+
+### PII handling (was missing)
+`agent_invocation` and `audit_event` will incidentally contain PII (requirement text, user identifiers) once real usage begins, which conflicts with the append-only design's compliance value once an erasure request arrives. **Added:** PII is never stored inline in these tables — see the per-subject encrypted vault and crypto-shredding erasure mechanism in [ADR-0017](../adr/0017-data-retention-crypto-shredding.md).
+
+### Tenancy tiering (was missing)
+"One instance per environment, RLS for tenant separation" was an unstated assumption that every tenant gets the same isolation guarantee. **Added:** [ADR-0013](../adr/0013-tenancy-isolation-tiering.md) introduces Pooled/Silo/Dedicated tiers for tenants with stronger isolation, data-residency, or on-prem requirements, resolved per-request via a new `ports/tenant-connection-resolver.port.ts` rather than a hardcoded connection string.
+
+### Cross-aggregate reporting (was missing)
+Aggregate repositories are the wrong shape for dashboard/reporting queries at 500+ projects. **Added:** a dedicated `reporting` schema holds event-fed projections, queried directly instead of through write-side repositories — see [ADR-0014](../adr/0014-cqrs-read-models.md).
+
 ## Sprint 0 deliverable
 
-Drizzle schema + first migration for `identity` and `governance` schemas only (enough to seed a user/role/audit-event and prove the migration pipeline and RLS pattern), plus the docker-compose Postgres/Redis/MinIO services. No other context's tables are built yet — they arrive with their owning feature work.
+Drizzle schema + first migration for `identity` and `governance` schemas only (enough to seed a user/role/audit-event and prove the migration pipeline and RLS pattern), plus the docker-compose Postgres/Redis/MinIO services. The `governance.audit_event` migration is written as a partitioned table from this first migration (proving the pattern early, per the addition above), even though volume doesn't demand it yet. No other context's tables are built yet — they arrive with their owning feature work.
