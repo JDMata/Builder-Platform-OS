@@ -3,6 +3,8 @@
 Goal: prove every architectural seam in [docs/architecture/](../architecture/) exists, is enforced by CI, and boots locally — with **zero SAP-specific logic and zero real agent/generation behavior**. Definition of done for the sprint: `docker compose up` brings up all services healthy, `pnpm turbo run lint typecheck test build` is green, and every fitness function in [12-risks-and-technical-debt.md](../architecture/12-risks-and-technical-debt.md) is wired and passing against the empty scaffolds.
 
 > **Revised after principal-architect self-review** ([13-principal-architect-self-review.md](../architecture/13-principal-architect-self-review.md)): package numbering below (SAF-7/SAF-8) reflects the collapsed one-package-per-context model (ADR-0018). A few items that were originally "later, if needed" are now called out explicitly as Sprint 1/2 blockers, not backlog-someday: durable-execution-engine spike, plugin process isolation, and the Redis Streams event-transport migration. See the "Sprint 1/2 carry-forward" section at the end.
+>
+> **Extended for execution profiles** ([ADR-0019](../adr/0019-execution-profiles-for-generated-applications.md)): SAF-12's `plugin-sdk` scope grew to include the execution-profile manifest fields, and a new Sprint 1/2 item (SAF-31, `generated-app-kit`) was added — both still contract/scaffolding only, no real plugin logic.
 
 Tickets are grouped by theme; sequence roughly follows the numbered order (later tickets depend on earlier ones).
 
@@ -18,7 +20,7 @@ Tickets are grouped by theme; sequence roughly follows the numbered order (later
 - **SAF-9** — `packages/llm-core` + `packages/llm-adapters/anthropic` stub returning a typed mocked response; contract test in `testing-kit` run against it.
 - **SAF-10** — `packages/mcp-core` + `packages/mcp-adapters/stdio` stub; contract test.
 - **SAF-11** — `packages/events-core` (CloudEvents envelope, outbox contract) + `packages/events-adapters/postgres-outbox` skeleton; contract test proving a trivial event round-trips through Postgres.
-- **SAF-12** — `packages/plugin-sdk` contract (manifest + lifecycle interface) + one empty example plugin (`plugins/fiori-generator`, `generate()` returns `[]`) + contract test.
+- **SAF-12** — `packages/plugin-sdk` contract (manifest + lifecycle interface, including the `supportedExecutionProfiles`/`portCategoriesUsed` manifest fields and `targetExecutionProfile` on `GenerationInput` per [ADR-0019](../adr/0019-execution-profiles-for-generated-applications.md) — declared in the type contract now, not exercised until a real application-generating plugin exists) + one empty example plugin (`plugins/fiori-generator`, `generate()` returns `[]`) + contract test.
 - **SAF-20a** — `packages/testing-kit`: shared fixtures + the contract-test harness used by SAF-9/10/11/12.
 
 ## Data & infra
@@ -52,6 +54,7 @@ Tickets are grouped by theme; sequence roughly follows the numbered order (later
 - **SAF-28** — `packages/read-models/*` + first projection (e.g., workflow-run status by project) backing the first real dashboard view ([ADR-0014](../adr/0014-cqrs-read-models.md)).
 - **SAF-29** — `TargetSystemConnection` implementation: envelope encryption, KMS-backed KEK, just-in-time credential issuance ([ADR-0015](../adr/0015-target-system-credential-management.md)) — required before the first real deployment-to-customer-system capability, not before Sprint 0 closes.
 - **SAF-30** — Tenancy tier decision + `TenantConnectionResolverPort` implementation for the first Silo/Dedicated customer commitment ([ADR-0013](../adr/0013-tenancy-isolation-tiering.md)).
+- **SAF-31** *(new — execution profiles)* — `packages/generated-app-kit`: the seven generated-application ports (persistence, authentication, authorization, messaging, storage, sap-connectivity, external-api), `local-poc` mock adapters, thin Enterprise-tier adapters wrapping official SAP SDKs, and the shared contract-test suite proving mock/real parity — required before the first application-generating plugin (e.g., `cap-node-generator`) ships real logic. See [ADR-0019](../adr/0019-execution-profiles-for-generated-applications.md), [14-execution-profiles.md](../architecture/14-execution-profiles.md).
 
 ## Explicitly out of scope for Sprint 0
 Anything involving real Fiori/CAP/RAP/ABAP/Integration Suite generation, real LLM prompting/reasoning, real MCP server integrations, a production IdP, or multi-tenant physical isolation. See [00-vision-and-principles.md](../architecture/00-vision-and-principles.md#explicit-sprint-0-non-goals). Note that Temporal adoption is *no longer* indefinitely deferred (see SAF-24) — it's carried forward with an explicit timebox rather than left off this list entirely.

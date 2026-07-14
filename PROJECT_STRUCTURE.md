@@ -65,6 +65,7 @@ sap-app-factory/
 │   ├── auth-core/                         # AuthN session handling + PolicyEnginePort + OPA/Cedar adapter
 │   │
 │   ├── plugin-sdk/                        # The ONLY package allowed to define the CapabilityPlugin contract; execute() seam hides process/container isolation (ADR-0006)
+│   ├── generated-app-kit/                 # Versioned runtime dependency FOR GENERATED APPLICATIONS (not the platform itself) — the seven ports (persistence, auth, authz, messaging, storage, sap-connectivity, external-api) + mock and Enterprise adapters + shared contract tests (ADR-0019)
 │   │
 │   ├── ui-kit/                            # Shared design system (React + UI5 Web Components wrappers)
 │   ├── observability/                     # OpenTelemetry SDK setup, shared structured logger, tracing helpers
@@ -124,6 +125,7 @@ sap-app-factory/
 - **"Is this a cross-aggregate/cross-context read query for a dashboard or list view?"** → `packages/read-models/*`, queried directly — never bent into an aggregate repository call. See [ADR-0014](docs/adr/0014-cqrs-read-models.md).
 - **"Does this touch a credential for a customer's own SAP system (not the platform's own operational secrets)?"** → the Connection Management concept in `context-project`, behind `TargetSystemConnection`, never the generic `secrets-vault` port. See [ADR-0015](docs/adr/0015-target-system-credential-management.md).
 - **"Is this a cross-cutting interface with no implementation (an abstraction every layer depends on)?"** → `packages/ports/`, never mixed into a context or adapter package.
+- **"Is this a port or adapter consumed by a *generated application* at its own runtime (persistence, auth, authz, messaging, storage, SAP connectivity, external APIs)?"** → `packages/generated-app-kit/`, never `packages/ports/` (which is for the platform's own runtime) and never hand-rolled inside a plugin. See [ADR-0019](docs/adr/0019-execution-profiles-for-generated-applications.md).
 - **"Does a new bounded context or a new deployable app need scaffolding?"** → run the generator in `tools/generators`, don't hand-write the boilerplate.
 
 ## Why this structure, briefly

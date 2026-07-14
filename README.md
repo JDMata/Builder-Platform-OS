@@ -38,7 +38,8 @@
 | [docs/architecture/11-git-and-cicd-strategy.md](docs/architecture/11-git-and-cicd-strategy.md) | Branching model, CI/CD pipeline |
 | [docs/architecture/12-risks-and-technical-debt.md](docs/architecture/12-risks-and-technical-debt.md) | Risk register, technical debt prevention (fitness functions) |
 | [docs/architecture/13-principal-architect-self-review.md](docs/architecture/13-principal-architect-self-review.md) | **Adversarial self-review at 500+ projects / dozens of MCP servers / hundreds of workflows / enterprise SaaS scale — read this to see what changed and why** |
-| [docs/adr/README.md](docs/adr/README.md) | Architecture Decision Records index (18 ADRs — 12 original, 6 added by the self-review, 4 amended) |
+| [docs/architecture/14-execution-profiles.md](docs/architecture/14-execution-profiles.md) | Execution profiles (Local POC / Hybrid / Enterprise) for **generated applications** — ports & adapters at the product boundary, not the platform's own runtime |
+| [docs/adr/README.md](docs/adr/README.md) | Architecture Decision Records index (19 ADRs — 12 original, 6 added by the self-review, 1 added for execution profiles, several cross-referenced) |
 | [docs/backlog/sprint-0-backlog.md](docs/backlog/sprint-0-backlog.md) | Concrete Sprint 0 tickets, plus Sprint 1/2 carry-forward items elevated by the self-review |
 
 ## Review gate

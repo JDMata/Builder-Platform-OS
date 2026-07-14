@@ -75,6 +75,16 @@ This document states the enforceable rules behind [ENGINEERING_PRINCIPLES.md](EN
 - Given a tenant ID, the physical database/schema/region to use is resolved through `ports/tenant-connection-resolver.port.ts`, never hardcoded — this is what makes tenancy tiering (Pooled/Silo/Dedicated) an operational decision, not a code change.
 - Full detail: [09-database-proposal.md](docs/architecture/09-database-proposal.md), [ADR-0009](docs/adr/0009-postgresql-schema-per-context-drizzle.md), [ADR-0013](docs/adr/0013-tenancy-isolation-tiering.md), [ADR-0014](docs/adr/0014-cqrs-read-models.md).
 
+## Execution profile rules (generated applications)
+
+- These rules govern applications the platform *generates* (via plugins), not the platform's own runtime — see the scope note in [ADR-0019](docs/adr/0019-execution-profiles-for-generated-applications.md).
+- Every application-generating plugin scaffolds its output behind exactly seven ports: Persistence, Authentication, Authorization, Messaging, Storage, SAP Connectivity, External APIs. The generated application's domain/business logic depends only on these — no SAP-specific or infrastructure-specific code in a generated app's domain layer, the same rule the platform holds its own core to.
+- An `ExecutionProfile` is a per-port-category adapter selection, not three fixed hardcoded modes. `local-poc` and `enterprise` are the pure presets (all-mock, all-real); `hybrid` is any non-uniform mix of the two — it requires no separate mechanism.
+- Adapter implementations for the seven ports live in one shared, versioned package (`packages/generated-app-kit`), consumed by every application-generating plugin — never reimplemented per plugin.
+- Enterprise-tier SAP Connectivity bindings resolve real credentials through `TargetSystemConnection` ([ADR-0015](docs/adr/0015-target-system-credential-management.md)) — never a second credential mechanism.
+- Every port's mock and real adapters must pass the same shared contract-test suite — this is what makes "works in Local POC" a reliable predictor of "works in Enterprise," not an assumption.
+- Full detail: [14-execution-profiles.md](docs/architecture/14-execution-profiles.md), [ADR-0019](docs/adr/0019-execution-profiles-for-generated-applications.md).
+
 ## Authentication abstraction
 
 - The platform is never an identity provider. `api-gateway` federates to an external OIDC provider (Entra ID, Okta, SAP IAS, Keycloak) via Authorization Code + PKCE; no passwords are ever stored.

@@ -14,6 +14,9 @@ Introduce a first-class Connection Management capability (part of the Project/Wo
 - Adds implementation cost: envelope encryption and short-lived credential issuance are more work than "store a secret, fetch it when needed" — accepted deliberately given the stakes.
 - `ports/secrets-vault.port.ts` remains for the platform's own operational secrets; `TargetSystemConnection` is explicitly not just another entry in it, to keep the two threat models (platform secrets vs. customer-system credentials) visibly separate in code and in review.
 
+## Related decision (2026-07-14)
+[ADR-0019](0019-execution-profiles-for-generated-applications.md) reuses `TargetSystemConnection` as the resolution target for a generated application's Enterprise-tier SAP Connectivity port bindings, rather than introducing a second credential store for that purpose — see that ADR's alternatives for why a second mechanism was explicitly rejected.
+
 ## Alternatives considered
 - **Reuse the generic secrets-vault port for target-system credentials too**: rejected — collapses two different threat models (platform's own ops secrets vs. privileged access to customer production systems) into one undifferentiated bucket, making it easy to under-invest in the controls the higher-stakes case actually needs.
 - **Store target-system credentials only at rest, decrypted into `worker` memory for the process lifetime**: rejected — unnecessarily widens the exposure window; just-in-time fetch scoped to a single operation is not materially harder to implement and meaningfully reduces blast radius.

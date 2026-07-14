@@ -14,6 +14,8 @@ classDiagram
       +McpCapabilityRequirement[] requiredMcpCapabilities
       +LlmCapabilityRequirement[] requiredLlmCapabilities
       +PermissionScope[] requiredPermissions
+      +ExecutionProfileId[] supportedExecutionProfiles
+      +PortCategory[] portCategoriesUsed
     }
     class CapabilityPlugin {
       <<interface>>
@@ -26,13 +28,18 @@ classDiagram
     class GenerationInput {
       +requirementRefs: string[]
       +targetEnvironmentRef: string
+      +targetExecutionProfile: ExecutionProfileId
       +parameters: Record~string, unknown~
     }
     CapabilityPlugin --> PluginManifest
     CapabilityPlugin --> GenerationInput
 ```
 
-`plugin-sdk` is intentionally small and stable: manifest shape, lifecycle methods, and the `GenerationInput`/`Artifact` types it exchanges with the core. It knows nothing about Fiori or ABAP — those are just string values a plugin author chooses for `producesArtifactTypes`.
+`plugin-sdk` is intentionally small and stable: manifest shape, lifecycle methods, and the `GenerationInput`/`Artifact` types it exchanges with the core. It knows nothing about Fiori or ABAP — those are just string values a plugin author chooses for `producesArtifactTypes`. It also knows nothing about SQLite, HANA, or XSUAA: `supportedExecutionProfiles` and `PortCategory` are opaque platform-defined identifiers a plugin declares against, and `targetExecutionProfile` is resolved to concrete adapters entirely inside the plugin and `generated-app-kit` — see [14-execution-profiles.md](14-execution-profiles.md) and [ADR-0019](../adr/0019-execution-profiles-for-generated-applications.md).
+
+### Plugins that generate runnable applications
+
+A plugin whose output is a runnable application (CAP Node/Java, Fiori — as opposed to, say, a documentation-only generator) must scaffold that application's own business logic behind the seven generated-application ports (Persistence, Authentication, Authorization, Messaging, Storage, SAP Connectivity, External APIs) defined in [14-execution-profiles.md](14-execution-profiles.md), importing adapter implementations from the shared `packages/generated-app-kit` rather than hand-rolling its own mocks. This is the same "no SAP-specific logic in the domain layer" rule the core platform holds itself to, applied one level down to the platform's output — see [ADR-0019](../adr/0019-execution-profiles-for-generated-applications.md).
 
 ## Discovery & loading
 
@@ -54,3 +61,5 @@ Only the contract and loader, plus one or two intentionally empty example plugin
 ## Anti-pattern this prevents
 
 Without this seam, the natural failure mode is: "just add an `if (artifactType === 'fiori')` branch in the orchestrator to special-case Fiori annotations." That one `if` is how core platforms accumulate irreversible SAP-specific debt. The rule: if core code needs to branch on SAP-specific knowledge, the branch belongs in a plugin's `generate()`, not in `orchestrator`/`worker`/`domain`/`application`. This is checked mechanically — see the banned-keyword CI guard in [12-risks-and-technical-debt.md](12-risks-and-technical-debt.md).
+
+A second anti-pattern applies to application-generating plugins specifically: "just hand-roll a quick mock auth/persistence adapter for this one plugin instead of pulling in `generated-app-kit`." That shortcut is how the seven generated-application ports end up with N inconsistent, undertested implementations instead of one shared, contract-tested one — see [14-execution-profiles.md](14-execution-profiles.md) §6 and [ADR-0019](../adr/0019-execution-profiles-for-generated-applications.md).

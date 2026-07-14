@@ -28,3 +28,4 @@ Six ADRs (0006, 0007, 0008, 0009) carry a **Review update** section added by the
 | [0016](0016-mandatory-resilience-patterns.md) | Mandatory resilience patterns for LLM/MCP adapters | Proposed *(new — review)* |
 | [0017](0017-data-retention-crypto-shredding.md) | Data retention, partitioned archival, and crypto-shredding | Proposed *(new — review)* |
 | [0018](0018-package-granularity-revision.md) | Package granularity revision: one package per context | Proposed *(new — review)* |
+| [0019](0019-execution-profiles-for-generated-applications.md) | Execution profiles for generated applications (Local POC / Hybrid / Enterprise) | Proposed *(new — extends architecture to the platform's generated output, not its own runtime)* |
