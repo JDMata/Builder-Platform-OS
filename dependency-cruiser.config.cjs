@@ -78,6 +78,28 @@ module.exports = {
       },
     },
     {
+      name: "application-no-npm-deps-except-ports",
+      comment:
+        "Application depends only on its own domain and packages/ports — never an arbitrary third-party npm package directly. Confirmed via SAF-7 fixture testing that a workspace-linked `@sap-app-factory/ports` import resolves with dependencyType 'undetermined' pointing at packages/ports/dist, not 'npm' — so this rule's pathNot exception is what actually allows it through, not the dependencyTypes filter.",
+      severity: "error",
+      from: { path: "^packages/context-[^/]+/src/application/" },
+      to: {
+        pathNot: "^packages/ports/",
+        dependencyTypes: [
+          "npm",
+          "npm-dev",
+          "npm-optional",
+          "npm-peer",
+          "npm-bundled",
+          "npm-no-pkg",
+          "npm-unknown",
+          "core",
+          "deprecated",
+        ],
+        dependencyTypesNot: ["type-only"],
+      },
+    },
+    {
       name: "adapters-no-application",
       comment:
         "Adapters may depend on packages/ports, plugin-sdk, third-party SDKs, and testing-kit (dev) — never on any context's application layer directly.",

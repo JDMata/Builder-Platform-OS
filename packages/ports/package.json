@@ -1,0 +1,19 @@
+{
+  "name": "@sap-app-factory/ports",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Port interfaces (types only, no implementation) — see ARCHITECTURE_PRINCIPLES.md and ADR-0002.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.json",
+    "typecheck": "tsc -b tsconfig.json --noEmit"
+  }
+}

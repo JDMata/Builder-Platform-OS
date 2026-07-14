@@ -39,6 +39,8 @@ importers:
         specifier: ^8.64.0
         version: 8.64.0(eslint@10.7.0)(typescript@5.9.3)
 
+  packages/ports: {}
+
 packages:
 
   '@babel/runtime@7.29.7':

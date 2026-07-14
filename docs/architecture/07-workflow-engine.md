@@ -23,13 +23,15 @@ Build the **`WorkflowEngine` port** now, with a lightweight **in-house adapter**
 
 ```ts
 interface WorkflowEnginePort {
-  startRun(definitionId: string, input: WorkflowInput): Promise<WorkflowRunId>;
-  advance(runId: WorkflowRunId, stepResult: StepResult): Promise<WorkflowRunStatus>;
-  signal(runId: WorkflowRunId, signal: WorkflowSignal): Promise<void>; // e.g. human approval
-  getStatus(runId: WorkflowRunId): Promise<WorkflowRunStatus>;
-  cancel(runId: WorkflowRunId, reason: string): Promise<void>;
+  startRun(ctx: RequestContext, definitionId: string, input: WorkflowInput): Promise<WorkflowRunId>;
+  advance(ctx: RequestContext, runId: WorkflowRunId, stepResult: StepResult): Promise<WorkflowRunStatus>;
+  signal(ctx: RequestContext, runId: WorkflowRunId, signal: WorkflowSignal): Promise<void>; // e.g. human approval
+  getStatus(ctx: RequestContext, runId: WorkflowRunId): Promise<WorkflowRunStatus>;
+  cancel(ctx: RequestContext, runId: WorkflowRunId, reason: string): Promise<void>;
 }
 ```
+
+(This snippet predates the `RequestContext` rule added in the principal-architect review — `packages/ports/src/workflow-engine.port.ts` is the authoritative, current version; shown here updated to match.)
 
 `orchestrator` depends only on `WorkflowEnginePort`. The in-house adapter and a hypothetical future Temporal adapter both implement it identically from the caller's point of view — this is the same hexagonal discipline applied to LLM and MCP access, applied here because this is the riskiest lock-in surface in the whole platform.
 
