@@ -1,8 +1,8 @@
 # Architecture Decision Records
 
-All ADRs use the standard template: [ADR_TEMPLATE.md](../../ADR_TEMPLATE.md). See [TECHNICAL_DEBT_POLICY.md](../../TECHNICAL_DEBT_POLICY.md) for when a new ADR is required, and [ARCHITECTURE_FREEZE.md](../../ARCHITECTURE_FREEZE.md) for the governance sequence every architectural change now follows post-Sprint-0. For the same 22 ADRs cross-referenced with affected packages, related ADRs, and impact level, see [ARCHITECTURE_DECISION_INDEX.md](../../ARCHITECTURE_DECISION_INDEX.md).
+All ADRs use the standard template: [ADR_TEMPLATE.md](../../ADR_TEMPLATE.md). See [TECHNICAL_DEBT_POLICY.md](../../TECHNICAL_DEBT_POLICY.md) for when a new ADR is required, and [ARCHITECTURE_FREEZE.md](../../ARCHITECTURE_FREEZE.md) for the governance sequence every architectural change now follows post-Sprint-0. For the same 23 ADRs cross-referenced with affected packages, related ADRs, and impact level, see [ARCHITECTURE_DECISION_INDEX.md](../../ARCHITECTURE_DECISION_INDEX.md).
 
-**All 22 ADRs below are `Accepted`** (approved 2026-07-14, alongside the engineering standards, Digital Twin, Local-first/execution-profile, AI Workspace, and Capability Model architecture). Sprint 0 implementation begins against this accepted set. If a decision is later rejected or replaced, don't delete the file — change status to `Superseded by NNNN` and write the replacement, so the reasoning trail (including why the first approach was rejected) survives.
+**All 23 ADRs below are `Accepted`** (22 approved 2026-07-14 alongside the engineering standards, Digital Twin, Local-first/execution-profile, AI Workspace, and Capability Model architecture; ADR-0023 added 2026-07-15 as a strategic, pre-Sprint-1 alignment decision — see below). Sprint 0 implementation begins against the original accepted set. If a decision is later rejected or replaced, don't delete the file — change status to `Superseded by NNNN` and write the replacement, so the reasoning trail (including why the first approach was rejected) survives.
 
 ## Index
 
@@ -32,3 +32,4 @@ Six ADRs (0006, 0007, 0008, 0009) carry a **Review update** section added by the
 | [0020](0020-ai-workspace-for-agent-definitions.md) | AI Workspace (`.ai/`) for agent definitions | Accepted |
 | [0021](0021-project-digital-twin-knowledge-graph.md) | Project Digital Twin as an event-projected knowledge graph | Accepted |
 | [0022](0022-capability-model-provider-abstraction.md) | Capability model: workflows request capabilities, never specific agents | Accepted *(closes a real Step-kind inconsistency; 2 new aggregates + 1 new port, reusing AgentDefinition/PluginManifest fields instead of 2 more new aggregates)* |
+| [0023](0023-platform-kernel-and-platform-pack-architecture.md) | Platform Kernel and Platform Pack Architecture | Accepted *(strategic, pre-Sprint-1; no code changes — SAP remains Platform Pack #1, Sprint 1 unaffected)* |

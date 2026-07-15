@@ -2,7 +2,7 @@
 
 Single navigation document for every ADR. See [docs/adr/README.md](docs/adr/README.md) for the original index this one supersedes as the primary navigation surface (that file remains the canonical location of the ADRs themselves — this index adds the cross-cutting metadata a governance review needs: affected packages, related ADRs, impact level).
 
-All 22 ADRs are **Accepted**, decided 2026-07-14, confirmed unchanged as of the Sprint 0 Baseline (2026-07-15).
+22 ADRs are **Accepted**, decided 2026-07-14, confirmed unchanged as of the Sprint 0 Baseline (2026-07-15). ADR-0023 was added 2026-07-15 as a strategic, pre-Sprint-1 alignment decision — no code changes, Sprint 1 unaffected. **23 ADRs total, all Accepted.**
 
 ## Platform
 
@@ -11,6 +11,7 @@ All 22 ADRs are **Accepted**, decided 2026-07-14, confirmed unchanged as of the 
 | [0001](docs/adr/0001-pnpm-turborepo-monorepo.md) | pnpm workspaces + Turborepo for the monorepo | Accepted | 2026-07-14 | All | 0018 | v1 | High | Foundational tooling choice — every package's build/test/lint pipeline depends on this. |
 | [0003](docs/adr/0003-modular-monolith-first.md) | Modular monolith first; microservices only on proven need | Accepted | 2026-07-14 | `apps/*` | 0002, 0018 | v1 | High | Sets the extraction bar — no service split without a proven, documented need. |
 | [0018](docs/adr/0018-package-granularity-revision.md) | Package granularity revision: one package per context | Accepted | 2026-07-14 | All `context-*` | 0001, 0002 | v1 | High | Shaped the entire package tree — domain + application as folders within one package, not separate packages. |
+| [0023](docs/adr/0023-platform-kernel-and-platform-pack-architecture.md) | Platform Kernel and Platform Pack Architecture | Accepted | 2026-07-15 | `plugin-sdk`, `context-capability-registry`, `.ai/knowledge/` (none yet — strategic, unimplemented) | 0006, 0019, 0020, 0022 | v1 | Low | Strategic only — confirms kernel platform-independence, names SAP as Platform Pack #1; the `PlatformPack` aggregate, `PortCategory` rename, and knowledge-path relocation it identifies are all deferred to a future sprint. |
 
 ## Architecture
 
@@ -81,13 +82,13 @@ No ADR is dedicated purely to infrastructure choices — the local-only Docker C
 
 | Status | Count |
 |---|---|
-| Accepted | 22 |
+| Accepted | 23 |
 | Superseded | 0 |
 | Deprecated | 0 |
 | Draft | 0 |
 | Rejected | 0 |
 | Pending | 0 |
-| **Total** | **22** |
+| **Total** | **23** |
 
 Six ADRs (0006, 0007, 0008, 0009) carry a **Review update** section from the principal-architect self-review — read those before treating the original Decision section as final. Six more (0013–0018) were added fresh by that same review. See [13-principal-architect-self-review.md](docs/architecture/13-principal-architect-self-review.md) for the full rationale behind both.
 

@@ -44,10 +44,11 @@ Full register: [12-risks-and-technical-debt.md](docs/architecture/12-risks-and-t
 - Architecture frozen per [ARCHITECTURE_FREEZE.md](ARCHITECTURE_FREEZE.md) (2026-07-15).
 - Sprint 1 onward follows Vertical Slice Architecture (Engineering Planning Principles, [ENGINEERING_PRINCIPLES.md](ENGINEERING_PRINCIPLES.md)).
 - Claude's default working role changes from Principal Software Architect to **Lead SAP Platform Engineer / Product Engineering Lead** starting Sprint 1 (see [.ai/README.md](.ai/README.md)).
+- **Platform Kernel and Platform Pack Architecture accepted** ([ADR-0023](docs/adr/0023-platform-kernel-and-platform-pack-architecture.md), 2026-07-15) — a strategic, pre-Sprint-1 alignment review confirmed the kernel is enterprise-platform-agnostic and named SAP as Platform Pack #1. No code changed, no ADR-0023 item is in Sprint 1's backlog; see [19-platform-kernel-and-platform-packs.md](docs/architecture/19-platform-kernel-and-platform-packs.md). **Sprint 1 remains unchanged and proceeds as planned.**
 
 ## Current ADRs
 
-All 22 ADRs `Accepted`, none `Proposed`, `Superseded`, `Deprecated`, or `Rejected`. Full index with affected packages and impact level: [ARCHITECTURE_DECISION_INDEX.md](ARCHITECTURE_DECISION_INDEX.md). No ADR is currently pending review.
+All 23 ADRs `Accepted`, none `Proposed`, `Superseded`, `Deprecated`, or `Rejected` — the 22 decided at Sprint 0 baseline, plus [ADR-0023](docs/adr/0023-platform-kernel-and-platform-pack-architecture.md) (Platform Kernel and Platform Pack Architecture), a strategic, pre-Sprint-1 alignment decision added 2026-07-15 with no accompanying code changes. Full index with affected packages and impact level: [ARCHITECTURE_DECISION_INDEX.md](ARCHITECTURE_DECISION_INDEX.md). No ADR is currently pending review.
 
 ## Architecture Status
 

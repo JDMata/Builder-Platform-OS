@@ -2,6 +2,8 @@
 
 This is the official product roadmap for SAP App Factory. It distinguishes four different things that are easy to conflate — **only the Product Roadmap drives implementation.** The other three inform planning but are never treated as committed work.
 
+**Current Delivery Scope vs. Future Platform Vision.** Everything under Vision through Future Ideas below — Sprints 0 through 8, all of it — is **100% SAP-focused, unchanged**. The first supported enterprise platform is SAP; the first supported user experience is SAP application delivery. A separate [Future Platform Vision](#future-platform-vision-platform-packs) section at the end of this document describes a longer-horizon, unscheduled, un-committed vision for supporting additional enterprise platforms (Salesforce, Oracle, Microsoft, ServiceNow) through the Platform Pack architecture ([ADR-0023](docs/adr/0023-platform-kernel-and-platform-pack-architecture.md)). That section does not change, expand, or reorder anything in the Current Delivery Scope — it exists only so "the kernel could support other platforms someday" and "Sprint 1 builds SAP support" are never confused with each other.
+
 ## Vision
 
 SAP App Factory is an AI-native engineering platform that turns business requirements into delivered SAP solutions — orchestrating AI agents and MCP servers to produce SAP Fiori/SAPUI5 apps, SAP GUI modernization, CAP services, RAP/ABAP, Integration Suite artifacts, architecture and testing documentation, deployment pipelines, and user manuals. It should feel like engaging an experienced SAP delivery organization, not calling a coding assistant. Full statement: [00-vision-and-principles.md](docs/architecture/00-vision-and-principles.md).
@@ -95,3 +97,17 @@ Named in the platform's Vision but not yet placed on the Product Roadmap above:
 - Anything beyond Sprint 8 — no sprint, epic, or feature exists past Marketplace and Platform Intelligence; ideas about "what comes after" belong here, not in the Product Roadmap, until they're actually planned.
 
 An idea moves from this list to the Product Roadmap only through real sprint planning against [DEFINITION_OF_READY.md](DEFINITION_OF_READY.md) — never by being added here with enough detail to look committed.
+
+---
+
+## Future Platform Vision (Platform Packs)
+
+**This section is vision, not a roadmap commitment — nothing here is scheduled, ticketed, or sequenced into any sprint.** It exists to record a long-horizon architectural direction confirmed by [ADR-0023](docs/adr/0023-platform-kernel-and-platform-pack-architecture.md) (Platform Kernel and Platform Pack Architecture), reviewed strategically ahead of Sprint 1 without changing Sprint 1 itself. See [19-platform-kernel-and-platform-packs.md](docs/architecture/19-platform-kernel-and-platform-packs.md) for the full kernel-independence review behind it.
+
+**The confirmed direction:** the platform's kernel (bounded contexts, capability model, workflow engine, digital twin, security, governance, observability, event model) is enterprise-platform-agnostic by design, mechanically enforced since Sprint 0. Everything specific to one enterprise platform — its generators, templates, validators, deployment providers, documentation conventions, discovery knowledge, and security extensions — belongs in a **Platform Pack**, a registered, self-contained unit the kernel talks to but never contains logic for.
+
+- **SAP is Platform Pack #1.** Every sprint on the Current Delivery Scope above — 0 through 8 — builds out the SAP Platform Pack's capabilities on top of the kernel. This is not a future plan; it's what "Current Delivery Scope" *means*.
+- **Future Platform Packs** — Salesforce, Oracle, Microsoft, ServiceNow, or others — are a possible future direction, not a commitment. None has a sprint, a ticket, or a target release. Each would be added the same way SAP was: as a Platform Pack registered against the same unmodified kernel.
+- **What has to be true before any future Platform Pack is real work, not vision:** the `PlatformPack` aggregate itself would need to exist (identified, not built, by ADR-0023), a second real enterprise platform's requirements would need to be understood well enough to plan against [DEFINITION_OF_READY.md](DEFINITION_OF_READY.md), and it would need to clear the same product-strategy bar every Current Delivery Scope sprint clears — real business value, not novelty.
+
+**What this vision explicitly does not do:** it does not add a Sprint 9, it does not pull any Platform Pack work into Sprint 1–8, and it does not require any kernel code to change today. The only thing this vision changes about present-day work is a naming and grouping discipline going forward (business-oriented capability names, a platform-neutral `PortCategory` label, a pack-scoped knowledge path) — each applied prospectively, never retroactively, and never inside Sprint 1.
