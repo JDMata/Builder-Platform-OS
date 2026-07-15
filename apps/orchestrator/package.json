@@ -1,0 +1,34 @@
+{
+  "name": "@sap-app-factory/orchestrator",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "typecheck": "tsc -b tsconfig.build.json --noEmit",
+    "test": "vitest run --coverage",
+    "dev": "tsx watch src/main.ts",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "@sap-app-factory/adapter-events-postgres-outbox": "workspace:*",
+    "@sap-app-factory/adapter-llm-anthropic": "workspace:*",
+    "@sap-app-factory/adapter-mcp-stdio": "workspace:*",
+    "@sap-app-factory/adapter-workflow-engine-in-memory": "workspace:*",
+    "@sap-app-factory/context-capability-registry": "workspace:*",
+    "@sap-app-factory/llm-core": "workspace:*",
+    "@sap-app-factory/mcp-core": "workspace:*",
+    "@sap-app-factory/plugin-fiori-generator": "workspace:*",
+    "@sap-app-factory/plugin-sdk": "workspace:*",
+    "@sap-app-factory/ports": "workspace:*",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@sap-app-factory/testing-kit": "workspace:*",
+    "@types/node": "^24.13.3",
+    "@types/pg": "^8.11.10",
+    "@vitest/coverage-v8": "^4.1.10",
+    "tsx": "^4.19.2",
+    "vitest": "^4.1.10"
+  }
+}

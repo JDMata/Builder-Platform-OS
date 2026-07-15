@@ -63,9 +63,20 @@ export class PostgresOutboxAdapter implements EventBusPort {
   }
 
   /**
-   * Bootstraps `outbox.events` with `CREATE TABLE IF NOT EXISTS` — a
-   * temporary stand-in until SAF-14 introduces Drizzle migrations, at which
-   * point this table definition moves into a real migration file.
+   * Bootstraps `outbox.events` with `CREATE TABLE IF NOT EXISTS` — still a
+   * hand-managed bootstrap, not a Drizzle migration; SAF-14 introduced that
+   * pattern for `identity`/`governance` but didn't move this table onto it.
+   *
+   * Must be called with a connection that can run DDL and GRANT (the
+   * superuser/migration role, e.g. `main.ts`'s admin pool) — the actual
+   * adapter otherwise runs as the non-superuser `saf_app` role (SAF-14: a
+   * Postgres superuser bypasses Row-Level Security unconditionally, so
+   * everything reading/writing `outbox.events` for real must not be one).
+   * `saf_app` didn't exist yet when this table was first created (SAF-11
+   * predates SAF-14), so the grant below is added here rather than assumed
+   * — found the hard way, running `orchestrator` (SAF-5) against this table
+   * as `saf_app` for the first time and hitting "permission denied for
+   * schema outbox."
    */
   async ensureSchema(): Promise<void> {
     // Issued as separate statements rather than one semicolon-joined string:
@@ -96,6 +107,8 @@ export class PostgresOutboxAdapter implements EventBusPort {
         ON outbox.events (seq)
         WHERE delivered_at IS NULL
     `);
+    await this.pool.query("GRANT USAGE ON SCHEMA outbox TO saf_app");
+    await this.pool.query("GRANT SELECT, INSERT, UPDATE ON outbox.events TO saf_app");
   }
 
   async publish(_ctx: RequestContext, event: DomainEventEnvelope): Promise<void> {

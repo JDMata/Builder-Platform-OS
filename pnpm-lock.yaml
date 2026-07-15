@@ -60,6 +60,61 @@ importers:
         specifier: ^4.1.10
         version: 4.1.10(@types/node@24.13.3)(@vitest/coverage-v8@4.1.10)(vite@8.1.4(@types/node@24.13.3)(esbuild@0.28.1)(tsx@4.23.1))
 
+  apps/orchestrator:
+    dependencies:
+      '@sap-app-factory/adapter-events-postgres-outbox':
+        specifier: workspace:*
+        version: link:../../packages/events-adapters/postgres-outbox
+      '@sap-app-factory/adapter-llm-anthropic':
+        specifier: workspace:*
+        version: link:../../packages/llm-adapters/anthropic
+      '@sap-app-factory/adapter-mcp-stdio':
+        specifier: workspace:*
+        version: link:../../packages/mcp-adapters/stdio
+      '@sap-app-factory/adapter-workflow-engine-in-memory':
+        specifier: workspace:*
+        version: link:../../packages/workflow-engine-adapters/in-memory
+      '@sap-app-factory/context-capability-registry':
+        specifier: workspace:*
+        version: link:../../packages/context-capability-registry
+      '@sap-app-factory/llm-core':
+        specifier: workspace:*
+        version: link:../../packages/llm-core
+      '@sap-app-factory/mcp-core':
+        specifier: workspace:*
+        version: link:../../packages/mcp-core
+      '@sap-app-factory/plugin-fiori-generator':
+        specifier: workspace:*
+        version: link:../../plugins/fiori-generator
+      '@sap-app-factory/plugin-sdk':
+        specifier: workspace:*
+        version: link:../../packages/plugin-sdk
+      '@sap-app-factory/ports':
+        specifier: workspace:*
+        version: link:../../packages/ports
+      pg:
+        specifier: ^8.13.1
+        version: 8.22.0
+    devDependencies:
+      '@sap-app-factory/testing-kit':
+        specifier: workspace:*
+        version: link:../../packages/testing-kit
+      '@types/node':
+        specifier: ^24.13.3
+        version: 24.13.3
+      '@types/pg':
+        specifier: ^8.11.10
+        version: 8.20.0
+      '@vitest/coverage-v8':
+        specifier: ^4.1.10
+        version: 4.1.10(vitest@4.1.10)
+      tsx:
+        specifier: ^4.19.2
+        version: 4.23.1
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@types/node@24.13.3)(@vitest/coverage-v8@4.1.10)(vite@8.1.4(@types/node@24.13.3)(esbuild@0.28.1)(tsx@4.23.1))
+
   apps/web:
     dependencies:
       next:
