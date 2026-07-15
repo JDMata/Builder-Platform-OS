@@ -133,6 +133,11 @@ sap-app-factory/
 ├── CONTRIBUTING.md
 ├── ADR_TEMPLATE.md
 ├── PROJECT_STRUCTURE.md                   # This file
+├── BASELINE.md                            # The Sprint 0 architectural baseline (established 2026-07-15, tag sprint0-baseline-v1.0)
+├── ARCHITECTURE_DECISION_INDEX.md         # Every ADR in one table — affected packages, related ADRs, impact level
+├── PLATFORM_MATURITY.md                   # Maturity matrix — implemented/planned/not-started/deferred, sprint by sprint
+├── ARCHITECTURE_FREEZE.md                 # What's frozen, what Sprint 1+ may change freely, what needs an ADR
+├── CODEOWNERS
 └── README.md
 ```
 

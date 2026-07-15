@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-All ADRs use the standard template: [ADR_TEMPLATE.md](../../ADR_TEMPLATE.md). See [TECHNICAL_DEBT_POLICY.md](../../TECHNICAL_DEBT_POLICY.md) for when a new ADR is required.
+All ADRs use the standard template: [ADR_TEMPLATE.md](../../ADR_TEMPLATE.md). See [TECHNICAL_DEBT_POLICY.md](../../TECHNICAL_DEBT_POLICY.md) for when a new ADR is required, and [ARCHITECTURE_FREEZE.md](../../ARCHITECTURE_FREEZE.md) for the governance sequence every architectural change now follows post-Sprint-0. For the same 22 ADRs cross-referenced with affected packages, related ADRs, and impact level, see [ARCHITECTURE_DECISION_INDEX.md](../../ARCHITECTURE_DECISION_INDEX.md).
 
 **All 22 ADRs below are `Accepted`** (approved 2026-07-14, alongside the engineering standards, Digital Twin, Local-first/execution-profile, AI Workspace, and Capability Model architecture). Sprint 0 implementation begins against this accepted set. If a decision is later rejected or replaced, don't delete the file — change status to `Superseded by NNNN` and write the replacement, so the reasoning trail (including why the first approach was rejected) survives.
 
