@@ -36,6 +36,7 @@ sap-app-factory/
 │   ├── context-generation/
 │   ├── context-governance/                # AuditEvent, PolicyRule, ApprovalGate; Risk/Incident/Problem/Change (ADR-0021); PII vault / crypto-shredding concerns (ADR-0017)
 │   ├── context-digital-twin/              # DigitalTwinNode/Edge, NodeTypeDefinition/RelationshipTypeDefinition registries, Snapshot — graph structure only, never artifact content (ADR-0021)
+│   ├── context-notification/              # NotificationChannel, NotificationEvent (02-domain-model.md) — a library invoked by `worker`, not its own service, until delivery volume/channel count justifies isolating it (04-service-boundaries.md). Resolved during the Sprint 0 exit-gate review: real, scheduled, not yet built — carried forward alongside the other Sprint 1/2 items, not an indefinitely ambiguous gap.
 │   │
 │   ├── ports/                             # Interfaces only — no implementation, no third-party imports
 │   │   ├── llm-provider.port.ts

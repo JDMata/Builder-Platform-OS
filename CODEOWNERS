@@ -1,0 +1,39 @@
+# SAF-18 — code ownership by architectural layer, mirroring PROJECT_STRUCTURE.md's
+# top-level folders. Every path currently resolves to the same single owner
+# (@JDMata) — this file is structured for a growing team from day one rather
+# than flattened to one blanket rule, so adding a second owner later is a
+# one-line change per area, not a restructure. See CONTRIBUTING.md § Code review.
+
+# Default owner for anything not matched below.
+* @JDMata
+
+# Governance and architecture — changes here should get the most scrutiny,
+# since they define the rules every other change is reviewed against.
+/docs/adr/ @JDMata
+/docs/architecture/ @JDMata
+/ARCHITECTURE_PRINCIPLES.md @JDMata
+/ENGINEERING_PRINCIPLES.md @JDMata
+/SECURITY_BASELINE.md @JDMata
+/TECHNICAL_DEBT_POLICY.md @JDMata
+
+# CI/CD and architecture fitness gates — a change here can silently weaken
+# what every other PR is checked against.
+/.github/ @JDMata
+/dependency-cruiser.config.cjs @JDMata
+/eslint.config.mjs @JDMata
+/tools/scripts/ @JDMata
+
+# Cross-cutting seams — a change to any of these affects every consumer.
+/packages/ports/ @JDMata
+/packages/plugin-sdk/ @JDMata
+/packages/testing-kit/ @JDMata
+/packages/observability/ @JDMata
+
+# The AI Workspace — reviewed with the same rigor as code (see .ai/README.md),
+# never treated as "just configuration."
+/.ai/ @JDMata
+
+# Plugins — the primary extension point, expected to eventually be authored
+# by people who aren't core-platform maintainers (see CONTRIBUTING.md §
+# Adding a plugin). Ownership stays with the core team until that changes.
+/plugins/ @JDMata

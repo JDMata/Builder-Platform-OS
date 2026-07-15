@@ -13,10 +13,12 @@ This project is built to be maintained for 10+ years. That changes how we work d
 
 ```
 pnpm install
-docker compose -f infra/docker-compose/dev.yml up -d   # Postgres, Redis, MinIO, OpenTelemetry Collector, Keycloak
-pnpm turbo run build
-pnpm turbo run test
+pnpm run infra:up   # Postgres, Keycloak, OPA, OpenTelemetry Collector — see infra/README.md
+pnpm run build
+pnpm run test
 ```
+
+Redis and MinIO are deliberately not part of the stack yet — nothing currently scheduled consumes either; see infra/README.md § "Why Redis and MinIO aren't here yet" before assuming they should be added.
 
 Use `tools/generators` to scaffold a new package, context, or plugin — it produces the correct `package.json`, `tsconfig`, lint config, dependency-cruiser registration, and README stub automatically. Don't hand-roll a new package's boilerplate; a hand-rolled package is how naming/layering conventions drift.
 
