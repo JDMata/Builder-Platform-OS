@@ -3,12 +3,14 @@
 ## Purpose
 Owns Workflow/Agent Orchestration ([04-service-boundaries.md](../../docs/architecture/04-service-boundaries.md)): starts/advances `WorkflowRun`s, invokes `llm-core`/`mcp-core`, dispatches steps. The composition root for `llm-core`/`mcp-core`/`events-core`/the plugin loader (SAF-5) — the second app built in this sequence, reusing `api-gateway`'s composition-root pattern (`createServer(deps)` factory + `main.ts` as the sole `process.env`-touching entry point) rather than inventing a new one.
 
-## Sprint 0 scope (SAF-5)
-`GET /health` reports what the composition root actually wired — real port implementations, not asserted in a comment:
+## Ports
+This composition root wires four real port implementations — `GET /health` reports them, not asserted in a comment:
 - `LlmProviderPort` — `AnthropicLlmAdapter` wrapped with `llm-core`'s `withResilience()`
 - `McpConnectionPort` — `StdioMcpAdapter` wrapped with `mcp-core`'s `withMcpResilience()`
 - `EventBusPort` — the real `PostgresOutboxAdapter` (not a fake — see `main.ts`)
 - `WorkflowEnginePort` — `adapter-workflow-engine-in-memory`'s `InMemoryWorkflowEngineAdapter`
+
+## Sprint 0 scope (SAF-5)
 - **Plugin loader** (`plugin-loader.ts`): loads `plugins/fiori-generator`'s one plugin and registers a `Capability`/`CapabilityProvider` pair per artifact type it declares producing (05-plugin-architecture.md § Discovery & loading) — in-memory only, since no repository exists yet for this context (SAF-14 built `Tenant`/`AuditEvent` persistence, not `Capability`/`CapabilityProvider`'s).
 
 **Not built:** any workflow-execution endpoint. No `Step`/`WorkflowDefinition` loader exists yet ([18-capability-model.md](../../docs/architecture/18-capability-model.md)) — there is nothing real for one to call. This is also why no real `workflowId` appears on any span/log line here yet — see `packages/observability`'s README § "where appropriate."

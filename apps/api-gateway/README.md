@@ -3,6 +3,9 @@
 ## Purpose
 Public API surface, request AuthN/AuthZ enforcement, input validation, rate limiting ([04-service-boundaries.md](../../docs/architecture/04-service-boundaries.md)). The **composition root** for this deployable — the one place concrete adapters get constructed and wired to the ports application code depends on ([CODING_STANDARDS.md](../../CODING_STANDARDS.md) § Dependency Injection). First of the four apps built, per the revised Sprint 0 sequence: fully prove the composition-root pattern here before repeating it in `web`/`orchestrator`/`worker`.
 
+## Ports
+Wires `PolicyEnginePort` (`auth-core`'s `OpaPolicyEngineAdapter`, against a real OPA server). Session/OIDC handling (`auth-core`'s `createOidcClient`/`sealSession`/`unsealSession`) is provider-independent request-handling logic this composition root wires in — not itself a `packages/ports` port, since ADR-0010 doesn't call for one (see `auth-core`'s README).
+
 ## Sprint 0 scope (SAF-4 + SAF-17)
 `GET /health` (`{ status: "ok", service: "api-gateway" }`), served by plain `node:http` — no HTTP framework dependency yet. Choosing one (Fastify, Express, etc.) is an unreviewed architectural decision this skeleton doesn't need to force; `createServer()` is deliberately small enough to swap the underlying implementation later without this being a rewrite.
 

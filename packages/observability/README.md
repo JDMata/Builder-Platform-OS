@@ -3,6 +3,9 @@
 ## Purpose
 Shared OpenTelemetry SDK setup and structured-logging helpers ([ADR-0012](../../docs/adr/0012-opentelemetry-mandatory.md)). Every `apps/*` process wires this in from Sprint 0, exporting traces to the OpenTelemetry Collector (`infra/otel-collector`) — the Collector's export configuration decides the real trace backend (Jaeger, Tempo, Datadog...), never application code (no-vendor-lock-in).
 
+## Ports
+None. Cross-cutting infrastructure (tracing, structured logging) — not a `packages/ports` implementation and not itself a port; every `apps/*` composition root wires it in alongside, not instead of, its real ports (ADR-0012).
+
 ## What's here
 - `startTracing({ serviceName, otlpEndpoint })` — called once, first thing, in each app's composition root. Registers a `NodeTracerProvider` (installs the default W3C Trace Context propagator + an async-hooks context manager) and a `BatchSpanProcessor` exporting OTLP/HTTP to the Collector.
 - `withSpan(tracer, name, correlation, fn)` — the one shared instrumentation helper ADR-0012 calls for ("every port invocation... wrapped in a span by convention"). Sets the correlation fields as span attributes, records an exception and marks span status on failure, always ends the span.

@@ -3,6 +3,9 @@
 ## Purpose
 Control-plane UI, BFF session-cookie handling ([04-service-boundaries.md](../../docs/architecture/04-service-boundaries.md)). Talks to `api-gateway` only — never another service or the database directly.
 
+## Ports
+None. `apps/web` talks to `api-gateway` over HTTP only ([04-service-boundaries.md](../../docs/architecture/04-service-boundaries.md)) — never a database, an event bus, or any other port directly; the BFF pattern (ADR-0010) keeps this app deliberately port-free.
+
 ## Sprint 0 scope (SAF-3)
 - A status page (`src/app/page.tsx`) that server-side fetches `api-gateway`'s `/health` endpoint and renders the result — proving the BFF wiring for real, not a static page that never calls the service it fronts. Gracefully reports "unreachable" rather than throwing if `api-gateway` isn't running.
 - A BFF session-cookie handling **stub** (`src/app/api/session/route.ts`) — always reports `{ authenticated: false }`. Real OIDC session handling (`api-gateway` terminates the login flow and issues the cookie this route would read, per [08-authentication-and-rbac.md](../../docs/architecture/08-authentication-and-rbac.md)) arrives with SAF-17; this stub exists so nothing downstream mistakes an unbuilt check for a real one.

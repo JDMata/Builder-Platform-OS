@@ -85,7 +85,16 @@ export default tseslint.config(
     // above (no-console, type-checked linting) don't apply to them. Excluded
     // from typed linting specifically so a package's own tsconfig.json
     // (which only "include"s src/) doesn't need to also cover its config files.
-    files: ["**/*.config.{js,cjs,mjs}", "eslint.config.mjs", "**/*.config.{ts,mts,cts}"],
+    // tools/scripts/*.mjs (SAF-19's fitness-check scripts) get the same
+    // treatment for the same reason: standalone Node CLI scripts, no
+    // tsconfig covers them, and console.log/console.error is their whole
+    // job, not a logging violation.
+    files: [
+      "**/*.config.{js,cjs,mjs}",
+      "eslint.config.mjs",
+      "**/*.config.{ts,mts,cts}",
+      "tools/**/*.mjs",
+    ],
     extends: [tseslint.configs.disableTypeChecked],
     languageOptions: {
       globals: globals.node,

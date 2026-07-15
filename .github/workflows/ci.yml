@@ -59,6 +59,15 @@ jobs:
       - name: Unit + contract tests
         run: pnpm run test
 
+      # Stage 8 — Architecture fitness checks (SAF-19): the banned-SAP-
+      # keyword guard and the package-README-required check named in
+      # docs/architecture/12-risks-and-technical-debt.md's fitness-function
+      # table. The plugin-import-boundary rule (also SAF-19) lives in
+      # dependency-cruiser.config.cjs instead — already covered by the Lint
+      # step above, not a separate check here.
+      - name: Architecture fitness checks
+        run: pnpm run fitness
+
   integration:
     name: Integration tests (real Postgres/Keycloak/OPA)
     runs-on: ubuntu-latest

@@ -3,6 +3,9 @@
 ## Purpose
 Executes queued steps: plugin invocations, generation jobs, notification delivery ([04-service-boundaries.md](../../docs/architecture/04-service-boundaries.md)). Third app built in this sequence, reusing `api-gateway`/`orchestrator`'s composition-root shape.
 
+## Ports
+Wires `EventBusPort` — the real `PostgresOutboxAdapter`, via `adapter-events-postgres-outbox`'s shared `createPostgresOutboxEventBus()` (see Composition root below). No `LlmProviderPort`/`McpConnectionPort`/`WorkflowEnginePort` — this app executes plugin invocations, it doesn't call an LLM/MCP directly or orchestrate a workflow run.
+
 ## Sprint 0 scope (SAF-6), and a deliberate deviation from this story's original wording
 The backlog line for this story said "consuming a BullMQ queue." That's not what got built, on purpose: [05-plugin-architecture.md](../../docs/architecture/05-plugin-architecture.md) § Isolation & Zero Trust is explicit that Sprint 0 ships plugin execution **in-process**, directly, behind an `execute()` seam — no real queue — "so process-level isolation... can be introduced later without changing plugin authors' code." No Redis exists in `infra/docker-compose` either (SAF-13's own reviewed decision). Building a real BullMQ consumer now would mean standing up infrastructure two already-reviewed stories deliberately deferred.
 

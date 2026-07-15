@@ -134,6 +134,21 @@ module.exports = {
       from: { path: ADAPTER_TIER_PATH + ".+" + NOT_A_TEST_FILE },
       to: { path: "^packages/context-[^/]+/src/application/" },
     },
+    {
+      name: "plugin-import-boundary",
+      comment:
+        "SAF-19 fitness function (docs/architecture/12-risks-and-technical-debt.md, R1): only the two apps that actually load and execute plugins today may import plugins/* — no context's domain/application layer, no adapter-tier package, and no other app ever does. A stricter form of this rule (12-risks-and-technical-debt.md's 'never a named plugin import, only via plugin-sdk's loader type') isn't enforceable yet — no dynamic, manifest-driven plugin loader exists; apps/orchestrator and apps/worker construct the one first-party plugin directly in their composition roots, the same way every other adapter in this codebase is wired. Tracked as a known gap, not silently ignored — see the SAF-19 backlog entry.",
+      severity: "error",
+      // Both src/ and dist/ on both sides: a real cross-package import
+      // resolves through node_modules to the *compiled* dist/ output, never
+      // src/ directly (found the hard way — an src/-only `to` pattern let a
+      // real `import ... from "@sap-app-factory/plugin-fiori-generator"`
+      // added to apps/api-gateway/src/server.ts through silently, since
+      // pnpm's workspace symlink resolves that specifier to
+      // plugins/fiori-generator/dist/index.js, not its src/).
+      from: { pathNot: "^(apps/(orchestrator|worker)/(src|dist)/|plugins/[^/]+/(src|dist)/)" },
+      to: { path: "^plugins/" },
+    },
   ],
   options: {
     // Deliberately no `includeOnly` here: it restricts the whole analysis
