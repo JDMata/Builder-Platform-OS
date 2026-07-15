@@ -1,6 +1,10 @@
+import { randomUUID } from "node:crypto";
 import { createServer as createHttpServer, type Server } from "node:http";
+import { getTracer, runWithExtractedContext, withSpan } from "@sap-app-factory/observability";
 import { handleCallback, handleLogin, handleMe } from "./auth-routes.js";
 import type { ApiGatewayDependencies } from "./build-dependencies.js";
+
+const tracer = getTracer("api-gateway");
 
 /**
  * SAF-4 skeleton + SAF-17 wiring: `/health` (no AuthN needed), plus the real
@@ -8,12 +12,29 @@ import type { ApiGatewayDependencies } from "./build-dependencies.js";
  * minimal protected endpoint (`/me`) proving the session cookie a
  * successful login sets is actually enforced. See auth-routes.ts and
  * README.md for what's real vs. deliberately out of scope.
+ *
+ * SAF-16: `/health` is the receiving end of Sprint 0's one real inter-app
+ * HTTP call (`apps/web`'s status page calls this exact endpoint) —
+ * `runWithExtractedContext` picks up the `traceparent` header `web` injects,
+ * so the span started here is a child of `web`'s span, not a new trace. The
+ * business `x-correlation-id` header (set by the same caller) is reused as
+ * this span's correlation id when present, so the same id ties both apps'
+ * logs/traces together; an anonymous caller without one still gets a span,
+ * with a freshly generated id instead.
  */
 export function createServer(deps: ApiGatewayDependencies): Server {
   return createHttpServer((req, res) => {
     if (req.method === "GET" && req.url === "/health") {
-      res.writeHead(200, { "content-type": "application/json" });
-      res.end(JSON.stringify({ status: "ok", service: "api-gateway" }));
+      const correlationId =
+        (Array.isArray(req.headers["x-correlation-id"])
+          ? req.headers["x-correlation-id"][0]
+          : req.headers["x-correlation-id"]) ?? randomUUID();
+      runWithExtractedContext(req.headers, () => {
+        void withSpan(tracer, "api-gateway.health", { correlationId }, async () => {
+          res.writeHead(200, { "content-type": "application/json" });
+          res.end(JSON.stringify({ status: "ok", service: "api-gateway" }));
+        });
+      });
       return;
     }
 
@@ -28,7 +49,7 @@ export function createServer(deps: ApiGatewayDependencies): Server {
     }
 
     if (req.method === "GET" && req.url === "/me") {
-      handleMe(deps, req, res);
+      void handleMe(deps, req, res);
       return;
     }
 

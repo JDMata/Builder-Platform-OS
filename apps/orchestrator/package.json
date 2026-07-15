@@ -18,6 +18,7 @@
     "@sap-app-factory/context-capability-registry": "workspace:*",
     "@sap-app-factory/llm-core": "workspace:*",
     "@sap-app-factory/mcp-core": "workspace:*",
+    "@sap-app-factory/observability": "workspace:*",
     "@sap-app-factory/plugin-fiori-generator": "workspace:*",
     "@sap-app-factory/plugin-sdk": "workspace:*",
     "@sap-app-factory/ports": "workspace:*"

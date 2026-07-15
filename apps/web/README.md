@@ -9,6 +9,9 @@ Control-plane UI, BFF session-cookie handling ([04-service-boundaries.md](../../
 
 **Deliberately not wired yet:** Tailwind and UI5 Web Components (both named in `PROJECT_STRUCTURE.md` for this app's eventual UI). Pulling in a design system for one plain-text status page would be complexity with no Sprint 0 payoff — they arrive with the first real UI work.
 
+## Tracing (SAF-16)
+`src/instrumentation.ts` — Next.js's official server-instrumentation hook — calls `startTracing()` once per server instance (guarded by `NEXT_RUNTIME === "nodejs"`, since this file also runs under the edge runtime, which can't load Node-only OpenTelemetry packages). It must live under `src/`, not at the project root, because this app uses the `src/app` directory convention — same rule as `middleware.ts` — found by hand: placed at the project root first, and no span ever reached the Collector until it was moved. `get-api-gateway-health.ts`'s call to `api-gateway` is Sprint 0's one real inter-app HTTP call: it injects the active span's `traceparent` (`injectTraceContext`) plus a generated `x-correlation-id` header; `api-gateway`'s `/health` handler extracts both, so the two apps' spans land in the same trace under the same correlation id — verified for real by running both apps and checking the Collector's `debug` exporter output for one trace ID and one correlation id spanning both processes.
+
 ## `tsconfig.json` deviates from `tsconfig.base.json`, deliberately
 Next.js's own bundler (SWC/webpack/Turbopack), not `tsc`, resolves imports at build time, and its conventions (extensionless relative imports, file-based routing) are incompatible with `tsconfig.base.json`'s `NodeNext` module resolution and `verbatimModuleSyntax`, which require explicit `.js` extensions on relative imports. This app overrides `module`/`moduleResolution`/`verbatimModuleSyntax` only — every strict-mode rule (`strict`, `noUncheckedIndexedAccess`) is inherited unchanged.
 

@@ -11,7 +11,10 @@ Owns Workflow/Agent Orchestration ([04-service-boundaries.md](../../docs/archite
 - `WorkflowEnginePort` — `adapter-workflow-engine-in-memory`'s `InMemoryWorkflowEngineAdapter`
 - **Plugin loader** (`plugin-loader.ts`): loads `plugins/fiori-generator`'s one plugin and registers a `Capability`/`CapabilityProvider` pair per artifact type it declares producing (05-plugin-architecture.md § Discovery & loading) — in-memory only, since no repository exists yet for this context (SAF-14 built `Tenant`/`AuditEvent` persistence, not `Capability`/`CapabilityProvider`'s).
 
-**Not built:** any workflow-execution endpoint. No `Step`/`WorkflowDefinition` loader exists yet ([18-capability-model.md](../../docs/architecture/18-capability-model.md)) — there is nothing real for one to call.
+**Not built:** any workflow-execution endpoint. No `Step`/`WorkflowDefinition` loader exists yet ([18-capability-model.md](../../docs/architecture/18-capability-model.md)) — there is nothing real for one to call. This is also why no real `workflowId` appears on any span/log line here yet — see `packages/observability`'s README § "where appropriate."
+
+## Tracing and logging (SAF-16)
+`main.ts` calls `startTracing()` first, before anything else in the process. `/health`'s handler wraps its response in a span (`getTracer("orchestrator")` + `withSpan`) and `main.ts` logs a structured "orchestrator started" line via the shared logger, listing the plugins actually loaded — a process-startup line, so it uses a freshly generated correlation id rather than a request-scoped one (there's no request yet).
 
 ## Composition root
 `build-dependencies.ts`'s `buildDependencies(eventBus)` takes the one dependency that needs a real external resource (Postgres) as a parameter — everything else (the LLM/MCP adapters, the workflow engine, the plugin loader) is constructed unconditionally inside it. This makes the whole dependency graph testable with any `EventBusPort`, fake or real, without `vitest` needing Postgres running — `main.ts` is the only file that opens a real connection.

@@ -1,0 +1,21 @@
+# @sap-app-factory/observability
+
+## Purpose
+Shared OpenTelemetry SDK setup and structured-logging helpers ([ADR-0012](../../docs/adr/0012-opentelemetry-mandatory.md)). Every `apps/*` process wires this in from Sprint 0, exporting traces to the OpenTelemetry Collector (`infra/otel-collector`) — the Collector's export configuration decides the real trace backend (Jaeger, Tempo, Datadog...), never application code (no-vendor-lock-in).
+
+## What's here
+- `startTracing({ serviceName, otlpEndpoint })` — called once, first thing, in each app's composition root. Registers a `NodeTracerProvider` (installs the default W3C Trace Context propagator + an async-hooks context manager) and a `BatchSpanProcessor` exporting OTLP/HTTP to the Collector.
+- `withSpan(tracer, name, correlation, fn)` — the one shared instrumentation helper ADR-0012 calls for ("every port invocation... wrapped in a span by convention"). Sets the correlation fields as span attributes, records an exception and marks span status on failure, always ends the span.
+- `correlationFromRequestContext(ctx, extra?)` — maps a full `RequestContext` (every port method's first parameter) down to `CorrelationFields`, optionally attaching a `workflowId`/`executionId`/`projectId` the caller has on hand but that isn't part of `RequestContext` itself.
+- `injectTraceContext(headers)` / `runWithExtractedContext(headers, fn)` — the client/server halves of cross-process trace propagation over HTTP: inject the active span's `traceparent` into an outgoing request, extract it on the receiving side so a span started there continues the same trace.
+- `createLogger(serviceName)` — structured JSON logging via `process.stdout.write` (never bare `console.*` — lint-enforced, see `CODING_STANDARDS.md` § Logging). Every line carries `correlationId` and, where available, `tenantId`/`actorId`/`workflowId`/`executionId`/`projectId`, plus `traceId`/`spanId` when called inside an active span. Every field passed to `fields` is redacted first.
+- `redact(value)` — recursively redacts any field whose *key* matches a banned pattern (`password`, `secret`, `token`, `prompt`, `authorization`, `cookie`, `credential`, `apiKey`, `privateKey`, and substring matches like `accessToken`/`clientSecret`/`systemPrompt`) — the operationalized form of `SECURITY_BASELINE.md`'s "no secret of any kind appears in logs" and never logging full LLM prompts/responses. Redaction is by key, not by inspecting the value, since this layer has no way to know what a caller's field actually contains.
+
+## Correlation fields, and "where appropriate"
+`correlationId` is mandatory on every span/log line — even an anonymous call generates its own (see `apps/web`'s status page, which has no `RequestContext` yet). `tenantId`/`actorId` are attached wherever a `RequestContext` exists. `workflowId`/`executionId`/`projectId` are attached only where a real one exists on the call path: Sprint 0 has a real `executionId` (the generation job id) in `apps/worker`'s invoke path, no real `workflowId` (no app has a workflow-execution HTTP endpoint yet — see `apps/orchestrator`'s README) and no real `projectId` anywhere (no call path threads a project scope through any port yet). Nothing here fabricates a value to fill out the set.
+
+## Verified cross-process trace propagation
+The one real inter-app HTTP call in Sprint 0 is `apps/web`'s server-side status page fetching `apps/api-gateway`'s `/health` (SAF-3). `web` injects its active span's `traceparent` into that request; `api-gateway` extracts it and starts its own span as a child of the same trace — verified both by this package's own `http-propagation.spec.ts` (a real round-trip using the actual OpenTelemetry SDK, not a fake) and by hand: running both apps for real, calling `web`'s status page, and confirming the Collector's `debug` exporter logs both spans under the same trace ID.
+
+## Testing
+All specs use the real OpenTelemetry SDK (`InMemorySpanExporter`, `AsyncLocalStorageContextManager`, `W3CTraceContextPropagator`) via `test-support.ts` — never a hand-rolled fake tracer — so attribute-setting, exception recording, and cross-boundary context propagation are proven against the actual library behavior. `test-support.ts` is excluded from this package's own build (`tsconfig.build.json`), same convention as `auth-core`'s and `api-gateway`'s test-only helpers.

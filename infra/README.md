@@ -22,7 +22,7 @@ Reviewed against what a **currently-scheduled** Sprint 0 story actually consumes
 | `postgres` (16) | SAF-11 (outbox — real), SAF-14 (repositories/RLS/partitioning — real), SAF-17 (identity roles/permissions schema — real), governance audit events | `pg_isready`, container-exec |
 | `keycloak` (26, dev mode) | SAF-17 (`auth-core`'s dev adapter — real, realm imported via `--import-realm`) and SAF-21's "authenticate" step | `/health/ready` on the management port (9000), container-exec |
 | `opa` (0.70.0) | SAF-17 (`PolicyEnginePort`'s real adapter, `infra/opa/policies/authz.rego`) and SAF-21's authorization step | see below — no container-exec check is possible on this image (distroless) |
-| `otel-collector` (0.114.0) | SAF-16 (instrument ≥2 apps, still to come this sequence) and SAF-21's "generate correlated telemetry" step | see below — no container-exec check is possible on this image |
+| `otel-collector` (0.114.0) | SAF-16 (all four apps export real traces here; the Collector's `debug` exporter is what proved cross-process propagation between `web` and `api-gateway` for real) and SAF-21's "generate correlated telemetry" step | see below — no container-exec check is possible on this image |
 
 Every included service has a **named, already-scheduled** consumer later in this same execution sequence — not a hypothetical future one.
 

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import {
   beginAuthorizationRequest,
@@ -5,7 +6,11 @@ import {
   sealSession,
   unsealSession,
 } from "@sap-app-factory/auth-core";
+import { createLogger, getTracer, withSpan } from "@sap-app-factory/observability";
 import type { ApiGatewayDependencies } from "./build-dependencies.js";
+
+const tracer = getTracer("api-gateway");
+const logger = createLogger("api-gateway");
 
 const SESSION_COOKIE_NAME = "saf_session";
 /** Matches ADR-0010's "short-lived signed access tokens" — a short session, not a long-lived one. */
@@ -51,44 +56,48 @@ export async function handleCallback(
   req: IncomingMessage,
   res: ServerResponse,
 ): Promise<void> {
-  const callbackUrl = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost:3001"}`);
-  const state = callbackUrl.searchParams.get("state");
-  const pending = state ? pendingRequests.get(state) : undefined;
+  const correlationId = randomUUID();
+  await withSpan(tracer, "api-gateway.auth.callback", { correlationId }, async () => {
+    const callbackUrl = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost:3001"}`);
+    const state = callbackUrl.searchParams.get("state");
+    const pending = state ? pendingRequests.get(state) : undefined;
 
-  if (!pending) {
-    res.writeHead(400, { "content-type": "application/json" });
-    res.end(JSON.stringify({ error: "unknown_or_expired_state" }));
-    return;
-  }
-  pendingRequests.delete(pending.state);
+    if (!pending) {
+      res.writeHead(400, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: "unknown_or_expired_state" }));
+      return;
+    }
+    pendingRequests.delete(pending.state);
 
-  try {
-    const tokens = await exchangeAuthorizationCode(deps.oidcConfig, {
-      callbackUrl,
-      expectedState: pending.state,
-      codeVerifier: pending.codeVerifier,
-    });
-    const claims = await deps.validateAccessToken(tokens.access_token);
-    // No tenant-id claim mapper is configured on the dev Keycloak realm yet
-    // (SAF-17 scope: prove the flow, not multi-tenant Keycloak configuration)
-    // — every session defaults to one tenant until that mapper exists.
-    const sealed = sealSession(
-      {
-        tenantId: typeof claims.tenant_id === "string" ? claims.tenant_id : "default-tenant",
-        actorId: typeof claims.sub === "string" ? claims.sub : "unknown-actor",
-        expiresAt: Date.now() + SESSION_TTL_MS,
-      },
-      deps.sessionSecret,
-    );
-    res.writeHead(302, {
-      location: "/",
-      "set-cookie": `${SESSION_COOKIE_NAME}=${sealed}; HttpOnly; Path=/; SameSite=Lax`,
-    });
-    res.end();
-  } catch (error) {
-    res.writeHead(401, { "content-type": "application/json" });
-    res.end(JSON.stringify({ error: error instanceof Error ? error.message : "auth_failed" }));
-  }
+    try {
+      const tokens = await exchangeAuthorizationCode(deps.oidcConfig, {
+        callbackUrl,
+        expectedState: pending.state,
+        codeVerifier: pending.codeVerifier,
+      });
+      const claims = await deps.validateAccessToken(tokens.access_token);
+      // No tenant-id claim mapper is configured on the dev Keycloak realm yet
+      // (SAF-17 scope: prove the flow, not multi-tenant Keycloak configuration)
+      // — every session defaults to one tenant until that mapper exists.
+      const tenantId = typeof claims.tenant_id === "string" ? claims.tenant_id : "default-tenant";
+      const actorId = typeof claims.sub === "string" ? claims.sub : "unknown-actor";
+      const sealed = sealSession(
+        { tenantId, actorId, expiresAt: Date.now() + SESSION_TTL_MS },
+        deps.sessionSecret,
+      );
+      logger.info("session established", { correlationId, tenantId, actorId });
+      res.writeHead(302, {
+        location: "/",
+        "set-cookie": `${SESSION_COOKIE_NAME}=${sealed}; HttpOnly; Path=/; SameSite=Lax`,
+      });
+      res.end();
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : "auth_failed";
+      logger.warn("authorization code exchange failed", { correlationId }, { reason });
+      res.writeHead(401, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: reason }));
+    }
+  });
 }
 
 function readSessionCookie(req: IncomingMessage): string | undefined {
@@ -109,13 +118,14 @@ function readSessionCookie(req: IncomingMessage): string | undefined {
 }
 
 /** A minimal protected endpoint proving the whole chain works: no valid session cookie, no access. */
-export function handleMe(
+export async function handleMe(
   deps: ApiGatewayDependencies,
   req: IncomingMessage,
   res: ServerResponse,
-): void {
+): Promise<void> {
   const cookie = readSessionCookie(req);
   const session = cookie ? unsealSession(cookie, deps.sessionSecret) : undefined;
+  const correlationId = randomUUID();
 
   if (!session) {
     res.writeHead(401, { "content-type": "application/json" });
@@ -123,6 +133,13 @@ export function handleMe(
     return;
   }
 
-  res.writeHead(200, { "content-type": "application/json" });
-  res.end(JSON.stringify({ tenantId: session.tenantId, actorId: session.actorId }));
+  await withSpan(
+    tracer,
+    "api-gateway.me",
+    { correlationId, tenantId: session.tenantId, actorId: session.actorId },
+    async () => {
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify({ tenantId: session.tenantId, actorId: session.actorId }));
+    },
+  );
 }

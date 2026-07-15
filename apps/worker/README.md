@@ -13,6 +13,9 @@ What this app actually does:
 
 **Deferred, not forgotten:** real request AuthN (`buildRequestContext()` in `server.ts` is a fixed dev context, same deferral `api-gateway` already documents, waiting on SAF-17) and the real queue/BullMQ consumer (Sprint 1/2, once a real need for async dispatch — as opposed to a synchronous HTTP call driving one invocation — actually exists).
 
+## Tracing and logging (SAF-16)
+`main.ts` calls `startTracing()` first. `invoke-plugin.ts`'s `invokePlugin()` is wrapped in a span (`withSpan`) carrying the one real `executionId` any Sprint 0 call path has — the generation job's own id — alongside `correlationId`/`tenantId`/`actorId` from the request context; the shared logger emits a structured line for job-started/completed/failed, every field redacted before being written (so a plugin's own failure message can be logged without risk).
+
 ## Composition root
 Smaller than `orchestrator`'s — no LLM/MCP ports, no workflow engine, since this app's job is executing plugin invocations, not orchestrating a workflow run. `build-dependencies.ts`'s `buildDependencies(eventBus)` follows the same "the one real-resource dependency is a parameter, everything else constructed inside" shape. `main.ts` calls the same `createPostgresOutboxEventBus()` helper `orchestrator` uses (extracted into `adapter-events-postgres-outbox` once this, the second app, needed it).
 

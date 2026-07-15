@@ -25,8 +25,12 @@ const NOT_A_TEST_FILE = "(?<!\\.spec\\.ts)$";
 // wrapping concrete adapters (ADR-0016's resilience wrapper), so it belongs to
 // the same tier as an adapter, not to application. Application gets it
 // injected at the composition root (apps/*), never imports it directly.
+// packages/observability joins this tier for SAF-16: it wraps a port
+// invocation in a span (withSpan) the same way llm-core/mcp-core wrap one in
+// resilience, and it has a real npm runtime dependency (@opentelemetry/*)
+// domain/application code may never import directly.
 const ADAPTER_TIER_PATH =
-  "^(packages/.*-adapters/|packages/persistence-postgres/|packages/object-storage-minio/|packages/graph-adapters/|packages/search-adapters/|packages/llm-core/|packages/mcp-core/|packages/events-core/)";
+  "^(packages/.*-adapters/|packages/persistence-postgres/|packages/object-storage-minio/|packages/graph-adapters/|packages/search-adapters/|packages/llm-core/|packages/mcp-core/|packages/events-core/|packages/observability/)";
 
 module.exports = {
   forbidden: [
