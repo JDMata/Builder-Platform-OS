@@ -137,6 +137,10 @@ sap-app-factory/
 ├── ARCHITECTURE_DECISION_INDEX.md         # Every ADR in one table — affected packages, related ADRs, impact level
 ├── PLATFORM_MATURITY.md                   # Maturity matrix — implemented/planned/not-started/deferred, sprint by sprint
 ├── ARCHITECTURE_FREEZE.md                 # What's frozen, what Sprint 1+ may change freely, what needs an ADR
+├── PROJECT_CONTEXT.md                     # Living operational state — current sprint, risks, decisions; every session starts here
+├── ROADMAP.md                             # Product/Engineering/Release Roadmap and Future Ideas — only the Product Roadmap drives implementation
+├── PROJECT_PLAYBOOK.md                    # Operational handbook — sprint process, reviews, ADR/debt/incident/change management
+├── SESSION_STARTUP_POLICY.md              # Required reading order and verification checklist for every future session
 ├── CODEOWNERS
 └── README.md
 ```

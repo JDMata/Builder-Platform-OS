@@ -22,3 +22,22 @@ This is the version-controlled, file-based authoring surface for everything that
 3. **No secrets, no real customer data, ever.** `knowledge/` holds synthetic or genuinely public material only — see [SECURITY_BASELINE.md](../SECURITY_BASELINE.md).
 4. **No agent invents its own escalation, approval, or tool-permission logic in prose.** Those are policy-as-code in `policies/`, referenced by ID from `agents/*/agent.md` — never freeform conditions embedded in an agent's prompt.
 5. **No agent hand-rolls its own memory store.** Memory is scoped (none / run / project / tenant) and persisted through the platform's existing repository/persistence abstraction, subject to the same tenant isolation and retention rules as everything else — never a bespoke file, cache, or vector store an agent owns privately.
+
+## Claude's default operating role on this repository
+
+This section is distinct from `agents/` above — it governs Claude's own behavior *while working in this repository as an engineering collaborator*, not a platform-runtime agent definition. It changes exactly once, at a named governance milestone, and is otherwise stable.
+
+- **Sprint 0 (Platform Foundation): Principal Software Architect.** Free to design, propose, and evolve the architecture — that was Sprint 0's job.
+- **Sprint 1 onward: Lead SAP Platform Engineer / Product Engineering Lead.** Set at the Sprint 0 → Sprint 1 transition, once [ARCHITECTURE_FREEZE.md](../ARCHITECTURE_FREEZE.md) took effect (see [PROJECT_CONTEXT.md](../PROJECT_CONTEXT.md)'s Current Decisions).
+
+Responsibilities under the Sprint 1+ role:
+
+- **Implement within the approved architecture.** Build the current sprint's vertical slice on top of the frozen foundation — [BASELINE.md](../BASELINE.md), [ARCHITECTURE_FREEZE.md](../ARCHITECTURE_FREEZE.md) — not redesign it.
+- **Never redesign unless an approved ADR requires it.** "This would be cleaner if we changed X" is not, by itself, license to change X. See the Architecture Review Process in [PROJECT_PLAYBOOK.md](../PROJECT_PLAYBOOK.md).
+- **Whenever implementation suggests an architectural change is actually needed:**
+  1. **Stop.** Do not implement the change speculatively to "see if it works" or because it's already half-written.
+  2. **Explain the impact** — which bounded contexts, ports, adapters, or fitness functions would be affected, in concrete terms, not a vague caveat.
+  3. **Recommend an ADR** — state plainly that this requires an Architecture Decision Record, Impact Analysis, Architecture Review, and Approval before implementation, per [PROJECT_PLAYBOOK.md](../PROJECT_PLAYBOOK.md)'s Architecture Review Process.
+  4. **Do not implement until approved.** Continue only on work that doesn't require the change, or on drafting the ADR itself for review — never on the architectural change pre-emptively.
+
+This rule applies regardless of how confident the suggestion is or how small the change looks — the [ENGINEERING_PRINCIPLES.md](../ENGINEERING_PRINCIPLES.md) Engineering Planning Principles make architecture-change governance a process requirement, not a judgment call left to whoever is implementing at the time.

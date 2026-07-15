@@ -65,6 +65,32 @@ No core code imports a specific cloud, LLM, MCP, or deployment vendor's SDK dire
 ### Technical Debt Policy
 Technical debt is tracked, categorized, and paid down by policy, not by accident. Full policy: [TECHNICAL_DEBT_POLICY.md](TECHNICAL_DEBT_POLICY.md).
 
+## Engineering Planning Principles
+
+Added at the Sprint 0 → Sprint 1 transition ([ARCHITECTURE_FREEZE.md](ARCHITECTURE_FREEZE.md)). Sprint 0 built the foundation; these rules govern how every sprint from Sprint 1 onward is planned and closed on top of it. See [PROJECT_PLAYBOOK.md](PROJECT_PLAYBOOK.md) for the step-by-step process each rule below implies.
+
+- **Beginning with Sprint 1, development follows Vertical Slice Architecture.** A sprint is planned and delivered as a thin, complete slice through every layer a capability needs — domain, application, port, adapter, UI where applicable — never as a horizontal layer built in isolation "to be wired up later."
+- **Every sprint must deliver a complete, user-visible capability.** A sprint that ships only internal refactoring, infrastructure, or partial plumbing with nothing a user or an agent can actually invoke has not met this bar, regardless of how much code it produced.
+- **Horizontal technical work is permitted only when required to support the active vertical slice.** A new port, a new adapter, a shared helper — each is justified by the slice that needs it this sprint, not built ahead of demand. This is the same "extract on second occurrence, not first" discipline Sprint 0 already established, applied at the sprint-planning level, not just the code level.
+- **Architecture is frozen after Sprint 0.** See [ARCHITECTURE_FREEZE.md](ARCHITECTURE_FREEZE.md) for exactly what that means and what remains free to change.
+- **Architecture changes require, before implementation:**
+  - An Architecture Decision Record (ADR).
+  - Impact Analysis — which contexts, ports, adapters, or fitness functions are affected.
+  - Architecture Review — an independent, evidence-based check, not a self-certification.
+  - Approval — before implementation begins, not retrofitted onto work already in progress.
+- **Every sprint must finish with:**
+  - Sprint Exit Gate — the same discipline [docs/governance/sprint-0-exit-gate/](docs/governance/sprint-0-exit-gate/README.md) established, scaled to a single sprint's scope.
+  - Technical Debt Review — every item introduced this sprint classified by severity and given a resolution timeline, per [TECHNICAL_DEBT_POLICY.md](TECHNICAL_DEBT_POLICY.md).
+  - Architecture Drift Review — confirming nothing shipped this sprint silently diverged from an Accepted ADR.
+  - ADR Review — confirming every cross-cutting decision made this sprint has a corresponding ADR, and no ADR was implemented ahead of its own approval.
+  - Documentation Review — confirming every touched package's README, every architecture doc a change makes inaccurate, and [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md)'s operational state are all current.
+- **Every completed feature must:**
+  - Update the [Project Digital Twin](docs/architecture/16-project-digital-twin.md) — once it exists (SAF-34–37); until then, this requirement is satisfied by the feature's artifacts being traceable through existing means (audit events, backlog entries), not skipped.
+  - Register its capabilities in the Capability Registry — never leave a workflow invoking an unregistered, ad hoc implementation.
+  - Emit events for every domain-meaningful state transition, via the transactional outbox — never a silent side effect.
+  - Include documentation — package README, architecture doc updates, and an ADR if the feature was cross-cutting.
+  - Include tests — unit coverage for new domain logic, contract tests for any new/changed port-adapter pair, and an end-to-end proof the vertical slice actually works, not just that its parts pass in isolation.
+
 ## How these principles are enforced, not just stated
 
 Every principle above has a corresponding mechanical check — a "fitness function" — that fails CI when violated, documented in [12-risks-and-technical-debt.md](docs/architecture/12-risks-and-technical-debt.md). A principle that only lives in this document and is never checked by a machine will erode under deadline pressure; that is the single most important lesson this governance package encodes.

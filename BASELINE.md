@@ -214,6 +214,21 @@ Stated explicitly, not left implicit:
 
 ---
 
+## Planning Strategy
+
+Beginning with Sprint 1, the platform evolves using **Vertical Slices**, not horizontal layers built ahead of demand — see [ENGINEERING_PRINCIPLES.md](ENGINEERING_PRINCIPLES.md)'s Engineering Planning Principles for the full rule set. Every sprint must finish with:
+
+- A working, user-visible capability — not partial plumbing.
+- Tests — unit coverage for new domain logic, contract tests for any new/changed port-adapter pair, and end-to-end proof the slice works as a whole.
+- Documentation — package READMEs, architecture doc updates, and an ADR for any cross-cutting decision.
+- A Digital Twin update — once [context-digital-twin](docs/architecture/16-project-digital-twin.md) exists (SAF-34–37); until then, satisfied by existing traceability mechanisms (audit events, backlog entries).
+- Capability registration — no workflow invokes an unregistered, ad hoc implementation.
+- A Sprint Exit Gate — the same discipline this baseline's own [Exit Gate](docs/governance/sprint-0-exit-gate/README.md) established, scaled to one sprint's scope; see [PROJECT_PLAYBOOK.md](PROJECT_PLAYBOOK.md) for the step-by-step process.
+
+Architecture evolves only through approved ADRs — never ad hoc redesign, however well-intentioned or however familiar the person proposing it is with the codebase. See [ARCHITECTURE_FREEZE.md](ARCHITECTURE_FREEZE.md) for the exact governance sequence (ADR → impact analysis → architecture review → approval) every architectural change now requires.
+
+For what each upcoming sprint actually aims to deliver, see [PLATFORM_MATURITY.md](PLATFORM_MATURITY.md)'s Official Roadmap and [ROADMAP.md](ROADMAP.md).
+
 ## Architecture Checksum
 
 The authoritative reference set for every future architecture review — nothing outside this list should be treated as an architectural decision:
@@ -234,5 +249,6 @@ The authoritative reference set for every future architecture review — nothing
 14. [.ai/README.md](.ai/README.md) and its templates
 15. All 17 files under [docs/governance/sprint-0-exit-gate/](docs/governance/sprint-0-exit-gate/README.md)
 16. This document, [ARCHITECTURE_DECISION_INDEX.md](ARCHITECTURE_DECISION_INDEX.md), [PLATFORM_MATURITY.md](PLATFORM_MATURITY.md), and [ARCHITECTURE_FREEZE.md](ARCHITECTURE_FREEZE.md)
+17. [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md), [ROADMAP.md](ROADMAP.md), [PROJECT_PLAYBOOK.md](PROJECT_PLAYBOOK.md), and [SESSION_STARTUP_POLICY.md](SESSION_STARTUP_POLICY.md) — added at the Sprint 0 → Sprint 1 governance transition; see [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) for how they relate to one another
 
 Any document not in this list that appears to describe an architectural decision is either draft material or an error — raise it for correction rather than treating it as authoritative.
