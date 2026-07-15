@@ -2,39 +2,33 @@
 
 **This is the living operational state of SAP App Factory.** Every future session — human or AI — starts here, not from [ROADMAP.md](ROADMAP.md) or the backlog directly (see [SESSION_STARTUP_POLICY.md](SESSION_STARTUP_POLICY.md)). This document is updated at the start and end of every sprint, and whenever a decision changes the answer to any section below. If this document and any other document disagree about the *current* state (as opposed to the frozen baseline or historical record), this document is wrong and needs updating — it is not itself the source of truth for architecture, principles, or the roadmap, only for "where are we right now."
 
-*Last updated: 2026-07-15, at the Sprint 0 → Sprint 1 transition.*
+*Last updated: 2026-07-15, Sprint 1 planning drafted, pending review and approval.*
 
 ## Current Sprint
 
-**Sprint 1 — Discovery Workspace.** Not yet started as of this update — Sprint 0 has just closed (Exit Gate passed, baseline established). This document will be updated the moment Sprint 1 planning begins.
+**Sprint 1 — Discovery Workspace (Release R0.2), Theme: Intelligent Project Discovery.** Planning is complete and drafted in [docs/backlog/sprint-1-backlog.md](docs/backlog/sprint-1-backlog.md) and [docs/ux/sprint-1-discovery-workspace.md](docs/ux/sprint-1-discovery-workspace.md); **implementation has not started** — this sprint's own review gate requires the backlog, UX flow, and execution order to be reviewed and approved before any story is picked up.
 
 ## Current Release
 
-None. No version of SAP App Factory has been released — Sprint 0 built the foundation only, verified locally, never deployed anywhere. See [BASELINE.md](BASELINE.md)'s Current Limitations for the full list of what doesn't exist yet (no production deployment pipeline, no real customer-facing capability).
+**R0.2 — Discovery Workspace.** Not yet released — this is the release Sprint 1's work targets, per [ROADMAP.md](ROADMAP.md)'s Release Roadmap (`dev` stage, activates once Sprint 1's first mergeable work lands).
 
 ## Current Milestone
 
-Sprint 0 Baseline v1.0 established (tag `sprint0-baseline-v1.0`). The next milestone is Sprint 1's exit criteria: *a user submits a requirement through a real UI and sees it processed end to end* (see [PLATFORM_MATURITY.md](PLATFORM_MATURITY.md)'s Official Roadmap).
+Sprint 1 planning approval. The next milestone after that is Sprint 1's exit criteria: *a user transforms a business idea into an approved, real `Project` through the Discovery Workspace, AI-guided end to end* (see [docs/backlog/sprint-1-backlog.md](docs/backlog/sprint-1-backlog.md)'s Sprint 1 Definition of Done).
 
 ## Current Goal
 
-Begin Sprint 1 planning: turn the Discovery Workspace objective into real, ticket-numbered, [DEFINITION_OF_READY.md](DEFINITION_OF_READY.md)-compliant stories, following the Vertical Slice Architecture rule in [ENGINEERING_PRINCIPLES.md](ENGINEERING_PRINCIPLES.md)'s Engineering Planning Principles.
+Get Sprint 1's backlog, UX flow, and recommended implementation order reviewed and approved. No implementation story is picked up until that approval happens, per this sprint's explicit instruction and [PROJECT_PLAYBOOK.md](PROJECT_PLAYBOOK.md)'s Definition of Ready discipline.
 
 ## Current Epic
 
-**Discovery Workspace** (Sprint 1's named theme — see [PLATFORM_MATURITY.md](PLATFORM_MATURITY.md)'s Official Roadmap for objective, deliverables, dependencies, and exit criteria).
+Six epics this sprint, in dependency order — Idea Intake, AI-Guided Structuring, Clarification Loop, Discovery Review & Approval, Discovery Workflow Orchestration, and Technical Debt & Platform Closure. Full detail: [docs/backlog/sprint-1-backlog.md](docs/backlog/sprint-1-backlog.md).
 
 ## Current Stories
 
-None yet planned as formal, ticket-numbered Sprint 1 stories. Candidate work already identified (from the Sprint 0 Exit Gate's recommendations) that Sprint 1 planning should evaluate against the Discovery Workspace vertical slice:
+18 ticket-numbered stories drafted, SAF-39 through SAF-56 (none started): domain and persistence for `RequirementDocument`/`Clarification`/`AcceptanceCriterion` and `Project` (SAF-39, 40, 48, 49); the first real (non-mocked) Anthropic LLM call (SAF-43); the `requirements-analyst` agent's first real invocation (SAF-44) and its `CapabilityResolverPort` adapter (SAF-45); the idea-submission, clarification-answer, and approval use cases and UI screens (SAF-41/42, 46/47, 50/51); the real Discovery `WorkflowDefinition` (SAF-52) and its end-to-end proof (SAF-53); plus the `drizzle-orm` CVE fix (SAF-54, blocking) and the first real CI run (SAF-55). Full descriptions, priorities, and acceptance criteria: [docs/backlog/sprint-1-backlog.md](docs/backlog/sprint-1-backlog.md).
 
-- `drizzle-orm` dependency bump (High-severity CVE, [Technical Debt Report](docs/governance/sprint-0-exit-gate/02-technical-debt-report.md) item 1) — dedicated story, full regression cycle.
-- First real GitHub Actions run — once push is authorized.
-- SAF-24 (Temporal spike) — if the Discovery Workspace vertical slice's workflow needs durability sooner than expected.
-- SAF-25 (plugin process isolation) — hard prerequisite before any real generation logic ships (Sprint 2 onward).
-- `context-notification`'s implementation (SAF-38) — only if the Discovery Workspace slice needs to notify a user of a processed requirement.
-
-None of the above is committed until it passes Definition of Ready and is actually pulled into a sprint plan.
+Deliberately **not** pulled into this sprint, with reasoning recorded in the backlog: `context-notification` (SAF-38 — no async consumer this sprint), SAF-24 (Temporal spike — this sprint's workflow doesn't need durable execution), SAF-25 full plugin isolation (conditional only, as SAF-56 — this sprint ships an agent invocation, not third-party generation logic).
 
 ## Current Risks
 
@@ -77,4 +71,4 @@ Every Sprint 1/2 carry-forward item (SAF-24 through SAF-38) — each has a named
 
 ## Upcoming Sprint Goal
 
-**Sprint 1 — Discovery Workspace:** a user submits a requirement through a real UI, it runs through a real workflow, and produces a real, traceable, tested, documented, telemetry-emitting, capability-registered result — the platform's first complete vertical slice, per [ENGINEERING_PRINCIPLES.md](ENGINEERING_PRINCIPLES.md)'s Engineering Planning Principles.
+**Sprint 2 — Documentation Factory:** generate real documentation artifacts (functional spec, technical spec, architecture doc) from a captured requirement — the first real generation capability, building on Sprint 1's captured, approved `Requirement`s. Not yet planned in ticket-numbered detail; see [PLATFORM_MATURITY.md](PLATFORM_MATURITY.md)'s Official Roadmap and [ROADMAP.md](ROADMAP.md).
