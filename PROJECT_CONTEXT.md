@@ -6,7 +6,7 @@
 
 ## Current Sprint
 
-**Sprint 1 — Discovery Workspace (Release R0.2), Theme: Intelligent Project Discovery.** Planning is complete and drafted in [docs/backlog/sprint-1-backlog.md](docs/backlog/sprint-1-backlog.md) and [docs/ux/sprint-1-discovery-workspace.md](docs/ux/sprint-1-discovery-workspace.md); **implementation has not started** — this sprint's own review gate requires the backlog, UX flow, and execution order to be reviewed and approved before any story is picked up.
+**Sprint 1 — Discovery Workspace (Release R0.2), Theme: Intelligent Project Discovery.** Status: **Execution Ready.** Planning ([docs/backlog/sprint-1-backlog.md](docs/backlog/sprint-1-backlog.md)), UX ([docs/ux/sprint-1-discovery-workspace.md](docs/ux/sprint-1-discovery-workspace.md)), Product Design Review ([docs/governance/sprint-1-product-design-review/](docs/governance/sprint-1-product-design-review/README.md), APPROVED WITH MINOR UX IMPROVEMENTS), and the execution plan ([docs/execution/sprint-1/](docs/execution/sprint-1/README.md), organized Epic → Vertical Slice → Engineering Task) are all complete. **Implementation has not started** — this document records the plan as ready; the next update to this section happens when the first engineering task (Task 1.3, per [docs/execution/sprint-1/08-implementation-order.md](docs/execution/sprint-1/08-implementation-order.md)) is actually picked up.
 
 ## Current Release
 
@@ -22,13 +22,13 @@ Get Sprint 1's backlog, UX flow, and recommended implementation order reviewed a
 
 ## Current Epic
 
-Six epics this sprint, in dependency order — Idea Intake, AI-Guided Structuring, Clarification Loop, Discovery Review & Approval, Discovery Workflow Orchestration, and Technical Debt & Platform Closure. Full detail: [docs/backlog/sprint-1-backlog.md](docs/backlog/sprint-1-backlog.md).
+**For execution, re-organized into 2 Epics + 1 cross-cutting workstream** (regrouped from the original 6-epic planning breakdown; no scope lost — see [docs/execution/sprint-1/01-sprint-1-backlog.md](docs/execution/sprint-1/01-sprint-1-backlog.md)'s "Why 2 Epics, not 6"): **Epic 1 — Idea Capture & AI-Guided Structuring** (Vertical Slice VS-1) and **Epic 2 — Discovery Approval & Project Creation** (Vertical Slice VS-2), plus the Technical Debt & Platform Closure workstream embedded as tasks within both. Full detail: [docs/execution/sprint-1/01-sprint-1-backlog.md](docs/execution/sprint-1/01-sprint-1-backlog.md).
 
 ## Current Stories
 
-18 ticket-numbered stories drafted, SAF-39 through SAF-56 (none started): domain and persistence for `RequirementDocument`/`Clarification`/`AcceptanceCriterion` and `Project` (SAF-39, 40, 48, 49); the first real (non-mocked) Anthropic LLM call (SAF-43); the `requirements-analyst` agent's first real invocation (SAF-44) and its `CapabilityResolverPort` adapter (SAF-45); the idea-submission, clarification-answer, and approval use cases and UI screens (SAF-41/42, 46/47, 50/51); the real Discovery `WorkflowDefinition` (SAF-52) and its end-to-end proof (SAF-53); plus the `drizzle-orm` CVE fix (SAF-54, blocking) and the first real CI run (SAF-55). Full descriptions, priorities, and acceptance criteria: [docs/backlog/sprint-1-backlog.md](docs/backlog/sprint-1-backlog.md).
+**For execution, organized as Epic → Vertical Slice → Engineering Task, not Story** — Vertical Slices are the primary implementation unit ([docs/execution/sprint-1/02-vertical-slice-catalog.md](docs/execution/sprint-1/02-vertical-slice-catalog.md)). The original 18 ticket-numbered SAF-39–56 stories are preserved for traceability in [docs/backlog/sprint-1-backlog.md](docs/backlog/sprint-1-backlog.md) and each maps to exactly one engineering task (Task 1.1–1.13 under VS-1, Task 2.1–2.7 under VS-2) in the execution catalog — none dropped, none renumbered away from its original ticket.
 
-Deliberately **not** pulled into this sprint, with reasoning recorded in the backlog: `context-notification` (SAF-38 — no async consumer this sprint), SAF-24 (Temporal spike — this sprint's workflow doesn't need durable execution), SAF-25 full plugin isolation (conditional only, as SAF-56 — this sprint ships an agent invocation, not third-party generation logic).
+Deliberately **not** pulled into this sprint, with reasoning recorded in the backlog: `context-notification` (SAF-38 — no async consumer this sprint), SAF-24 (Temporal spike — this sprint's workflow doesn't need durable execution), SAF-25 full plugin isolation (conditional only — this sprint ships an agent invocation, not third-party generation logic).
 
 ## Current Risks
 
@@ -46,6 +46,7 @@ Full register: [12-risks-and-technical-debt.md](docs/architecture/12-risks-and-t
 - Claude's default working role changes from Principal Software Architect to **Lead SAP Platform Engineer / Product Engineering Lead** starting Sprint 1 (see [.ai/README.md](.ai/README.md)).
 - **Platform Kernel and Platform Pack Architecture accepted** ([ADR-0023](docs/adr/0023-platform-kernel-and-platform-pack-architecture.md), 2026-07-15) — a strategic, pre-Sprint-1 alignment review confirmed the kernel is enterprise-platform-agnostic and named SAP as Platform Pack #1. No code changed, no ADR-0023 item is in Sprint 1's backlog; see [19-platform-kernel-and-platform-packs.md](docs/architecture/19-platform-kernel-and-platform-packs.md). **Sprint 1 remains unchanged and proceeds as planned.**
 - **Sprint 1 Product Design Review: APPROVED WITH MINOR UX IMPROVEMENTS** (2026-07-15) — see [docs/governance/sprint-1-product-design-review/](docs/governance/sprint-1-product-design-review/README.md). Nine presentation-layer Quick Wins identified (none adds a story or capability); one real backlog inconsistency found and fixed (SAF-41 was scoped to a nonexistent `Project`, corrected to `Workspace`). Sprint 1 implementation may begin.
+- **Sprint 1 Execution Package: READY** (2026-07-15) — see [docs/execution/sprint-1/](docs/execution/sprint-1/README.md). Sprint 1 reorganized for execution as 2 Epics / 2 Vertical Slices (VS-1: Capture and Structure a Business Idea; VS-2: Approve Discovery into an Approved Project) / 20 engineering tasks, each traceable to an original SAF ticket. First engineering task: Task 1.3 (`context-requirements` domain). **Implementation has not started.**
 
 ## Current ADRs
 

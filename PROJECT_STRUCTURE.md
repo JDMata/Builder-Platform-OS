@@ -110,7 +110,10 @@ sap-app-factory/
 ├── docs/
 │   ├── architecture/                      # Architecture record: vision, domain model, ADR-adjacent design docs, self-review
 │   ├── adr/                               # Architecture Decision Records (see ADR_TEMPLATE.md at root)
-│   └── backlog/                           # Sprint backlogs
+│   ├── backlog/                           # Sprint backlogs (ticket-numbered stories, e.g. SAF-39-56)
+│   ├── ux/                                # Per-sprint UX flows and wireframes
+│   ├── governance/                        # Exit Gate audits and Product Design Reviews, one dated folder per review
+│   └── execution/                         # Per-sprint execution packages (Epic -> Vertical Slice -> Task), one folder per sprint
 │
 ├── tools/
 │   ├── scripts/                           # Repo maintenance scripts

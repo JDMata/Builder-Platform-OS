@@ -48,6 +48,8 @@ The full sprint-by-sprint table — theme, objective, deliverables, dependencies
 
 ### Epics (Sprint 1)
 
+**Status: Execution Ready** — planning, UX, Product Design Review (APPROVED WITH MINOR UX IMPROVEMENTS), and the full execution plan are complete; implementation has not started. See [docs/execution/sprint-1/](docs/execution/sprint-1/README.md) for the execution-ready Epic/Vertical Slice/Task breakdown — **Epic 1: Idea Capture & AI-Guided Structuring** and **Epic 2: Discovery Approval & Project Creation** — which supersedes the indicative epic list below as the authoritative execution structure.
+
 - **Requirement Capture** — a real UI and application-layer use case for `context-requirements`.
 - **First Real Workflow Run** — a Discovery workflow definition exercised end to end, not the contract-test-only skeleton.
 - **Sprint 1 Technical Debt Closure** — the `drizzle-orm` CVE, the first live CI run, plugin isolation ahead of Sprint 2's real generation logic.
