@@ -137,7 +137,7 @@ module.exports = {
     {
       name: "plugin-import-boundary",
       comment:
-        "SAF-19 fitness function (docs/architecture/12-risks-and-technical-debt.md, R1): only the two apps that actually load and execute plugins today may import plugins/* — no context's domain/application layer, no adapter-tier package, and no other app ever does. A stricter form of this rule (12-risks-and-technical-debt.md's 'never a named plugin import, only via plugin-sdk's loader type') isn't enforceable yet — no dynamic, manifest-driven plugin loader exists; apps/orchestrator and apps/worker construct the one first-party plugin directly in their composition roots, the same way every other adapter in this codebase is wired. Tracked as a known gap, not silently ignored — see the SAF-19 backlog entry.",
+        "SAF-19 fitness function (docs/architecture/12-risks-and-technical-debt.md, R1): only the composition roots that actually load and execute plugins today may import plugins/* — no context's domain/application layer, no adapter-tier package, and no other app ever does. tools/sprint0-demo (SAF-21) is included for the same reason apps/orchestrator and apps/worker are: it's a composition root in its own right (constructs concrete adapters/plugins directly, never imported by anything else), not application code that should stay plugin-agnostic. A stricter form of this rule (12-risks-and-technical-debt.md's 'never a named plugin import, only via plugin-sdk's loader type') isn't enforceable yet — no dynamic, manifest-driven plugin loader exists. Tracked as a known gap, not silently ignored — see the SAF-19 backlog entry.",
       severity: "error",
       // Both src/ and dist/ on both sides: a real cross-package import
       // resolves through node_modules to the *compiled* dist/ output, never
@@ -146,7 +146,10 @@ module.exports = {
       // added to apps/api-gateway/src/server.ts through silently, since
       // pnpm's workspace symlink resolves that specifier to
       // plugins/fiori-generator/dist/index.js, not its src/).
-      from: { pathNot: "^(apps/(orchestrator|worker)/(src|dist)/|plugins/[^/]+/(src|dist)/)" },
+      from: {
+        pathNot:
+          "^(apps/(orchestrator|worker)/(src|dist)/|plugins/[^/]+/(src|dist)/|tools/sprint0-demo/src/)",
+      },
       to: { path: "^plugins/" },
     },
   ],

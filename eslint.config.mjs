@@ -93,12 +93,23 @@ export default tseslint.config(
       "**/*.config.{js,cjs,mjs}",
       "eslint.config.mjs",
       "**/*.config.{ts,mts,cts}",
-      "tools/**/*.mjs",
+      "tools/scripts/**/*.mjs",
     ],
     extends: [tseslint.configs.disableTypeChecked],
     languageOptions: {
       globals: globals.node,
     },
+    rules: {
+      "no-console": "off",
+    },
+  },
+  {
+    // tools/sprint0-demo (SAF-21) is a runnable demonstration, not
+    // application code — its whole job is printing human-readable progress
+    // to stdout, unlike apps/* where no-console has no exemption. Full
+    // type-checked linting stays on, unlike the config-file override above:
+    // this is real TypeScript with its own tsconfig.json, not a config file.
+    files: ["tools/sprint0-demo/src/**/*.ts"],
     rules: {
       "no-console": "off",
     },

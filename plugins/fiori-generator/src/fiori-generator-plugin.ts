@@ -8,11 +8,14 @@ import type {
 } from "@sap-app-factory/plugin-sdk";
 
 /**
- * Sprint 0 stub — the manifest is real, but `generate()` returns `[]` and no
- * Fiori/SAPUI5 generation logic exists yet. See ADR-0006 and
- * docs/architecture/05-plugin-architecture.md § Sprint 0 deliverable: this
- * package exists to prove the `CapabilityPlugin` contract holds together end
- * to end, not to generate anything real.
+ * Sprint 0 stub — the manifest is real, but `generate()` returns one fixed
+ * placeholder `GeneratedArtifact` and no Fiori/SAPUI5 generation logic exists
+ * yet. See ADR-0006 and docs/architecture/05-plugin-architecture.md § Sprint
+ * 0 deliverable: this package exists to prove the `CapabilityPlugin`
+ * contract holds together end to end, not to generate anything real. The
+ * placeholder output (SAF-21) exists so a caller has a real
+ * `GeneratedArtifact` to convert into a persisted `Artifact` — `generate()`
+ * returning `[]` gave the Sprint 0 vertical-slice demo nothing to convert.
  */
 export class FioriGeneratorPlugin implements CapabilityPlugin {
   readonly manifest: PluginManifest = {
@@ -35,8 +38,14 @@ export class FioriGeneratorPlugin implements CapabilityPlugin {
     return { valid: true, errors: [] };
   }
 
-  generate(_input: GenerationInput): Promise<readonly GeneratedArtifact[]> {
-    return Promise.resolve([]);
+  generate(input: GenerationInput): Promise<readonly GeneratedArtifact[]> {
+    return Promise.resolve([
+      {
+        artifactType: "fiori-elements-app",
+        content: { message: "Sprint 0 placeholder — no real Fiori generation logic yet" },
+        generatedForExecutionProfile: input.targetExecutionProfile,
+      },
+    ]);
   }
 
   deactivate(): Promise<void> {

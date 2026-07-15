@@ -1,0 +1,36 @@
+{
+  "name": "@sap-app-factory/sprint0-demo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "demo": "tsx src/run.ts"
+  },
+  "dependencies": {
+    "@sap-app-factory/adapter-events-postgres-outbox": "workspace:*",
+    "@sap-app-factory/adapter-workflow-engine-in-memory": "workspace:*",
+    "@sap-app-factory/auth-core": "workspace:*",
+    "@sap-app-factory/context-capability-registry": "workspace:*",
+    "@sap-app-factory/context-generation": "workspace:*",
+    "@sap-app-factory/context-governance": "workspace:*",
+    "@sap-app-factory/context-identity": "workspace:*",
+    "@sap-app-factory/context-project": "workspace:*",
+    "@sap-app-factory/events-core": "workspace:*",
+    "@sap-app-factory/observability": "workspace:*",
+    "@sap-app-factory/persistence-postgres-governance": "workspace:*",
+    "@sap-app-factory/persistence-postgres-identity": "workspace:*",
+    "@sap-app-factory/plugin-fiori-generator": "workspace:*",
+    "@sap-app-factory/plugin-sdk": "workspace:*",
+    "@sap-app-factory/ports": "workspace:*",
+    "drizzle-orm": "^0.36.4",
+    "openid-client": "^6.8.4",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "@types/pg": "^8.11.10",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.3"
+  }
+}

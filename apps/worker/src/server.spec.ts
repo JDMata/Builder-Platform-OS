@@ -79,7 +79,7 @@ describe("worker server", () => {
 
     expect(response.status).toBe(200);
     expect(body.pluginId).toBe("fiori-generator");
-    expect(body.artifacts).toEqual([]);
+    expect(body.artifacts).toHaveLength(1);
   });
 
   it("POST /invoke publishes generation.job.started/completed events", async () => {
