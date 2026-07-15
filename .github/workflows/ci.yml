@@ -1,0 +1,212 @@
+name: CI
+
+# Pipeline stages per docs/architecture/11-git-and-cicd-strategy.md. Build
+# runs before Lint/Typecheck deliberately — every package resolves workspace
+# dependencies through package.json `exports` pointing at `dist/`, never
+# source, so cross-package type-aware lint/typecheck cannot resolve a single
+# import until dependencies are built (found while scaffolding SAF-8).
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Pinned to what this whole Sprint 0 build has actually been developed and
+  # manually verified against — .nvmrc is the single source of truth so this
+  # workflow and a local `nvm use` can never silently drift apart.
+  NODE_VERSION_FILE: .nvmrc
+
+jobs:
+  build-lint-typecheck-test:
+    name: Build, lint, typecheck, unit + contract tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ${{ env.NODE_VERSION_FILE }}
+          cache: pnpm
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      # Stage 1 — Build (affected packages/apps; Turborepo skips anything
+      # unaffected via its own content-hash cache, not a hand-rolled filter).
+      - name: Build
+        run: pnpm run build
+
+      # Stage 2 — Lint: ESLint + dependency-cruiser (architectural layering —
+      # see ARCHITECTURE_PRINCIPLES.md § Dependency rules — fails the build
+      # here, never discovered later in review) + Prettier check.
+      - name: Lint (ESLint + dependency-cruiser + Prettier)
+        run: pnpm run lint
+
+      # Stage 3 — Typecheck across the project-reference graph.
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      # Stage 4 + 5 — Unit + contract tests: every adapter package's contract
+      # suite (testing-kit's *ContractTests factories) runs inline as part of
+      # its own package's `test` script — there is no separate "contract
+      # test" stage to wire, it's already covered here.
+      - name: Unit + contract tests
+        run: pnpm run test
+
+  integration:
+    name: Integration tests (real Postgres/Keycloak/OPA)
+    runs-on: ubuntu-latest
+    needs: build-lint-typecheck-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ${{ env.NODE_VERSION_FILE }}
+          cache: pnpm
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      # This job runs on its own fresh checkout — a separate runner from
+      # build-lint-typecheck-test, with no dist/ carried over. Every
+      # workspace package resolves another via package.json `exports`
+      # pointing at `dist/`, never source (same reason Build runs before
+      # Lint/Typecheck at the top of this file) — skipping this step would
+      # fail every test that imports a workspace dependency, not just the
+      # real-infra-gated ones.
+      - name: Build
+        run: pnpm run build
+
+      # Stage 6 — ephemeral docker-compose (Postgres/Keycloak/OPA/otel-
+      # collector; Redis/MinIO deliberately absent — see infra/README.md
+      # "Why Redis and MinIO aren't here yet"), the exact same stack every
+      # SAF-11/14/17 real-infra test was hand-verified against all sprint.
+      - name: Start docker-compose infra
+        run: pnpm run infra:up
+
+      - name: Wait for Postgres and Keycloak to report healthy
+        run: |
+          deadline=$((SECONDS + 120))
+          compose_file=infra/docker-compose/docker-compose.yml
+          while true; do
+            postgres_health=$(docker compose -f "$compose_file" ps postgres --format json | jq -r '.Health')
+            keycloak_health=$(docker compose -f "$compose_file" ps keycloak --format json | jq -r '.Health')
+            if [ "$postgres_health" = "healthy" ] && [ "$keycloak_health" = "healthy" ]; then
+              break
+            fi
+            if [ "$SECONDS" -ge "$deadline" ]; then
+              echo "Timed out waiting for postgres/keycloak to become healthy" >&2
+              exit 1
+            fi
+            echo "waiting for postgres/keycloak health..."
+            sleep 3
+          done
+
+      - name: Wait for OPA to accept requests
+        # No container-exec healthcheck exists for OPA (distroless image —
+        # see infra/README.md) — poll its real /health endpoint instead,
+        # exactly the verification infra/README.md itself documents by hand.
+        run: |
+          deadline=$((SECONDS + 60))
+          while ! curl -sf http://localhost:8181/health >/dev/null; do
+            if [ "$SECONDS" -ge "$deadline" ]; then
+              echo "Timed out waiting for opa" >&2
+              exit 1
+            fi
+            echo "waiting for opa..."
+            sleep 3
+          done
+
+      # Every SAF_TEST_* value here matches infra/docker-compose's own
+      # documented dev-only defaults (.env.example, infra/README.md) — never
+      # a production credential, and never overridable by a PR (this job
+      # reads no repo secrets).
+      - name: Run real-infra-gated test suites
+        env:
+          SAF_TEST_POSTGRES_URL: postgres://saf:saf_dev_password@localhost:55432/sap_app_factory
+          SAF_TEST_POSTGRES_APP_URL: postgres://saf_app:saf_app_dev_password@localhost:55432/sap_app_factory
+          SAF_TEST_KEYCLOAK_ISSUER_URL: http://localhost:8080/realms/sap-app-factory
+          SAF_TEST_OPA_URL: http://localhost:8181
+        # Run directly per-package, not via `turbo run test`: Turborepo's
+        # default env mode doesn't factor these vars into a task's cache
+        # hash, so a cache hit could silently replay a stale "skipped"
+        # result instead of actually exercising real infra (found and
+        # documented in the SAF-17/SAF-16 backlog entries).
+        run: |
+          pnpm --filter @sap-app-factory/auth-core test
+          pnpm --filter @sap-app-factory/api-gateway test
+          pnpm --filter @sap-app-factory/persistence-postgres-identity test
+          pnpm --filter @sap-app-factory/persistence-postgres-governance test
+          pnpm --filter @sap-app-factory/adapter-events-postgres-outbox test
+
+      - name: Stop docker-compose infra
+        if: always()
+        run: pnpm run infra:down
+
+  security:
+    name: Security scan (dependency audit + secret scan)
+    runs-on: ubuntu-latest
+    needs: build-lint-typecheck-test
+    # Stage 7. Informational for Sprint 0, not a required merge check yet
+    # (docs/architecture/11-git-and-cicd-strategy.md's required-checks list
+    # names lint/typecheck/test/build/dependency-cruiser/contract tests only)
+    # — SAST via CodeQL needs GitHub Advanced Security, whose licensing on
+    # this repo is not yet known/decided; wiring a hard-required step against
+    # an unconfirmed license would block every PR the moment it's unlicensed.
+    # Revisit once that's confirmed.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      # Neither step below touches node_modules — no pnpm install needed in
+      # this job, only the checked-out lockfile/source tree.
+
+      # `pnpm audit` is not usable right now — verified by hand: it always
+      # fails with "410 Gone", independent of any flag, because it calls
+      # npm's legacy per-package audit endpoint, which npm has retired in
+      # favor of a bulk advisory endpoint pnpm doesn't yet call. OSV-Scanner
+      # (already named as the alternative in this doc's own wording,
+      # "pnpm audit / OSV") queries the OSV.dev database directly instead —
+      # confirmed working locally (`osv-scanner scan --lockfile=pnpm-lock.yaml`),
+      # and found 4 real, currently-unaddressed vulnerabilities in this
+      # lockfile (see the SAF-15 backlog entry) that `pnpm audit` never had
+      # the chance to report.
+      - name: Dependency vulnerability scan (OSV)
+        uses: google/osv-scanner-action/osv-scanner-action@v2
+        with:
+          scan-args: |-
+            --lockfile=./pnpm-lock.yaml
+
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-dev:
+    name: Deploy to dev (placeholder)
+    runs-on: ubuntu-latest
+    needs: [build-lint-typecheck-test, integration]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      # No container image, registry, or real dev environment exists yet —
+      # apps/* have no Dockerfile, and no cloud/k8s target has been chosen
+      # (deployment target is itself configuration, per
+      # docs/architecture/00-vision-and-principles.md's no-vendor-lock-in
+      # principle — see docs/architecture/11-git-and-cicd-strategy.md
+      # § Environments). This job exists so the pipeline's shape — merge to
+      # main triggers a dev deploy — is real and wired, not deferred
+      # silently; the actual deploy action is a later, additive change here,
+      # not a redesign of this workflow.
+      - name: Placeholder — no real dev deployment target yet
+        run: |
+          echo "SAF-15: deploy-dev is a wiring placeholder."
+          echo "No Dockerfile/registry/target environment exists yet — see docs/architecture/11-git-and-cicd-strategy.md § Environments."

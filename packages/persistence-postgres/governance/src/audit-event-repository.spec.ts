@@ -26,7 +26,23 @@ describe.skipIf(!adminConnectionString || !appConnectionString)(
     beforeAll(async () => {
       adminPool = new Pool({ connectionString: adminConnectionString });
       appPool = new Pool({ connectionString: appConnectionString });
-      await migrate(drizzle(adminPool), { migrationsFolder: "./migrations" });
+      // A distinct migrationsTable per package, not drizzle's shared default
+      // ("drizzle"."__drizzle_migrations") — a real bug found while wiring
+      // SAF-15's CI pipeline: with the default (unscoped) tracking table,
+      // running persistence-postgres/identity's migrate() first (also fixed
+      // the same way) left 4 rows in that shared table; this package's own
+      // migrate() call then compared its 2-migration journal against that
+      // unrelated count, concluded (wrongly) that it had nothing left to
+      // apply, and silently never created the "governance" schema at all —
+      // no thrown error, migrate() just resolved having done nothing. (A
+      // custom migrationsSchema instead of migrationsTable was tried first
+      // and rejected: drizzle's own schema-bootstrap step collides with this
+      // package's migration files, which already do their own unconditional
+      // `CREATE SCHEMA "governance"`.)
+      await migrate(drizzle(adminPool), {
+        migrationsFolder: "./migrations",
+        migrationsTable: "governance_migrations",
+      });
     });
 
     afterAll(async () => {
