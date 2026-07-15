@@ -1,0 +1,31 @@
+{
+  "name": "@sap-app-factory/auth-core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "AuthN session handling (OIDC) + PolicyEnginePort's OPA adapter — see ADR-0010, ADR-0011, docs/architecture/08-authentication-and-rbac.md.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "typecheck": "tsc -b tsconfig.build.json --noEmit",
+    "test": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@sap-app-factory/ports": "workspace:*",
+    "jose": "^6.2.3",
+    "openid-client": "^6.8.4"
+  },
+  "devDependencies": {
+    "@sap-app-factory/testing-kit": "workspace:*",
+    "@types/node": "^24.13.3",
+    "@vitest/coverage-v8": "^4.1.10",
+    "vitest": "^4.1.10"
+  }
+}

@@ -10,7 +10,11 @@
     "dev": "tsx watch src/main.ts",
     "start": "node dist/main.js"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@sap-app-factory/auth-core": "workspace:*",
+    "@sap-app-factory/ports": "workspace:*",
+    "openid-client": "^6.8.4"
+  },
   "devDependencies": {
     "@types/node": "^24.13.3",
     "@vitest/coverage-v8": "^4.1.10",

@@ -31,10 +31,16 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0
-    command: start-dev --health-enabled=true
+    # --import-realm loads every realm JSON under /opt/keycloak/data/import
+    # on first startup — the sap-app-factory realm/client/user (SAF-17) are
+    # provisioned automatically, the same "bootstrap via a mounted file"
+    # pattern postgres-init/ already uses for the saf_app role.
+    command: start-dev --health-enabled=true --import-realm
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${SAF_KEYCLOAK_ADMIN_USER:-admin}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${SAF_KEYCLOAK_ADMIN_PASSWORD:-admin_dev_password}
+    volumes:
+      - ./keycloak-import:/opt/keycloak/data/import:ro
     ports:
       - "${SAF_KEYCLOAK_HOST_PORT:-8080}:8080"
     healthcheck:
@@ -64,6 +70,18 @@ services:
     # health_check extension. The extension is still enabled and published
     # on 13133 above — verify readiness from the host (`curl
     # http://localhost:13133/`) or via infra/README.md's verification steps.
+
+  opa:
+    image: openpolicyagent/opa:0.70.0
+    command: ["run", "--server", "--addr=0.0.0.0:8181", "/policies"]
+    volumes:
+      - ../opa/policies:/policies:ro
+    ports:
+      - "${SAF_OPA_HOST_PORT:-8181}:8181"
+    # Same distroless constraint as otel-collector (confirmed by hand, same
+    # method) — no container-exec healthcheck possible. OPA exposes a real
+    # `/health` HTTP endpoint once serving; verify from the host instead
+    # (`curl http://localhost:8181/health`).
 
 volumes:
   postgres-data:

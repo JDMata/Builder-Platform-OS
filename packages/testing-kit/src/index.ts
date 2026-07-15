@@ -6,3 +6,4 @@ export { workflowEngineContractTests } from "./contract-tests/workflow-engine.co
 export { capabilityPluginContractTests } from "./contract-tests/capability-plugin.contract.js";
 export { repositoryContractTests } from "./contract-tests/repository.contract.js";
 export type { RepositoryContractFixtures } from "./contract-tests/repository.contract.js";
+export { policyEngineContractTests } from "./contract-tests/policy-engine.contract.js";

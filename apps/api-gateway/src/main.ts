@@ -1,8 +1,10 @@
+import { buildDependencies } from "./build-dependencies.js";
 import { createServer } from "./server.js";
 
 const port = Number(process.env.SAF_API_GATEWAY_PORT ?? 3001);
 
-const server = createServer();
+const deps = await buildDependencies();
+const server = createServer(deps);
 server.listen(port);
 
 process.on("SIGTERM", () => server.close());
