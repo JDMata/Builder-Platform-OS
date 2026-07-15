@@ -4,3 +4,4 @@ export type { PluginManifest } from "./plugin-manifest.js";
 export type { GenerationInput, ValidationResult } from "./generation-input.js";
 export type { GeneratedArtifact } from "./generated-artifact.js";
 export type { CapabilityPlugin, PluginActivationContext } from "./capability-plugin.js";
+export { execute, PluginValidationError } from "./execute.js";

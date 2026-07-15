@@ -2,7 +2,7 @@ import { createPostgresOutboxEventBus } from "@sap-app-factory/adapter-events-po
 import { buildDependencies } from "./build-dependencies.js";
 import { createServer } from "./server.js";
 
-const port = Number(process.env.SAF_ORCHESTRATOR_PORT ?? 3002);
+const port = Number(process.env.SAF_WORKER_PORT ?? 3003);
 
 const { eventBus, stop } = await createPostgresOutboxEventBus();
 

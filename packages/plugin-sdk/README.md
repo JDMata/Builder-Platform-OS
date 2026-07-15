@@ -1,16 +1,17 @@
 # @sap-app-factory/plugin-sdk
 
 ## Purpose
-The `CapabilityPlugin` contract (ADR-0006, [05-plugin-architecture.md](../../docs/architecture/05-plugin-architecture.md)): manifest shape, lifecycle methods, and the `GenerationInput`/`GeneratedArtifact` types a plugin exchanges with the core. Types only, no implementation, no loader — matching `@sap-app-factory/ports`'s scope exactly, one layer down (a contract for the plugin extension seam rather than the port seam).
+The `CapabilityPlugin` contract (ADR-0006, [05-plugin-architecture.md](../../docs/architecture/05-plugin-architecture.md)): manifest shape, lifecycle methods, the `GenerationInput`/`GeneratedArtifact` types a plugin exchanges with the core, and — added SAF-6 — the `execute()` host-runner seam every real invocation goes through.
 
 ## Ports
-Depends on `@sap-app-factory/ports` for `RequestContext` only. Every SAP-specific plugin (`plugins/*`) depends on this package; core orchestration code (`packages/context-*`, `apps/*`) never imports a specific plugin, only the (not yet built) loader/registry.
+Depends on `@sap-app-factory/ports` for `RequestContext` only. Every SAP-specific plugin (`plugins/*`) depends on this package; core orchestration code (`packages/context-*`, `apps/*`) never imports a specific plugin directly, only through the loader (`apps/orchestrator`) or `execute()` (`apps/worker`).
 
 ## Sprint 0 scope
-- `PluginManifest`, `GenerationInput`, `ValidationResult`, `GeneratedArtifact`, `CapabilityPlugin`, `ArtifactType`, `ExecutionProfileId`, `PortCategory`.
+- `PluginManifest`, `GenerationInput`, `ValidationResult`, `GeneratedArtifact`, `CapabilityPlugin`, `ArtifactType`, `ExecutionProfileId`, `PortCategory` — types only.
 - `requiredMcpCapabilities`/`requiredLlmCapabilities`/`requiredPermissions` are opaque `string[]` — the registries they'd otherwise reference (`ToolBindingRef`, `ModelProfile` names, permission scopes) aren't built as code anywhere in this platform yet either, so this manifest carries them the same way it already carries `ArtifactType`: as identifiers the core never interprets.
+- **`execute(plugin, ctx, input)`** (SAF-6, real implementation, real tests) — drives the full lifecycle (`activate` → `validate` → `generate` → `deactivate`, `deactivate` always running via `finally`) in-process, per 05-plugin-architecture.md § Isolation & Zero Trust's explicit Sprint 0 scope: "plugin execution in-process... behind an `execute()` seam... so process-level isolation can be introduced later without changing plugin authors' code." Callers (`apps/worker`) invoke this, never a plugin's `generate()` directly.
 
-**Not yet built:** the plugin loader (`orchestrator`), the scoped-capability-token mechanism real invocations carry, and process/container-level execution isolation — all explicitly Sprint 1/2 per ADR-0006's review update, not part of this contract.
+**Not yet built:** the plugin loader itself lives in `apps/orchestrator`, not here; the scoped-capability-token mechanism real invocations carry, and process/container-level execution isolation *inside* `execute()` — both explicitly Sprint 1/2 per ADR-0006's review update.
 
 ## Testing
-This package is verified by build/typecheck only, same as `@sap-app-factory/ports` — a stable type contract has nothing to unit test on its own. The contract is exercised for real by `testing-kit`'s `capabilityPluginContractTests`, run against `plugins/fiori-generator` (a real, if intentionally empty, implementation — not a fake).
+`execute.spec.ts` — real unit tests (a recording fake `CapabilityPlugin`, not mocked-out logic) proving lifecycle order, that `deactivate()` always runs (validation failure, `generate()` throwing), and that a failed `validate()` produces a `PluginValidationError` without ever calling `generate()`. The `CapabilityPlugin` *contract* itself is exercised separately by `testing-kit`'s `capabilityPluginContractTests`, run against `plugins/fiori-generator`.

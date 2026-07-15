@@ -2,7 +2,7 @@
   "name": "@sap-app-factory/plugin-sdk",
   "version": "0.0.0",
   "private": true,
-  "description": "The CapabilityPlugin contract (types only, no implementation) — see ADR-0006 and docs/architecture/05-plugin-architecture.md.",
+  "description": "The CapabilityPlugin contract, plus the execute() host-runner seam — see ADR-0006 and docs/architecture/05-plugin-architecture.md.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,9 +14,14 @@
   },
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
-    "typecheck": "tsc -b tsconfig.build.json --noEmit"
+    "typecheck": "tsc -b tsconfig.build.json --noEmit",
+    "test": "vitest run --coverage"
   },
   "dependencies": {
     "@sap-app-factory/ports": "workspace:*"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.10",
+    "vitest": "^4.1.10"
   }
 }

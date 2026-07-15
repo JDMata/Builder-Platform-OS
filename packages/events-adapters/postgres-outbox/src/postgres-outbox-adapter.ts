@@ -109,6 +109,15 @@ export class PostgresOutboxAdapter implements EventBusPort {
     `);
     await this.pool.query("GRANT USAGE ON SCHEMA outbox TO saf_app");
     await this.pool.query("GRANT SELECT, INSERT, UPDATE ON outbox.events TO saf_app");
+    // `seq bigserial` implicitly creates a sequence object — granting
+    // privileges on the table alone does not include it. Without this,
+    // saf_app can't call nextval() on INSERT, failing with "permission
+    // denied for sequence events_seq_seq" — found running `worker` (SAF-6)
+    // for the first time, since neither the identity/governance migrations
+    // (SAF-14) nor orchestrator's earlier run (SAF-5, health-check only,
+    // never actually called publish()) ever exercised this INSERT path as
+    // saf_app before.
+    await this.pool.query("GRANT USAGE, SELECT ON SEQUENCE outbox.events_seq_seq TO saf_app");
   }
 
   async publish(_ctx: RequestContext, event: DomainEventEnvelope): Promise<void> {
