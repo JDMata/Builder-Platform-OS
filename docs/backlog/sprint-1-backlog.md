@@ -2,7 +2,7 @@
 
 **Theme:** Intelligent Project Discovery
 **Mission:** Transform a business idea into an approved software project through an AI-guided discovery experience.
-**Status:** Planned, not yet implemented. Implementation begins only after this backlog, the UX flow ([docs/ux/sprint-1-discovery-workspace.md](../ux/sprint-1-discovery-workspace.md)), and the execution order below are reviewed and approved — per this sprint's explicit review gate.
+**Status:** Approved; execution-ready. Implementation is organized by the execution package at [docs/execution/sprint-1/](../execution/sprint-1/README.md), which merges this backlog's original 6 epics/2 slices into one Vertical Slice (VS-1 — Discovery Workspace) and adds four new tickets below (SAF-57–60) plus a scoped-down pull-forward of SAF-34/35 — see that package's [01-sprint-1-backlog.md](../execution/sprint-1/01-sprint-1-backlog.md) for the full reasoning. This ticket-numbered backlog remains the source of record for individual story-level acceptance criteria; the execution package is the source of record for how they're sequenced and packaged into Vertical Slices.
 
 This backlog is planned against the frozen Sprint 0 architecture ([ARCHITECTURE_FREEZE.md](../../ARCHITECTURE_FREEZE.md)) and follows [ENGINEERING_PRINCIPLES.md](../../ENGINEERING_PRINCIPLES.md)'s Engineering Planning Principles and [PROJECT_PLAYBOOK.md](../../PROJECT_PLAYBOOK.md)'s "how to begin a sprint" process. Every story below is a slice of one vertical capability — none introduces a new bounded context, port, or architectural concept; all of them implement aggregates, an agent, and a workflow already designed in [02-domain-model.md](../architecture/02-domain-model.md), [.ai/agents/requirements-analyst/agent.md](../../.ai/agents/requirements-analyst/agent.md), and [18-capability-model.md](../architecture/18-capability-model.md), but not yet built.
 
@@ -80,6 +80,19 @@ Priority: **P0** — blocks other stories or the sprint's exit criteria; **P1** 
   - **Acceptance criteria:** passes a shared contract-test suite for `CapabilityResolverPort` (net new, mirroring the pattern every other port already has); resolving an unregistered capability id fails clearly rather than silently returning nothing.
 - **SAF-53** (P1) — End-to-end vertical-slice proof: an integration/e2e test plus a small demo script (mirroring `tools/sprint0-demo`'s discipline) exercising the full Discovery workflow — idea submission through `Project` creation — against real adapters, not mocks. Depends on every story above.
   - **Acceptance criteria:** the demo runs unattended (`pnpm run demo:sprint1` or equivalent) and produces a real, inspectable `Project` row plus a real outbox event, the same evidentiary bar `tools/sprint0-demo` set for Sprint 0.
+
+### New tickets added during execution planning (2026-07-16)
+
+Added when the Sprint 1 Execution Package ([docs/execution/sprint-1/](../execution/sprint-1/README.md)) merged this backlog's original two slices into one Vertical Slice (VS-1 — Discovery Workspace), reconciling a proposed form-based "Project Creation" request with the already-approved Discovery-first design. Full reasoning for why these don't require reopening the Architecture Review: [docs/execution/sprint-1/01-sprint-1-backlog.md](../execution/sprint-1/01-sprint-1-backlog.md).
+
+- **SAF-57** (P1) — Dashboard screen: empty state, single "Start New Project" action. Depends on the login screen folded into SAF-42 (Quick Win #2, from the Product Design Review).
+  - **Acceptance criteria:** renders correctly for a zero-project user; its one action navigates to the idea-submission/Start-New-Project screen.
+- **SAF-58** (P0) — Extend `SubmitBusinessIdea` (SAF-41) and the `Project` aggregate (SAF-48) to capture Project Name, Business Area, Customer, Country, and Project Type alongside the free-text idea. `projectType` is modeled as an **opaque, SAP-Platform-Pack-supplied string** — never a hardcoded Kernel-level enum — the same pattern already established for `ArtifactType`, applied here specifically so this doesn't reopen [ADR-0023](../adr/0023-platform-kernel-and-platform-pack-architecture.md)'s Kernel/Platform-Pack boundary. Depends on SAF-39, SAF-48.
+  - **Acceptance criteria:** all fields persisted on the draft `RequirementDocument`/eventual `Project`; the Project Type dropdown's values come from SAP Platform Pack data, not hardcoded UI copy or a Kernel-side union type.
+- **SAF-59** (P0) — Digital Twin write integration: on approval, write `Project`/`Platform`/`ProjectType`/`Owner`/`CreationEvent` nodes and their relationships via a new, minimal `context-digital-twin` implementation and its first real `GraphStorePort` adapter — both scoped **only** to these five node/relationship types, pulled forward from Sprint 7's SAF-34/SAF-35 (which retain their full originally-planned scope — search indexing, semantic embeddings, Governance node types — for Sprint 7 itself). Depends on SAF-50, and on the minimal domain/adapter work (tracked as part of this ticket, not a separate one, since neither existed before this ticket).
+  - **Acceptance criteria:** matches [ADR-0021](../adr/0021-project-digital-twin-knowledge-graph.md)'s model exactly; a successful approval writes exactly the expected node/edge set; a failed approval writes none; a real graph query against the result succeeds.
+- **SAF-60** (P1) — Initial Project Workspace screen: the created `Project`'s metadata, linked requirements, a simple Digital Twin summary, and the "what happens next" panel (Quick Win #7). Depends on SAF-50, SAF-59.
+  - **Acceptance criteria:** shows real, persisted data only; no capability or screen implied that doesn't exist yet.
 
 ## Dependency graph
 

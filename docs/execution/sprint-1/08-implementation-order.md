@@ -1,27 +1,29 @@
 # Sprint 1 Implementation Order
 
+**Revised 2026-07-16** for the merged, single-slice structure.
+
 ## Recommendation
 
-- **First Epic:** Epic 1 — Idea Capture & AI-Guided Structuring.
-- **First Vertical Slice:** VS-1 — Capture and Structure a Business Idea.
-- **First Engineering Task:** Task 1.3 — `context-requirements` domain (`RequirementDocument`, `Clarification`, `AcceptanceCriterion`).
+- **First Epic:** Epic 1 — Discovery-to-Project Delivery (the only Epic this sprint).
+- **First Vertical Slice:** VS-1 — Discovery Workspace (the only Vertical Slice this sprint).
+- **First Engineering Task:** Task 1.3 — `context-requirements` domain (`RequirementDocument`, `Clarification`, `AcceptanceCriterion`), started the same day as Tasks 1.1, 1.2, 1.5, 1.13, and 1.17 (see below) — this document names the single highest-priority task, not the only one that should start on day one.
 
-## Why Epic 1 / VS-1, not Epic 2 / VS-2
+## Why Task 1.3, not Task 1.13 (Project) or Task 1.17 (Digital Twin) — the other new zero-dependency candidates
 
-There is no real choice here: Epic 2 has nothing to approve until Epic 1 produces a resolved `RequirementDocument` ([03-dependency-map.md](03-dependency-map.md)'s Epic-dependency section). The interesting decision is *which task within VS-1* to start with, and *how to sequence the rest of VS-1* to front-load the sprint's real risk — not which Epic goes first.
+The merge added two new zero-dependency starting points that didn't exist in the original plan: Task 1.13 (`Project` domain) and Task 1.17 (`context-digital-twin` domain). Both are real candidates for "first task," and both should start in parallel with Task 1.3 on day one regardless — but asked for a single first task, **Task 1.3 remains the right answer**, for the same reason it was before: it unblocks the most downstream work. Task 1.13 only unblocks Task 1.14 (Project persistence); Task 1.17 only unblocks Task 1.18 (`GraphStorePort` adapter). Task 1.3 unblocks Task 1.4 (persistence), Task 1.6 (the capability implementation, the sprint's highest-complexity task), Task 1.8 (the use case), and everything built on top of those. It is still the cheapest point in the sprint to discover a shape problem before the most expensive work (the real LLM integration, the Digital Twin write path, every UI screen) is built on top of an assumption that turns out wrong.
 
-## Why Task 1.3, not Task 1.1, 1.2, 1.5, or 2.1 (the other zero-dependency candidates)
+## Special note on Task 1.17 (Digital Twin domain)
 
-Five tasks have zero dependencies and could start on day one: 1.1 (login), 1.2 (CVE fix), 1.3 (domain), 1.5 (real LLM call), 2.1 (Project domain). All five *should* start in parallel, per [03-dependency-map.md](03-dependency-map.md)'s recommended order — but asked for a single "first task," **Task 1.3** is the right answer because it is the one task every other task in the sprint's critical path is downstream of. Task 1.4 (persistence), Task 1.6 (capability implementation), Task 1.8 (use case), and everything after them all need `RequirementDocument`/`Clarification`/`AcceptanceCriterion`'s shape decided first. Starting here — pure domain logic, zero I/O, zero external dependency, unit-testable in milliseconds — is the same "cheapest possible moment to correct the shape" reasoning Sprint 0 itself used repeatedly (e.g., [ADR-0022](../../adr/0022-capability-model-provider-abstraction.md)'s own justification): if anything about these three aggregates' shape is wrong, this is the cheapest point in the sprint to discover it, before persistence, the agent, or any UI is built on top of an assumption that turns out wrong.
+Although Task 1.3 is the recommended single first task, **Task 1.17 deserves the same day-one urgency**, for a reason specific to this revision: it carries Risk #7 ([04-risk-register.md](04-risk-register.md)) — the real possibility that [ADR-0021](../../adr/0021-project-digital-twin-knowledge-graph.md)'s already-approved Digital Twin model doesn't fit cleanly once real implementation starts, since it's being built for the first time, ahead of its originally planned sprint, under this sprint's schedule pressure. Discovering that early (day one, alongside 1.3) leaves the most possible time to stop and recommend an ADR revision if needed, rather than discovering it once Task 1.19 (the write integration) is already underway and the rest of the workflow (Task 1.20) is waiting on it.
 
-## Why VS-1 as a whole maximizes business value while validating the greatest number of platform capabilities with the least implementation effort
+## Why this maximizes business value while validating the greatest number of platform capabilities with the least implementation effort
 
-This is the same question the Product Design Review's Executive Design Review already answered for the *previous* level of granularity (Epic/Story/Slice); this document re-derives it at the task level, for consistency, rather than assuming the prior answer transfers unexamined:
+Re-derived for the merged slice, not assumed to carry over unexamined from the prior structure:
 
-- **Business value:** VS-1 delivers the platform's single most distinctive claim — "AI-guided discovery" — the one capability nothing else in Sprint 1 (or Sprint 0) has demonstrated yet. VS-2, by contrast, is valuable but architecturally unsurprising (domain + persistence + event emission, patterns Sprint 0 already proved three times over for other aggregates).
-- **Capabilities validated:** VS-1 is the first sprint-1 exercise of `LlmProviderPort` against a real external system (Task 1.5) — closing the single largest "verified vs. proven" gap the Sprint 0 Exit Gate flagged (`AnthropicLlmAdapter` had "mocked responses only, no real LLM traffic yet," per [BASELINE.md](../../../BASELINE.md)). It's also the first dynamic (not directly-composed) resolution through `CapabilityResolverPort` (Task 1.7) — proving the Capability Model's actual swappability, not just its shape. VS-2 validates real patterns too (the transactional outbox handling a new event type) but nothing as previously-unproven as VS-1's two.
-- **Least implementation effort for what's validated:** Task 1.3 in particular costs almost nothing (pure domain, no I/O) yet unblocks everything downstream — the highest validation-per-effort ratio of any single task in the sprint.
+- **Business value:** unchanged in kind — VS-1 still delivers the platform's single most distinctive claim, AI-guided discovery — but now delivers *more* of it in one slice: the full "idea to approved, Digital-Twin-traced project" promise, not half of it.
+- **Capabilities validated:** everything the original plan validated (real `LlmProviderPort` usage, dynamic `CapabilityResolverPort` resolution) **plus** the first real exercise of `GraphStorePort` and the Digital Twin's actual node/relationship model — a third previously-unproven port now proven in the same sprint, not deferred to Sprint 7.
+- **Least implementation effort for what's validated:** Task 1.3 still costs almost nothing (pure domain, no I/O) yet unblocks the most; the day-one parallel start of six independent tasks ([03-dependency-map.md](03-dependency-map.md)) keeps the added Digital Twin scope from simply extending the sprint's total calendar time — it fills the same parallel-capacity slots the original plan already had room for.
 
-## Sequencing principle established here, applicable beyond Sprint 1
+## Sequencing principle, reaffirmed
 
-**Start with the task that has the most downstream tasks depending on it and the least cost to get right early — not the task that looks most impressive in a demo.** Task 1.3 is genuinely unglamorous (three small aggregates, no UI, no AI) — exactly why it should go first: cheap to build, cheap to fix if wrong, and everything expensive (the real LLM integration, the capability resolver, the UI) is safer to build once it's settled.
+**Start with the task that has the most downstream tasks depending on it and the least cost to get right early.** This principle didn't change with the merge — it just now has to be applied against a larger, riskier set of candidates (six day-one starting points instead of five), and it still points to the same answer: the small, boring, foundational domain task, not the most novel or most visible one.
