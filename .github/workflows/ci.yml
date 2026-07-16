@@ -197,7 +197,7 @@ jobs:
       # lockfile (see the SAF-15 backlog entry) that `pnpm audit` never had
       # the chance to report.
       - name: Dependency vulnerability scan (OSV)
-        uses: google/osv-scanner-action/osv-scanner-action@v2
+        uses: google/osv-scanner-action@v2.3.8
         with:
           scan-args: |-
             --lockfile=./pnpm-lock.yaml
