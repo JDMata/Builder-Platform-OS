@@ -1,0 +1,30 @@
+{
+  "name": "@sap-app-factory/persistence-postgres-shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "typecheck": "tsc -b tsconfig.build.json --noEmit",
+    "test": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@sap-app-factory/ports": "workspace:*",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@sap-app-factory/testing-kit": "workspace:*",
+    "@types/node": "^24.13.3",
+    "@types/pg": "^8.11.10",
+    "@vitest/coverage-v8": "^4.1.10",
+    "vitest": "^4.1.10"
+  }
+}

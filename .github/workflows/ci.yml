@@ -150,11 +150,18 @@ jobs:
         # hash, so a cache hit could silently replay a stale "skipped"
         # result instead of actually exercising real infra (found and
         # documented in the SAF-17/SAF-16 backlog entries).
+        # SAF_TEST_ANTHROPIC_API_KEY is deliberately not set here — unlike
+        # Postgres/Keycloak/OPA, it would be a real, paid third-party
+        # credential, not a safe dev-only default; adapter-llm-anthropic's
+        # gated real-API tests correctly skip in CI until the user
+        # provisions that secret explicitly (see its own README).
         run: |
           pnpm --filter @sap-app-factory/auth-core test
           pnpm --filter @sap-app-factory/api-gateway test
           pnpm --filter @sap-app-factory/persistence-postgres-identity test
           pnpm --filter @sap-app-factory/persistence-postgres-governance test
+          pnpm --filter @sap-app-factory/persistence-postgres-requirements test
+          pnpm --filter @sap-app-factory/persistence-postgres-project test
           pnpm --filter @sap-app-factory/adapter-events-postgres-outbox test
 
       - name: Stop docker-compose infra

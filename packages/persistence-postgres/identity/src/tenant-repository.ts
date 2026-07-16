@@ -1,8 +1,9 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
-import type { Pool, PoolClient } from "pg";
+import type { Pool } from "pg";
 import type { Repository, RequestContext } from "@sap-app-factory/ports";
 import type { Tenant, TenantStatus } from "@sap-app-factory/context-identity";
+import { withTenantScope } from "@sap-app-factory/persistence-postgres-shared";
 import { tenants } from "./schema.js";
 
 /**
@@ -17,21 +18,16 @@ import { tenants } from "./schema.js";
  * *isn't* that tenant yet — structurally impossible under RLS. See README.md
  * § RLS strategy for how this was found.
  *
- * Every call runs inside its own transaction with `app.tenant_id` set via
- * `set_config(..., true)` — the `true` (`is_local`) argument scopes the
- * setting to *this transaction only*, so it can never leak onto a pooled
- * connection reused by a different tenant's request afterward. This is the
- * session variable the RLS policy in `migrations/0001_rls.sql` reads via
- * `current_setting('app.tenant_id', true)` — using the missing-ok form there
- * too means an unset value compares as NULL against `tenant_id`, which is
- * never true in SQL: fail-closed (zero rows), not a thrown error and not an
- * accidental full-table read.
+ * Every call runs inside its own transaction via `withTenantScope`
+ * (`persistence-postgres-shared`), which sets `app.tenant_id` — the session
+ * variable the RLS policy in `migrations/0001_rls.sql` reads via
+ * `current_setting('app.tenant_id', true)`, fail-closed by default.
  */
 export class TenantRepository implements Repository<Tenant, string> {
   constructor(private readonly pool: Pool) {}
 
   async findById(ctx: RequestContext, id: string): Promise<Tenant | undefined> {
-    return this.withTenantScope(ctx, async (client) => {
+    return withTenantScope(this.pool, ctx, async (client) => {
       const db = drizzle(client);
       const rows = await db.select().from(tenants).where(eq(tenants.id, id)).limit(1);
       const row = rows[0];
@@ -40,7 +36,7 @@ export class TenantRepository implements Repository<Tenant, string> {
   }
 
   async save(ctx: RequestContext, tenant: Tenant): Promise<void> {
-    await this.withTenantScope(ctx, async (client) => {
+    await withTenantScope(this.pool, ctx, async (client) => {
       const db = drizzle(client);
       await db
         .insert(tenants)
@@ -55,25 +51,6 @@ export class TenantRepository implements Repository<Tenant, string> {
           set: { name: tenant.name, status: tenant.status },
         });
     });
-  }
-
-  private async withTenantScope<T>(
-    ctx: RequestContext,
-    fn: (client: PoolClient) => Promise<T>,
-  ): Promise<T> {
-    const client = await this.pool.connect();
-    try {
-      await client.query("BEGIN");
-      await client.query("SELECT set_config('app.tenant_id', $1, true)", [ctx.tenantId]);
-      const result = await fn(client);
-      await client.query("COMMIT");
-      return result;
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
-    }
   }
 }
 

@@ -13,7 +13,7 @@ class FakeEventBus implements EventBusPort {
 
 describe("buildDependencies", () => {
   it("wires every port with a concrete implementation", () => {
-    const deps = buildDependencies(new FakeEventBus());
+    const deps = buildDependencies(new FakeEventBus(), "sk-test-placeholder");
 
     expect(deps.llmProvider).toBeDefined();
     expect(deps.mcpConnection).toBeDefined();
@@ -22,7 +22,7 @@ describe("buildDependencies", () => {
   });
 
   it("loads the example plugin and registers its capability", () => {
-    const deps = buildDependencies(new FakeEventBus());
+    const deps = buildDependencies(new FakeEventBus(), "sk-test-placeholder");
 
     expect(deps.plugins).toHaveLength(1);
     expect(deps.capabilityProviders.length).toBeGreaterThan(0);
@@ -32,7 +32,7 @@ describe("buildDependencies", () => {
   it("uses the same eventBus instance passed in — never constructs its own", () => {
     const eventBus = new FakeEventBus();
 
-    const deps = buildDependencies(eventBus);
+    const deps = buildDependencies(eventBus, "sk-test-placeholder");
 
     expect(deps.eventBus).toBe(eventBus);
   });

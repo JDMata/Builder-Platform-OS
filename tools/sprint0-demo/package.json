@@ -23,7 +23,7 @@
     "@sap-app-factory/plugin-fiori-generator": "workspace:*",
     "@sap-app-factory/plugin-sdk": "workspace:*",
     "@sap-app-factory/ports": "workspace:*",
-    "drizzle-orm": "^0.36.4",
+    "drizzle-orm": "^0.45.2",
     "openid-client": "^6.8.4",
     "pg": "^8.13.1"
   },

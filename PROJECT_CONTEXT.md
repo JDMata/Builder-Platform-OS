@@ -2,11 +2,11 @@
 
 **This is the living operational state of SAP App Factory.** Every future session — human or AI — starts here, not from [ROADMAP.md](ROADMAP.md) or the backlog directly (see [SESSION_STARTUP_POLICY.md](SESSION_STARTUP_POLICY.md)). This document is updated at the start and end of every sprint, and whenever a decision changes the answer to any section below. If this document and any other document disagree about the *current* state (as opposed to the frozen baseline or historical record), this document is wrong and needs updating — it is not itself the source of truth for architecture, principles, or the roadmap, only for "where are we right now."
 
-*Last updated: 2026-07-15, Sprint 1 planning drafted, pending review and approval.*
+*Last updated: 2026-07-17, VS-1 implementation in progress (11 of 19 engineering tasks complete).*
 
 ## Current Sprint
 
-**Sprint 1 — Discovery Workspace (Release R0.2), Theme: Intelligent Project Discovery.** Status: **Execution Ready.** Planning, UX, and the Product Design Review ([docs/governance/sprint-1-product-design-review/](docs/governance/sprint-1-product-design-review/README.md), APPROVED WITH MINOR UX IMPROVEMENTS — **the authoritative source for what Sprint 1 builds**) are complete. The execution plan ([docs/execution/sprint-1/](docs/execution/sprint-1/README.md)) merges VS-1/VS-2 into **one Vertical Slice, VS-1 — Discovery Workspace** (Login → Idea Submission → Clarification loop → Project Charter → Project Ready). **Revised 2026-07-17** to remove Dashboard, an explicit Project Type field, and a pulled-forward Digital Twin implementation — all briefly added 2026-07-16 in response to a since-superseded instruction, and all explicitly marked FUTURE (not Sprint 1) by the Product Design Review itself. The execution package now matches the Product Design Review exactly. The next update to this section happens when the first engineering task (Task 1.3, per [docs/execution/sprint-1/08-implementation-order.md](docs/execution/sprint-1/08-implementation-order.md)) is actually picked up.
+**Sprint 1 — Discovery Workspace (Release R0.2), Theme: Intelligent Project Discovery.** Status: **Implementation in progress.** Planning, UX, the Product Design Review, and the Execution Package are complete and approved (see [docs/execution/sprint-1/](docs/execution/sprint-1/README.md)). VS-1's backend is substantially built and verified: Tasks 1.2–1.8, 1.10, 1.12–1.14 are done (domain, persistence, real Anthropic integration, the `structure-business-requirement` capability, `CapabilityResolverPort`'s first real adapter, and all three use cases), all with passing tests (real Postgres integration included) and a clean `build`/`typecheck`/`lint:eslint`/`lint:deps`/`format:check`/`fitness` run. **Remaining: Task 1.16 (workflow orchestration tying the use cases together into one continuous run), Tasks 1.1/1.9/1.11/1.15/1.17 (the five UI screens), Task 1.18 (end-to-end demo), Task 1.19 (first real CI run, gated on push authorization).** The Vertical Slice is not yet complete and its Exit Gate has not passed — see the Vertical Slice Exit Gate Report accompanying this implementation session for the full, honest accounting.
 
 ## Current Release
 
@@ -18,7 +18,7 @@ Sprint 1 planning approval. The next milestone after that is Sprint 1's exit cri
 
 ## Current Goal
 
-Get Sprint 1's backlog, UX flow, and recommended implementation order reviewed and approved. No implementation story is picked up until that approval happens, per this sprint's explicit instruction and [PROJECT_PLAYBOOK.md](PROJECT_PLAYBOOK.md)'s Definition of Ready discipline.
+Complete VS-1's remaining tasks: workflow orchestration (Task 1.16), the five UI screens, the end-to-end demo, and the first real CI run — then run the Vertical Slice Exit Gate for real and close Sprint 1.
 
 ## Current Epic
 
@@ -27,6 +27,8 @@ Get Sprint 1's backlog, UX flow, and recommended implementation order reviewed a
 ## Current Stories
 
 **Organized as Epic → Vertical Slice → Engineering Task, not Story** — 19 engineering tasks under VS-1 ([docs/execution/sprint-1/02-vertical-slice-catalog.md](docs/execution/sprint-1/02-vertical-slice-catalog.md)). The original 18 SAF-39–56 tickets are preserved for traceability in [docs/backlog/sprint-1-backlog.md](docs/backlog/sprint-1-backlog.md), each mapping to exactly one engineering task. SAF-34/SAF-35 (Digital Twin domain + `GraphStorePort` adapter) remain Sprint 7 scope, untouched by Sprint 1 — a brief pull-forward proposed 2026-07-16 was reverted 2026-07-17 once checked against the Product Design Review's explicit position ("correctly absent... until Sprint 7").
+
+**Progress as of 2026-07-17: 11 of 19 tasks complete** (1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.10, 1.12, 1.13, 1.14) — real domain, persistence, LLM integration, capability resolution, and all three use cases, fully tested. **8 remain** (1.16 workflow orchestration; 1.1/1.9/1.11/1.15/1.17 UI screens; 1.18 end-to-end demo; 1.19 first real CI run). Two supporting packages not in the original 19-task list were added during implementation, per the "extract reusable patterns / close real gaps immediately" discipline: `persistence-postgres-shared` (a `withTenantScope` helper, extracted on its 3rd+ occurrence) and `adapter-secrets-vault-env` (`SecretsVaultPort`'s first real adapter, needed for Task 1.5's own acceptance criteria to be genuinely satisfied) and `adapter-capability-resolver-in-memory` (Task 1.7's actual deliverable, in its own package following the existing adapter-family convention).
 
 Deliberately **not** pulled into this sprint, with reasoning recorded in the backlog: `context-notification` (SAF-38 — no async consumer this sprint), SAF-24 (Temporal spike — this sprint's workflow doesn't need durable execution), SAF-25 full plugin isolation (conditional only — this sprint ships an agent invocation, not third-party generation logic).
 
@@ -69,7 +71,7 @@ All 23 ADRs `Accepted`, none `Proposed`, `Superseded`, `Deprecated`, or `Rejecte
 
 ## Known Technical Debt
 
-Full detail: [Technical Debt Report](docs/governance/sprint-0-exit-gate/02-technical-debt-report.md) and [BASELINE.md](BASELINE.md)'s Accepted Technical Debt section. Highest-priority open items: the `drizzle-orm` CVE (High), CI never having run on a real GitHub Actions runner (High, gated on push authorization), and two ports (`CapabilityResolverPort`, `SecretsVaultPort`) with no adapter yet (Medium).
+Full detail: [Technical Debt Report](docs/governance/sprint-0-exit-gate/02-technical-debt-report.md) and [BASELINE.md](BASELINE.md)'s Accepted Technical Debt section (both frozen Sprint 0 snapshots, not retroactively edited). **Resolved during VS-1 implementation (2026-07-17):** the `drizzle-orm` CVE (bumped to 0.45.2 across every `persistence-postgres/*` package and `tools/sprint0-demo`, full regression verified); `CapabilityResolverPort` now has a real (in-memory) adapter; `SecretsVaultPort` now has a real (dev-only `.env`-default) adapter. **Still open:** CI has never run on a real GitHub Actions runner (High, gated on push authorization — unchanged).
 
 ## Deferred Decisions
 

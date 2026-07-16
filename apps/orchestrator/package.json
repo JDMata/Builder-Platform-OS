@@ -14,6 +14,7 @@
     "@sap-app-factory/adapter-events-postgres-outbox": "workspace:*",
     "@sap-app-factory/adapter-llm-anthropic": "workspace:*",
     "@sap-app-factory/adapter-mcp-stdio": "workspace:*",
+    "@sap-app-factory/adapter-secrets-vault-env": "workspace:*",
     "@sap-app-factory/adapter-workflow-engine-in-memory": "workspace:*",
     "@sap-app-factory/context-capability-registry": "workspace:*",
     "@sap-app-factory/llm-core": "workspace:*",

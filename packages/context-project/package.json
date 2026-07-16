@@ -16,7 +16,11 @@
     "typecheck": "tsc -b tsconfig.build.json --noEmit",
     "test": "vitest run --coverage"
   },
+  "dependencies": {
+    "@sap-app-factory/ports": "workspace:*"
+  },
   "devDependencies": {
+    "@sap-app-factory/testing-kit": "workspace:*",
     "vitest": "^4.1.10",
     "@vitest/coverage-v8": "^4.1.10"
   }

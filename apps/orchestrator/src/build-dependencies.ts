@@ -28,15 +28,19 @@ export interface OrchestratorDependencies {
 /**
  * The composition root's dependency graph (CODING_STANDARDS.md § Dependency
  * Injection): every port implementation constructed explicitly here, never
- * behind a service locator. `eventBus` is the one dependency that needs a
- * real external resource (Postgres) to construct for real, so it's the one
- * thing this function takes as a parameter rather than building itself —
- * `main.ts` is the only place that touches `process.env` or opens a real
- * connection; this function (and therefore everything it wires) is testable
- * with any `EventBusPort`, fake or real.
+ * behind a service locator. `eventBus` (Postgres) and `anthropicApiKey`
+ * (resolved via `SecretsVaultPort`, VS-1) are the two dependencies that need
+ * a real external resource to construct for real, so they're what this
+ * function takes as parameters rather than building itself — `main.ts` is
+ * the only place that touches `process.env` or opens a real connection;
+ * this function (and therefore everything it wires) is testable with any
+ * `EventBusPort`/string, fake or real.
  */
-export function buildDependencies(eventBus: EventBusPort): OrchestratorDependencies {
-  const llmProvider = withResilience(new AnthropicLlmAdapter());
+export function buildDependencies(
+  eventBus: EventBusPort,
+  anthropicApiKey: string,
+): OrchestratorDependencies {
+  const llmProvider = withResilience(new AnthropicLlmAdapter(anthropicApiKey));
   const mcpConnection = withMcpResilience(new StdioMcpAdapter());
   const workflowEngine = new InMemoryWorkflowEngineAdapter(eventBus);
   const plugins: readonly CapabilityPlugin[] = [new FioriGeneratorPlugin()];

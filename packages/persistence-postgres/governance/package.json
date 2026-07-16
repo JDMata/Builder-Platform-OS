@@ -18,8 +18,9 @@
   },
   "dependencies": {
     "@sap-app-factory/context-governance": "workspace:*",
+    "@sap-app-factory/persistence-postgres-shared": "workspace:*",
     "@sap-app-factory/ports": "workspace:*",
-    "drizzle-orm": "^0.36.4",
+    "drizzle-orm": "^0.45.2",
     "pg": "^8.13.1"
   },
   "devDependencies": {

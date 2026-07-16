@@ -7,3 +7,5 @@ export { capabilityPluginContractTests } from "./contract-tests/capability-plugi
 export { repositoryContractTests } from "./contract-tests/repository.contract.js";
 export type { RepositoryContractFixtures } from "./contract-tests/repository.contract.js";
 export { policyEngineContractTests } from "./contract-tests/policy-engine.contract.js";
+export { capabilityResolverContractTests } from "./contract-tests/capability-resolver.contract.js";
+export type { CapabilityResolverContractFixtures } from "./contract-tests/capability-resolver.contract.js";

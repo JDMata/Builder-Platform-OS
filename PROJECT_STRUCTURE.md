@@ -57,10 +57,16 @@ sap-app-factory/
 │   ├── resilience-kit/                     # Generic, port-agnostic retry/timeout primitive shared by llm-core and mcp-core (ADR-0016) — extracted during SAF-10 to avoid duplicating the algorithm llm-core implemented for SAF-9
 │   ├── llm-core/                          # LLM Gateway domain/application logic + shared resilience wrapper (ADR-0016)
 │   ├── llm-adapters/
-│   │   ├── anthropic/
+│   │   ├── anthropic/                     # Real Anthropic Messages API calls (VS-1, Sprint 1) — embed() remains a stub, Anthropic has no embeddings endpoint
 │   │   ├── openai/
 │   │   ├── azure-openai/
 │   │   └── bedrock/
+│   │
+│   ├── secrets-vault-adapters/
+│   │   └── env/                           # SecretsVaultPort's first real (dev-only .env-default) adapter (VS-1, Sprint 1)
+│   │
+│   ├── capability-registry-adapters/
+│   │   └── in-memory/                     # CapabilityResolverPort's first real adapter (VS-1, Sprint 1) — in-memory registrations, same category as adapter-workflow-engine-in-memory
 │   │
 │   ├── mcp-core/                          # MCP Registry domain/application logic + shared resilience wrapper (ADR-0016)
 │   ├── mcp-adapters/
@@ -74,8 +80,11 @@ sap-app-factory/
 │   │   └── redis-streams/                 # Scheduled migration target, not indefinitely deferred (ADR-0007 revision)
 │   │
 │   ├── persistence-postgres/              # Repository implementations (Drizzle), one module per bounded-context schema
+│   │   ├── shared/                        # withTenantScope, extracted once a 3rd/4th package needed it (VS-1, Sprint 1)
 │   │   ├── identity/                      # Tenant repository, RLS proof (SAF-14)
-│   │   └── governance/                    # AuditEvent repository, monthly-partitioned-table proof (SAF-14)
+│   │   ├── governance/                    # AuditEvent repository, monthly-partitioned-table proof (SAF-14)
+│   │   ├── requirements/                  # RequirementDocument/Requirement/Clarification/AcceptanceCriterion repositories (VS-1, Sprint 1)
+│   │   └── project/                       # Project repository (VS-1, Sprint 1) — first persistence for the Project & Workspace context
 │   ├── read-models/                       # Event-fed projections for cross-aggregate/cross-context reporting (ADR-0014) — the ONLY place dashboard/list queries live
 │   ├── graph-adapters/
 │   │   ├── postgres-age/                  # Default — Apache AGE (Cypher-compatible) on the platform's existing Postgres instance (ADR-0021)

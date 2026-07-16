@@ -1,8 +1,9 @@
 import { desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
-import type { Pool, PoolClient } from "pg";
+import type { Pool } from "pg";
 import type { Repository, RequestContext } from "@sap-app-factory/ports";
 import type { AuditEvent } from "@sap-app-factory/context-governance";
+import { withTenantScope } from "@sap-app-factory/persistence-postgres-shared";
 import { auditEvents } from "./schema.js";
 
 /**
@@ -29,7 +30,7 @@ export class AuditEventRepository implements Repository<AuditEvent, string> {
   constructor(private readonly pool: Pool) {}
 
   async findById(ctx: RequestContext, id: string): Promise<AuditEvent | undefined> {
-    return this.withTenantScope(ctx, async (client) => {
+    return withTenantScope(this.pool, ctx, async (client) => {
       const db = drizzle(client);
       const rows = await db
         .select()
@@ -43,7 +44,7 @@ export class AuditEventRepository implements Repository<AuditEvent, string> {
   }
 
   async save(ctx: RequestContext, event: AuditEvent): Promise<void> {
-    await this.withTenantScope(ctx, async (client) => {
+    await withTenantScope(this.pool, ctx, async (client) => {
       const db = drizzle(client);
       await db.insert(auditEvents).values({
         id: event.id,
@@ -54,25 +55,6 @@ export class AuditEventRepository implements Repository<AuditEvent, string> {
         createdAt: new Date(),
       });
     });
-  }
-
-  private async withTenantScope<T>(
-    ctx: RequestContext,
-    fn: (client: PoolClient) => Promise<T>,
-  ): Promise<T> {
-    const client = await this.pool.connect();
-    try {
-      await client.query("BEGIN");
-      await client.query("SELECT set_config('app.tenant_id', $1, true)", [ctx.tenantId]);
-      const result = await fn(client);
-      await client.query("COMMIT");
-      return result;
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
-    }
   }
 }
 

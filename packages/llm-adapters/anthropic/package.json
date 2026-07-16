@@ -17,9 +17,11 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.112.1",
     "@sap-app-factory/ports": "workspace:*"
   },
   "devDependencies": {
+    "@sap-app-factory/llm-core": "workspace:*",
     "@sap-app-factory/testing-kit": "workspace:*",
     "vitest": "^4.1.10",
     "@vitest/coverage-v8": "^4.1.10"
