@@ -1,0 +1,21 @@
+{
+  "name": "@sap-app-factory/sprint1-demo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "demo": "tsx src/run.ts"
+  },
+  "dependencies": {
+    "@sap-app-factory/auth-core": "workspace:*",
+    "@sap-app-factory/observability": "workspace:*",
+    "@sap-app-factory/ports": "workspace:*",
+    "openid-client": "^6.8.4"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.3"
+  }
+}

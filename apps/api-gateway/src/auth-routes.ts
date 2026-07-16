@@ -87,7 +87,10 @@ export async function handleCallback(
       );
       logger.info("session established", { correlationId, tenantId, actorId });
       res.writeHead(302, {
-        location: "/",
+        // Lands the user directly on VS-1's Discovery entry point — the
+        // approved journey has no dashboard/landing step between login and
+        // idea submission (Product Design Review, Quick Win #2).
+        location: "/discovery/new",
         "set-cookie": `${SESSION_COOKIE_NAME}=${sealed}; HttpOnly; Path=/; SameSite=Lax`,
       });
       res.end();
@@ -100,7 +103,8 @@ export async function handleCallback(
   });
 }
 
-function readSessionCookie(req: IncomingMessage): string | undefined {
+/** Exported for reuse by discovery-proxy-routes.ts — every protected route reads the same cookie the same way. */
+export function readSessionCookie(req: IncomingMessage): string | undefined {
   const header = req.headers.cookie;
   if (!header) {
     return undefined;

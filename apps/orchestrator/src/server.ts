@@ -2,17 +2,20 @@ import { randomUUID } from "node:crypto";
 import { createServer as createHttpServer, type Server } from "node:http";
 import { getTracer, withSpan } from "@sap-app-factory/observability";
 import type { OrchestratorDependencies } from "./build-dependencies.js";
+import {
+  handleAnswerClarification,
+  handleConfirmDiscovery,
+  handleGetDiscoveryState,
+  handleStartDiscovery,
+} from "./discovery-routes.js";
 
 const tracer = getTracer("orchestrator");
 
 /**
- * SAF-5 skeleton: a status endpoint reporting what the composition root
- * actually wired, proving the dependency-injection graph is real rather
- * than asserting it in a comment. No workflow-execution endpoints yet — no
- * `Step`/`WorkflowDefinition` loader exists (18-capability-model.md), so
- * there is nothing real for one to call yet — no real `workflowId` exists
- * anywhere in this app for the same reason (see this app's README and
- * `packages/observability`'s README § "where appropriate").
+ * SAF-5 skeleton + VS-1 (Sprint 1): the status endpoint below is Sprint 0's
+ * own; `/discovery/*` are the first real workflow-execution endpoints this
+ * app has ever had, driving the Discovery `WorkflowDefinition`
+ * (discovery-workflow.ts) end to end.
  */
 export function createServer(deps: OrchestratorDependencies): Server {
   return createHttpServer((req, res) => {
@@ -28,6 +31,8 @@ export function createServer(deps: OrchestratorDependencies): Server {
               mcpConnection: "adapter-mcp-stdio (resilience-wrapped)",
               eventBus: "adapter-events-postgres-outbox",
               workflowEngine: "adapter-workflow-engine-in-memory",
+              policyEngine: "auth-core OpaPolicyEngineAdapter",
+              capabilityResolver: "adapter-capability-resolver-in-memory",
             },
             plugins: deps.plugins.map((plugin) => plugin.manifest.id),
             capabilities: deps.capabilityProviders.map((registration) => ({
@@ -39,6 +44,28 @@ export function createServer(deps: OrchestratorDependencies): Server {
       });
       return;
     }
+
+    if (req.method === "POST" && req.url === "/discovery/start") {
+      void handleStartDiscovery(deps, req, res);
+      return;
+    }
+
+    if (req.method === "POST" && req.url === "/discovery/answer-clarification") {
+      void handleAnswerClarification(deps, req, res);
+      return;
+    }
+
+    if (req.method === "POST" && req.url === "/discovery/confirm") {
+      void handleConfirmDiscovery(deps, req, res);
+      return;
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/discovery/")) {
+      const requirementDocumentId = req.url.slice("/discovery/".length);
+      void handleGetDiscoveryState(deps, requirementDocumentId, req, res);
+      return;
+    }
+
     res.writeHead(404, { "content-type": "application/json" });
     res.end(JSON.stringify({ error: "not_found" }));
   });

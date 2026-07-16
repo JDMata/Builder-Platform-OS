@@ -3,6 +3,12 @@ import { createServer as createHttpServer, type Server } from "node:http";
 import { getTracer, runWithExtractedContext, withSpan } from "@sap-app-factory/observability";
 import { handleCallback, handleLogin, handleMe } from "./auth-routes.js";
 import type { ApiGatewayDependencies } from "./build-dependencies.js";
+import {
+  handleAnswerClarification,
+  handleConfirmDiscovery,
+  handleDiscoveryStart,
+  handleGetDiscoveryState,
+} from "./discovery-proxy-routes.js";
 
 const tracer = getTracer("api-gateway");
 
@@ -50,6 +56,27 @@ export function createServer(deps: ApiGatewayDependencies): Server {
 
     if (req.method === "GET" && req.url === "/me") {
       void handleMe(deps, req, res);
+      return;
+    }
+
+    if (req.method === "POST" && req.url === "/discovery/start") {
+      void handleDiscoveryStart(deps, req, res);
+      return;
+    }
+
+    if (req.method === "POST" && req.url === "/discovery/answer-clarification") {
+      void handleAnswerClarification(deps, req, res);
+      return;
+    }
+
+    if (req.method === "POST" && req.url === "/discovery/confirm") {
+      void handleConfirmDiscovery(deps, req, res);
+      return;
+    }
+
+    if (req.method === "GET" && req.url?.startsWith("/discovery/")) {
+      const requirementDocumentId = req.url.slice("/discovery/".length);
+      void handleGetDiscoveryState(deps, requirementDocumentId, req, res);
       return;
     }
 

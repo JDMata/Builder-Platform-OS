@@ -47,3 +47,28 @@ export function registerPluginCapabilities(
 
   return registrations;
 }
+
+/**
+ * VS-1 (Sprint 1): the `requirements-analyst` agent (`.ai/agents/
+ * requirements-analyst/agent.md`) as a real `CapabilityProvider` for
+ * `structure-business-requirement` — the first agent-typed (not
+ * plugin-typed) registration. Same in-memory-only caveat as
+ * `registerPluginCapabilities` above: no `Capability`/`CapabilityProvider`
+ * repository exists yet.
+ */
+export function registerAgentCapabilities(): readonly CapabilityProviderRegistration[] {
+  const capability = defineCapability({
+    id: "structure-business-requirement",
+    name: "Structure Business Requirement",
+    expectedArtifactTypes: ["requirement-document"],
+  });
+  const provider = registerCapabilityProvider({
+    id: "requirements-analyst-provides-structure-business-requirement",
+    capabilityId: capability.id,
+    providerType: "agent",
+    providerId: "requirements-analyst",
+    providerVersion: 1,
+    priority: 1,
+  });
+  return [{ capability, provider }];
+}

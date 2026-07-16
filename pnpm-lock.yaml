@@ -75,6 +75,9 @@ importers:
 
   apps/orchestrator:
     dependencies:
+      '@sap-app-factory/adapter-capability-resolver-in-memory':
+        specifier: workspace:*
+        version: link:../../packages/capability-registry-adapters/in-memory
       '@sap-app-factory/adapter-events-postgres-outbox':
         specifier: workspace:*
         version: link:../../packages/events-adapters/postgres-outbox
@@ -90,9 +93,18 @@ importers:
       '@sap-app-factory/adapter-workflow-engine-in-memory':
         specifier: workspace:*
         version: link:../../packages/workflow-engine-adapters/in-memory
+      '@sap-app-factory/auth-core':
+        specifier: workspace:*
+        version: link:../../packages/auth-core
       '@sap-app-factory/context-capability-registry':
         specifier: workspace:*
         version: link:../../packages/context-capability-registry
+      '@sap-app-factory/context-project':
+        specifier: workspace:*
+        version: link:../../packages/context-project
+      '@sap-app-factory/context-requirements':
+        specifier: workspace:*
+        version: link:../../packages/context-requirements
       '@sap-app-factory/llm-core':
         specifier: workspace:*
         version: link:../../packages/llm-core
@@ -102,6 +114,12 @@ importers:
       '@sap-app-factory/observability':
         specifier: workspace:*
         version: link:../../packages/observability
+      '@sap-app-factory/persistence-postgres-project':
+        specifier: workspace:*
+        version: link:../../packages/persistence-postgres/project
+      '@sap-app-factory/persistence-postgres-requirements':
+        specifier: workspace:*
+        version: link:../../packages/persistence-postgres/requirements
       '@sap-app-factory/plugin-fiori-generator':
         specifier: workspace:*
         version: link:../../plugins/fiori-generator
@@ -111,6 +129,12 @@ importers:
       '@sap-app-factory/ports':
         specifier: workspace:*
         version: link:../../packages/ports
+      drizzle-orm:
+        specifier: ^0.45.2
+        version: 0.45.2(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(pg@8.22.0)
+      pg:
+        specifier: ^8.13.1
+        version: 8.22.0
     devDependencies:
       '@sap-app-factory/testing-kit':
         specifier: workspace:*
@@ -118,6 +142,9 @@ importers:
       '@types/node':
         specifier: ^24.13.3
         version: 24.13.3
+      '@types/pg':
+        specifier: ^8.11.10
+        version: 8.20.0
       '@vitest/coverage-v8':
         specifier: ^4.1.10
         version: 4.1.10(vitest@4.1.10)
@@ -824,6 +851,31 @@ importers:
       '@types/pg':
         specifier: ^8.11.10
         version: 8.20.0
+      tsx:
+        specifier: ^4.19.2
+        version: 4.23.1
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  tools/sprint1-demo:
+    dependencies:
+      '@sap-app-factory/auth-core':
+        specifier: workspace:*
+        version: link:../../packages/auth-core
+      '@sap-app-factory/observability':
+        specifier: workspace:*
+        version: link:../../packages/observability
+      '@sap-app-factory/ports':
+        specifier: workspace:*
+        version: link:../../packages/ports
+      openid-client:
+        specifier: ^6.8.4
+        version: 6.8.4
+    devDependencies:
+      '@types/node':
+        specifier: ^24.13.3
+        version: 24.13.3
       tsx:
         specifier: ^4.19.2
         version: 4.23.1

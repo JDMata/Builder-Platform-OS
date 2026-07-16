@@ -28,7 +28,8 @@
     "infra:down": "docker compose -f infra/docker-compose/docker-compose.yml down",
     "infra:reset": "docker compose -f infra/docker-compose/docker-compose.yml down -v",
     "infra:logs": "docker compose -f infra/docker-compose/docker-compose.yml logs -f",
-    "demo:sprint0": "pnpm --filter @sap-app-factory/sprint0-demo run demo"
+    "demo:sprint0": "pnpm --filter @sap-app-factory/sprint0-demo run demo",
+    "demo:sprint1": "pnpm --filter @sap-app-factory/sprint1-demo run demo"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",

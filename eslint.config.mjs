@@ -114,5 +114,13 @@ export default tseslint.config(
       "no-console": "off",
     },
   },
+  {
+    // Same rationale as tools/sprint0-demo above — tools/sprint1-demo (Task
+    // 1.18) is the Sprint 1 runnable demonstration, not application code.
+    files: ["tools/sprint1-demo/src/**/*.ts"],
+    rules: {
+      "no-console": "off",
+    },
+  },
   eslintConfigPrettier,
 );

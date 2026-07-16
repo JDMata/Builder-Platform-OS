@@ -12,6 +12,7 @@ export interface ApiGatewayDependencies {
   readonly policyEngine: PolicyEnginePort;
   readonly validateAccessToken: AccessTokenValidator;
   readonly sessionSecret: string;
+  readonly orchestratorUrl: string;
 }
 
 /**
@@ -35,6 +36,7 @@ export async function buildDependencies(): Promise<ApiGatewayDependencies> {
   // Sprint 0 default is intentionally obviously-a-placeholder — never used
   // in any real deployment, where SAF_SESSION_SECRET must be set for real.
   const sessionSecret = process.env.SAF_SESSION_SECRET ?? "dev-only-insecure-session-secret";
+  const orchestratorUrl = process.env.SAF_ORCHESTRATOR_URL ?? "http://localhost:3002";
 
-  return { oidcConfig, policyEngine, validateAccessToken, sessionSecret };
+  return { oidcConfig, policyEngine, validateAccessToken, sessionSecret, orchestratorUrl };
 }
