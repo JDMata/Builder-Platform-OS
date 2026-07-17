@@ -12,6 +12,24 @@
 
 ---
 
+## Sprint 1 Baseline Addendum (2026-07-17)
+
+This document remains the frozen Sprint 0 snapshot below — not retroactively rewritten. This addendum records Sprint 1's closure as a baseline event, the same way Sprint 0's did above, without altering Sprint 0's own content.
+
+**Sprint 1 objective:** ship VS-1 (Discovery Workspace), the platform's first complete, user-visible vertical slice — a business idea becomes an approved, real `Project` through one continuous, AI-guided flow (Login → Idea Submission → Clarification loop → Project Charter → Project Ready).
+
+**What Sprint 1 accomplished:** all 19 engineering tasks complete — real domain/persistence for `RequirementDocument`/`Requirement`/`Clarification`/`AcceptanceCriterion`/`Project`; the `structure-business-requirement` capability backed by a real Anthropic integration; `CapabilityResolverPort`'s and `SecretsVaultPort`'s first real adapters; the Discovery `WorkflowDefinition` orchestrating a real, bounded workflow run; `api-gateway`'s Discovery proxy routes (session-derived identity); five real `apps/web` screens; `tools/sprint1-demo`'s end-to-end demonstration script; and the project's first real, fully green GitHub Actions CI run, including the real Postgres/Keycloak/OPA integration job. Full detail: [docs/execution/sprint-1/10-vs1-exit-gate-report.md](docs/execution/sprint-1/10-vs1-exit-gate-report.md).
+
+**Exit Gate verdict:** **PASSED** (2026-07-17) — see the Exit Gate Report above. Followed by a full Engineering Retrospective establishing [CONTINUOUS_IMPROVEMENT_BACKLOG.md](CONTINUOUS_IMPROVEMENT_BACKLOG.md) and [ENGINEERING_DECISION_LOG.md](ENGINEERING_DECISION_LOG.md) as ongoing, living artifacts (not one-time reports) — every future Vertical Slice close adds to both rather than creating new equivalents.
+
+**What was correctly deferred, not missed:** plugin process/container isolation (SAF-25) and the Temporal durability spike (SAF-24) — VS-1 shipped an agent invocation, not third-party generation logic, so neither was a genuine Sprint 1 prerequisite. Plugin isolation is now a named hard blocker before Sprint 2 introduces real generation logic (`CONTINUOUS_IMPROVEMENT_BACKLOG.md`'s `CI-B6`).
+
+**VS-002/Sprint 2 readiness:** **NOT READY** as of this addendum — no Product Design Review, Execution Package, or ticket-numbered backlog exists yet for Sprint 2 (Documentation Factory). A real Sprint 2 planning pass, mirroring exactly what Sprint 1 itself went through before its own implementation began, is required first.
+
+**Baseline version:** no new git tag cut yet for this addendum — consider `sprint1-baseline-v1.0` once Sprint 2 planning begins, mirroring `sprint0-baseline-v1.0`'s convention.
+
+---
+
 ## Repository
 
 ### Repository structure

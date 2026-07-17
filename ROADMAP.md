@@ -48,11 +48,13 @@ The full sprint-by-sprint table — theme, objective, deliverables, dependencies
 
 ### Epics (Sprint 1)
 
-**Status: Execution Ready** — planning, UX, Product Design Review (APPROVED WITH MINOR UX IMPROVEMENTS), and the full execution plan are complete; implementation has not started. See [docs/execution/sprint-1/](docs/execution/sprint-1/README.md) for the execution-ready Epic/Vertical Slice/Task breakdown — **Epic 1: Idea Capture & AI-Guided Structuring** and **Epic 2: Discovery Approval & Project Creation** — which supersedes the indicative epic list below as the authoritative execution structure.
+**Status: Complete.** VS-1 (Discovery Workspace) shipped all 19 engineering tasks, passed its Exit Gate, and passed the project's first real CI run (2026-07-17). See [docs/execution/sprint-1/10-vs1-exit-gate-report.md](docs/execution/sprint-1/10-vs1-exit-gate-report.md) and the VS-1 Engineering Retrospective (`CONTINUOUS_IMPROVEMENT_BACKLOG.md`, `ENGINEERING_DECISION_LOG.md`) for the full accounting. See [docs/execution/sprint-1/](docs/execution/sprint-1/README.md) for the Epic/Vertical Slice/Task breakdown — **Epic 1: Idea Capture & AI-Guided Structuring** and **Epic 2: Discovery Approval & Project Creation** — which superseded the indicative epic list below as the authoritative execution structure.
+
+**Sprint 2 is not yet execution-ready** — no Product Design Review, Execution Package, or ticket-numbered backlog exists for Documentation Factory yet. The retrospective's VS-002 Readiness Report names this, plus plugin process/container isolation (SAF-25, below), as what must happen before implementation starts.
 
 - **Requirement Capture** — a real UI and application-layer use case for `context-requirements`.
 - **First Real Workflow Run** — a Discovery workflow definition exercised end to end, not the contract-test-only skeleton.
-- **Sprint 1 Technical Debt Closure** — the `drizzle-orm` CVE, the first live CI run, plugin isolation ahead of Sprint 2's real generation logic.
+- **Sprint 1 Technical Debt Closure** — the `drizzle-orm` CVE (✅ resolved), the first live CI run (✅ resolved 2026-07-17), plugin isolation ahead of Sprint 2's real generation logic (still open — see `CONTINUOUS_IMPROVEMENT_BACKLOG.md`'s `CI-B6`).
 
 ### Features (Sprint 1, indicative — finalized at sprint planning)
 
