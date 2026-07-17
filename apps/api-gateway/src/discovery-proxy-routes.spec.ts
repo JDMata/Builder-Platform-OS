@@ -198,4 +198,55 @@ describe("discovery proxy routes", () => {
     expect(forwarded.url).toBe("/discovery/doc-1");
     expect(forwarded.headers["x-tenant-id"]).toBe("tenant-1");
   });
+
+  describe("when orchestrator returns a non-JSON response", () => {
+    let brokenOrchestrator: Server;
+    let brokenApiGatewayServer: Server;
+    let brokenBaseUrl: string;
+
+    beforeEach(async () => {
+      // A real HTML response, exactly what happened in practice: another
+      // process (not orchestrator at all) answering on orchestrator's
+      // configured URL. `response.json()` throwing on this must not crash
+      // the whole api-gateway process (CI-A9) — it must produce a clean
+      // 502, the same way any other proxy failure should.
+      brokenOrchestrator = createHttpServer((_req, res) => {
+        res.writeHead(200, { "content-type": "text/html" });
+        res.end("<!DOCTYPE html><html><body>not orchestrator</body></html>");
+      });
+      const brokenOrchestratorUrl = await new Promise<string>((resolve) => {
+        brokenOrchestrator.listen(0, () => {
+          const { port } = brokenOrchestrator.address() as AddressInfo;
+          resolve(`http://127.0.0.1:${port}`);
+        });
+      });
+      const deps = buildFakeDependencies({ sessionSecret, orchestratorUrl: brokenOrchestratorUrl });
+      brokenApiGatewayServer = createServer(deps);
+      await new Promise<void>((resolve) => brokenApiGatewayServer.listen(0, resolve));
+      const { port } = brokenApiGatewayServer.address() as AddressInfo;
+      brokenBaseUrl = `http://127.0.0.1:${port}`;
+    });
+
+    afterEach(async () => {
+      await new Promise((resolve) => brokenApiGatewayServer.close(resolve));
+      await new Promise((resolve) => brokenOrchestrator.close(resolve));
+    });
+
+    it("returns 502 instead of crashing", async () => {
+      const response = await fetch(`${brokenBaseUrl}/discovery/doc-1`, {
+        headers: { cookie: sessionCookie() },
+      });
+
+      expect(response.status).toBe(502);
+      const body = (await response.json()) as { error: string };
+      expect(body.error).toContain("orchestrator request failed");
+
+      // The process is still alive and serving other requests — the real
+      // regression this test guards against is the whole server going down.
+      const stillUp = await fetch(`${brokenBaseUrl}/discovery/doc-1`, {
+        headers: { cookie: sessionCookie() },
+      });
+      expect(stillUp.status).toBe(502);
+    });
+  });
 });

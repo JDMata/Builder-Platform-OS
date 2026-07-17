@@ -39,6 +39,7 @@ export function buildFakeDependencies(
     validateAccessToken: () => Promise.reject(new Error("not used by these tests")),
     sessionSecret: "test-session-secret",
     orchestratorUrl: "http://127.0.0.1:0",
+    webUrl: "http://127.0.0.1:0",
     ...overrides,
   };
 }

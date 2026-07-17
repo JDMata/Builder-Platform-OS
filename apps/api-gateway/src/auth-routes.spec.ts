@@ -35,6 +35,7 @@ describe.skipIf(!testKeycloakIssuerUrl || !testOpaUrl)(
         validateAccessToken: createAccessTokenValidator(oidcConfig),
         sessionSecret: "test-session-secret",
         orchestratorUrl: "http://127.0.0.1:0",
+        webUrl: "http://127.0.0.1:0",
       };
       const server = createServer(deps);
       await new Promise<void>((resolve) => server.listen(0, resolve));

@@ -93,10 +93,16 @@ export async function handleCallback(
       );
       logger.info("session established", { correlationId, tenantId, actorId });
       res.writeHead(302, {
-        // Lands the user directly on VS-1's Discovery entry point — the
-        // approved journey has no dashboard/landing step between login and
-        // idea submission (Product Design Review, Quick Win #2).
-        location: "/discovery/new",
+        // Absolute URL, not a relative path: the callback always lands on
+        // api-gateway's own real host (Keycloak's redirect_uri is computed
+        // from whatever host reached /auth/login directly — see
+        // redirectUriFor() below — never through web's rewrite), so a
+        // relative redirect would resolve against api-gateway's own origin,
+        // which has no such page. Lands the user directly on VS-1's
+        // Discovery entry point — the approved journey has no dashboard/
+        // landing step between login and idea submission (Product Design
+        // Review, Quick Win #2).
+        location: `${deps.webUrl}/discovery/new`,
         "set-cookie": `${SESSION_COOKIE_NAME}=${sealed}; HttpOnly; Path=/; SameSite=Lax`,
       });
       res.end();

@@ -2,6 +2,16 @@
 
 No `CHANGELOG.md` existed before this entry — rather than fabricate Sprint 0's and Sprint 1's history retroactively (low-value, risks inventing detail that isn't real), this starts now, at VS-1's close, per the VS-1 Engineering Retrospective's `CI-A5` recommendation. Every future Vertical Slice close adds an entry here. For anything before this point, `git log` and the frozen governance snapshots under `docs/governance/` remain authoritative.
 
+## Post-baseline defect fix: OIDC callback redirect target + Discovery proxy error handling (2026-07-17)
+
+**Fixed:** two defects found by re-driving the real login flow immediately after the nonce fix below. (1) `handleCallback`'s success redirect was a relative path (`/discovery/new`), which a browser resolves against whatever origin actually sent the response — always `api-gateway`'s own host, never `web`'s — so every real login landed on the wrong app entirely. (2) That wrong landing path happened to match `api-gateway`'s own `/discovery/*` proxy route, forwarding to `apps/orchestrator`; a non-JSON response from an unreachable/wrong process at that URL crashed the whole `api-gateway` process (no error handling existed in `discovery-proxy-routes.ts`), taking down every other in-flight request with it.
+
+**Fix:** `ApiGatewayDependencies` gained `webUrl` (from `SAF_WEB_URL`, default `http://localhost:3000`); `handleCallback` now redirects to the absolute `${webUrl}/discovery/new`. `discovery-proxy-routes.ts` gained a `withErrorHandling` wrapper (mirroring `apps/orchestrator`'s existing pattern) around all four proxy handlers, returning a clean 502 instead of crashing; a regression test confirms the process survives a non-JSON upstream response. See `ED-013`, and the Continuous Improvement Backlog's `CI-A9`/`CI-A10`.
+
+**Verified:** full monorepo validation suite clean (build/typecheck/test/lint/format/deps/fitness), plus a real-browser re-run of the entire Login → Idea Submission flow against real Keycloak, landing correctly on `web`'s real origin with zero console errors.
+
+**Honest note on Sprint 1's closure:** both of these defects mean the original VS-1 Exit Gate Report's "business objective achieved" claim was not actually true when Sprint 1 was closed — only checked by automated tests that never drove a real browser. Sprint 1's *engineering* Definition of Done (code, tests, CI, docs) was genuinely met; the *business-objective* claim was not, until today. See `10-vs1-exit-gate-report.md` §16 and `BASELINE.md`'s update for the corrected record — the Sprint 1 Baseline tag itself is not reversed or reopened.
+
 ## Post-baseline defect fix: real OIDC login flow (2026-07-17)
 
 **Fixed:** the Authorization Code + PKCE login flow was broken for any real browser login — `beginAuthorizationRequest()` generates a `nonce` for replay protection, but `apps/api-gateway`'s `PendingAuthorizationRequest`/`handleCallback` never stored or forwarded it to `exchangeAuthorizationCode()`. `openid-client` correctly rejected the resulting ID token's unvalidated `nonce` claim with `"unexpected JWT claim value encountered"`, failing every real login attempt with a 401.

@@ -47,6 +47,26 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
   res.end(JSON.stringify(body));
 }
 
+/**
+ * Without this, an unreachable `orchestrator` or a non-JSON response
+ * (`forwardToOrchestrator`'s `response.json()` throwing) is an unhandled
+ * rejection that crashes this entire process — taking down every other
+ * in-flight request, not just the one that hit the bad response. 502, not
+ * 400: the client did nothing wrong, the failure is this gateway's upstream.
+ * Mirrors `apps/orchestrator`'s own `discovery-routes.ts`'s
+ * `withErrorHandling` in shape; not yet extracted to `http-server-kit`
+ * (this is only its second occurrence) — a candidate for the next
+ * extraction round alongside `CIP-001`'s `readJsonBody`/`stringField`.
+ */
+async function withErrorHandling(res: ServerResponse, fn: () => Promise<void>): Promise<void> {
+  try {
+    await fn();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown_error";
+    sendJson(res, 502, { error: `orchestrator request failed: ${message}` });
+  }
+}
+
 async function forwardToOrchestrator(
   deps: ApiGatewayDependencies,
   path: string,
@@ -77,23 +97,29 @@ export async function handleDiscoveryStart(
     "api-gateway.discovery.start",
     { correlationId: randomUUID() },
     async () => {
-      const session = requireSession(deps, req);
-      if (!session) {
-        sendJson(res, 401, { error: "not_authenticated" });
-        return;
-      }
-      const body = await readJsonBody(req);
-      const { status, body: responseBody } = await forwardToOrchestrator(deps, "/discovery/start", {
-        method: "POST",
-        body: {
-          tenantId: session.tenantId,
-          actorId: session.actorId,
-          workspaceId: stringField(body.workspaceId),
-          ideaText: stringField(body.ideaText),
-          actorPermissions: DEFAULT_ACTOR_PERMISSIONS,
-        },
+      await withErrorHandling(res, async () => {
+        const session = requireSession(deps, req);
+        if (!session) {
+          sendJson(res, 401, { error: "not_authenticated" });
+          return;
+        }
+        const body = await readJsonBody(req);
+        const { status, body: responseBody } = await forwardToOrchestrator(
+          deps,
+          "/discovery/start",
+          {
+            method: "POST",
+            body: {
+              tenantId: session.tenantId,
+              actorId: session.actorId,
+              workspaceId: stringField(body.workspaceId),
+              ideaText: stringField(body.ideaText),
+              actorPermissions: DEFAULT_ACTOR_PERMISSIONS,
+            },
+          },
+        );
+        sendJson(res, status, responseBody);
       });
-      sendJson(res, status, responseBody);
     },
   );
 }
@@ -108,30 +134,32 @@ export async function handleAnswerClarification(
     "api-gateway.discovery.answer-clarification",
     { correlationId: randomUUID() },
     async () => {
-      const session = requireSession(deps, req);
-      if (!session) {
-        sendJson(res, 401, { error: "not_authenticated" });
-        return;
-      }
-      const body = await readJsonBody(req);
-      const { status, body: responseBody } = await forwardToOrchestrator(
-        deps,
-        "/discovery/answer-clarification",
-        {
-          method: "POST",
-          body: {
-            tenantId: session.tenantId,
-            actorId: session.actorId,
-            runId: body.runId,
-            requirementDocumentId: body.requirementDocumentId,
-            clarificationId: body.clarificationId,
-            answer: body.answer,
-            round: body.round,
-            actorPermissions: DEFAULT_ACTOR_PERMISSIONS,
+      await withErrorHandling(res, async () => {
+        const session = requireSession(deps, req);
+        if (!session) {
+          sendJson(res, 401, { error: "not_authenticated" });
+          return;
+        }
+        const body = await readJsonBody(req);
+        const { status, body: responseBody } = await forwardToOrchestrator(
+          deps,
+          "/discovery/answer-clarification",
+          {
+            method: "POST",
+            body: {
+              tenantId: session.tenantId,
+              actorId: session.actorId,
+              runId: body.runId,
+              requirementDocumentId: body.requirementDocumentId,
+              clarificationId: body.clarificationId,
+              answer: body.answer,
+              round: body.round,
+              actorPermissions: DEFAULT_ACTOR_PERMISSIONS,
+            },
           },
-        },
-      );
-      sendJson(res, status, responseBody);
+        );
+        sendJson(res, status, responseBody);
+      });
     },
   );
 }
@@ -146,27 +174,29 @@ export async function handleConfirmDiscovery(
     "api-gateway.discovery.confirm",
     { correlationId: randomUUID() },
     async () => {
-      const session = requireSession(deps, req);
-      if (!session) {
-        sendJson(res, 401, { error: "not_authenticated" });
-        return;
-      }
-      const body = await readJsonBody(req);
-      const { status, body: responseBody } = await forwardToOrchestrator(
-        deps,
-        "/discovery/confirm",
-        {
-          method: "POST",
-          body: {
-            tenantId: session.tenantId,
-            actorId: session.actorId,
-            runId: body.runId,
-            requirementDocumentId: body.requirementDocumentId,
-            actorPermissions: DEFAULT_ACTOR_PERMISSIONS,
+      await withErrorHandling(res, async () => {
+        const session = requireSession(deps, req);
+        if (!session) {
+          sendJson(res, 401, { error: "not_authenticated" });
+          return;
+        }
+        const body = await readJsonBody(req);
+        const { status, body: responseBody } = await forwardToOrchestrator(
+          deps,
+          "/discovery/confirm",
+          {
+            method: "POST",
+            body: {
+              tenantId: session.tenantId,
+              actorId: session.actorId,
+              runId: body.runId,
+              requirementDocumentId: body.requirementDocumentId,
+              actorPermissions: DEFAULT_ACTOR_PERMISSIONS,
+            },
           },
-        },
-      );
-      sendJson(res, status, responseBody);
+        );
+        sendJson(res, status, responseBody);
+      });
     },
   );
 }
@@ -182,17 +212,19 @@ export async function handleGetDiscoveryState(
     "api-gateway.discovery.get-state",
     { correlationId: randomUUID() },
     async () => {
-      const session = requireSession(deps, req);
-      if (!session) {
-        sendJson(res, 401, { error: "not_authenticated" });
-        return;
-      }
-      const { status, body: responseBody } = await forwardToOrchestrator(
-        deps,
-        `/discovery/${requirementDocumentId}`,
-        { method: "GET", extraHeaders: { "x-tenant-id": session.tenantId } },
-      );
-      sendJson(res, status, responseBody);
+      await withErrorHandling(res, async () => {
+        const session = requireSession(deps, req);
+        if (!session) {
+          sendJson(res, 401, { error: "not_authenticated" });
+          return;
+        }
+        const { status, body: responseBody } = await forwardToOrchestrator(
+          deps,
+          `/discovery/${requirementDocumentId}`,
+          { method: "GET", extraHeaders: { "x-tenant-id": session.tenantId } },
+        );
+        sendJson(res, status, responseBody);
+      });
     },
   );
 }

@@ -13,6 +13,7 @@ export interface ApiGatewayDependencies {
   readonly validateAccessToken: AccessTokenValidator;
   readonly sessionSecret: string;
   readonly orchestratorUrl: string;
+  readonly webUrl: string;
 }
 
 /**
@@ -37,6 +38,13 @@ export async function buildDependencies(): Promise<ApiGatewayDependencies> {
   // in any real deployment, where SAF_SESSION_SECRET must be set for real.
   const sessionSecret = process.env.SAF_SESSION_SECRET ?? "dev-only-insecure-session-secret";
   const orchestratorUrl = process.env.SAF_ORCHESTRATOR_URL ?? "http://localhost:3002";
+  // `handleCallback` needs this to build an absolute redirect — the
+  // Authorization Code callback always lands on api-gateway's own real host
+  // (Keycloak's redirect_uri is computed from whatever host reached
+  // `/auth/login` directly, never through `web`'s rewrite; see ED-013), so a
+  // relative "/discovery/new" redirect resolves against api-gateway's own
+  // origin, not web's, and 404s/misroutes every time.
+  const webUrl = process.env.SAF_WEB_URL ?? "http://localhost:3000";
 
-  return { oidcConfig, policyEngine, validateAccessToken, sessionSecret, orchestratorUrl };
+  return { oidcConfig, policyEngine, validateAccessToken, sessionSecret, orchestratorUrl, webUrl };
 }
