@@ -83,13 +83,14 @@ Every Sprint 1/2 carry-forward item (SAF-24 through SAF-38) — each has a named
 
 ## Constitutional documents
 
-**Established 2026-07-17**, before Sprint 2 planning begins — three documents now govern the platform at the same authority level, none overridable without the same deliberate, recorded governance process used to change any one of them:
+**Established 2026-07-17**, before Sprint 2 planning begins — four documents now govern the platform at the same authority level, none overridable without the same deliberate, recorded governance process used to change any one of them:
 
-- [docs/architecture/00-vision-and-principles.md](docs/architecture/00-vision-and-principles.md) — the Architecture Foundation.
+- [docs/architecture/00-vision-and-principles.md](docs/architecture/00-vision-and-principles.md) — the Architecture Foundation (AF).
 - [docs/ux/00-platform-experience-foundation.md](docs/ux/00-platform-experience-foundation.md) — the Platform Experience Foundation (PXF): the long-term experience philosophy (vision, personas, information architecture, AI interaction model, design/interaction/accessibility/motion principles, design tokens strategy, governance, and a Definition of Done for UX) governing every screen built from Sprint 2 onward.
 - [docs/product/00-engineering-canvas-specification.md](docs/product/00-engineering-canvas-specification.md) — the Engineering Canvas Specification (ECS v1.0): the product specification for the platform's living engineering workspace — the human experience layer over the Project Digital Twin ([ADR-0021](docs/adr/0021-project-digital-twin-knowledge-graph.md)), specifying its graph model, node/relationship taxonomy, the four synchronized views (Guided, Canvas, Documents, Executive), AI annotation behavior, keyboard-first interaction, inspector panels, timeline model, extensibility, and a Definition of Done.
+- [docs/ux/01-experience-language-specification.md](docs/ux/01-experience-language-specification.md) — the Experience Language Specification (XLS v1.0): the platform's visual, interaction, motion, and communication language — typography, color and semantic color, material/glass/elevation, motion grammar, iconography/illustration, AI visual language, the Canvas's visual expression, and Figma/React derivation rules — underneath both the PXF's general screens and the ECS's Canvas.
 
-None of the three produces screen designs, component code, or implementation detail — all three are principle-first and technology-agnostic; downstream Figma/React work must be derivable from them, not an independent design exercise. Every future Vertical Slice's Product Design Review checks against all three.
+None of the four produces screen designs, component code, or implementation detail — all four are principle-first and technology-agnostic; downstream Figma/React work must be derivable from them, not an independent design exercise. Every future Vertical Slice's Product Design Review checks against all four.
 
 ## Upcoming Sprint Goal
 
