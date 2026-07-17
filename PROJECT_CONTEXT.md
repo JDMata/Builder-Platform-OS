@@ -81,6 +81,10 @@ Full detail: [Technical Debt Report](docs/governance/sprint-0-exit-gate/02-techn
 
 Every Sprint 1/2 carry-forward item (SAF-24 through SAF-38) — each has a named ADR and a stated trigger condition. Full list: [BASELINE.md](BASELINE.md)'s Deferred Decisions section. None is committed to a specific sprint beyond what [PLATFORM_MATURITY.md](PLATFORM_MATURITY.md)'s Official Roadmap projects.
 
+## Platform Experience Foundation
+
+**Established 2026-07-17**, before Sprint 2 planning begins — [docs/ux/00-platform-experience-foundation.md](docs/ux/00-platform-experience-foundation.md) is the UX equivalent of [00-vision-and-principles.md](docs/architecture/00-vision-and-principles.md): the long-term experience philosophy (vision, personas, information architecture, AI interaction model, design/interaction/accessibility/motion principles, design tokens strategy, governance, and a Definition of Done for UX) governing every screen built from Sprint 2 onward. Not a screen design or component library — those remain downstream, derived artifacts. Every future Vertical Slice's Product Design Review checks against it, the same way ADRs check against the architecture foundation.
+
 ## Upcoming Sprint Goal
 
 **Sprint 2 — Documentation Factory:** generate real documentation artifacts (functional spec, technical spec, architecture doc) from a captured requirement — the first real generation capability, building on Sprint 1's captured, approved `Requirement`s. **Not yet planned in ticket-numbered detail** — confirmed by the VS-1 Engineering Retrospective's VS-002 Readiness Report (2026-07-17): no Product Design Review, Execution Package, or `DEFINITION_OF_READY.md`-passing backlog exists for it yet, and plugin process/container isolation (SAF-25) is a named hard prerequisite once real generation logic ships. See [PLATFORM_MATURITY.md](PLATFORM_MATURITY.md)'s Official Roadmap, [ROADMAP.md](ROADMAP.md), and `CONTINUOUS_IMPROVEMENT_BACKLOG.md` for what needs to happen before implementation starts.
