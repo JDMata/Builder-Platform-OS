@@ -27,3 +27,18 @@ Sprint 1's single, complete Vertical Slice: a user turns a business idea into an
 - No staged progress messaging during the structuring pass (`CI-B4`).
 - A fixed single workspace, not a real selector (`CI-B8`).
 - Default, undifferentiated actor permissions on every authenticated session (`CI-B3`).
+
+## CTO Improvement Pack — VS-1 Category A closure (2026-07-17)
+
+The five approved immediate improvements from the VS-1 Engineering Retrospective, completed before Sprint 2 planning.
+
+**Added**
+- `packages/http-server-kit` — `readJsonBody`/`stringField`, extracted from three independent copies across `apps/orchestrator`, `apps/api-gateway`, and `apps/web` (`CIP-001`).
+- A "Runtime prerequisites" section in `CONTRIBUTING.md`, documenting `ANTHROPIC_API_KEY` as the one mandatory, no-default env var, plus local/testing/CI behavior for the whole `SAF_TEST_*` gated-test family (`CIP-004`).
+- A "What each job validates" table in `docs/architecture/11-git-and-cicd-strategy.md`, mapping every CI job to Build/Unit/Integration/Real-Infrastructure/Fitness/Security coverage (`CIP-005`).
+
+**Changed**
+- `tools/scripts/banned-sap-keywords.mjs` now also scans every adapter-family package (`*-adapters/*`, `persistence-postgres/*`, `llm-adapters/*`) — 49 → 80 files scanned, 0 violations either way (`CIP-003`).
+
+**Verified, no change needed**
+- `CIP-002`: the sole registered capability (`structure-business-requirement`, priority 1) already matches `.ai/agents/requirements-analyst/agent.md`'s "Provides capabilities" declaration exactly — the retrospective's earlier claim that this field was missing (`CI-A3`) was a false positive (a grep pattern mismatch on the reviewer's part, not a real gap) and is corrected in `CONTINUOUS_IMPROVEMENT_BACKLOG.md`. A "Consumed capabilities" field was requested but is not a modeled concept in ADR-0020/ADR-0022 and was not added — see the CTO Improvement Pack completion report for why, and the smallest recommended alternative.

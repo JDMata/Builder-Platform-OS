@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@sap-app-factory/auth-core": "workspace:*",
+    "@sap-app-factory/http-server-kit": "workspace:*",
     "@sap-app-factory/observability": "workspace:*",
     "@sap-app-factory/ports": "workspace:*",
     "openid-client": "^6.8.4"

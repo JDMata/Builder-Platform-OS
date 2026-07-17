@@ -2,9 +2,13 @@
 /**
  * SAF-19 fitness function (docs/architecture/12-risks-and-technical-debt.md,
  * R1: "SAP-specific logic leaks into core"). Scans domain/application layers
- * of every context package, plus every app's composition-root source, for a
- * banned SAP-keyword list. `plugins/*` is deliberately out of scope — that's
- * exactly where SAP-specific logic is supposed to live.
+ * of every context package, every adapter-family package (`*-adapters/*`,
+ * `persistence-postgres/*`, `llm-adapters/*`), and every app's composition-
+ * root source, for a banned SAP-keyword list. Adapter packages were added to
+ * this scan per the VS-1 Engineering Retrospective's `CIP-003` — defense in
+ * depth, not a discovered violation (none was found). `plugins/*` is
+ * deliberately out of scope — that's exactly where SAP-specific logic is
+ * supposed to live.
  *
  * Comments are stripped before matching: a comment merely mentioning a
  * keyword as an illustrative example (e.g. artifact.ts's "fiori-elements-app"
@@ -48,6 +52,9 @@ const ALLOWLISTED_FILES = new Set([
 const SCAN_GLOBS = [
   "packages/context-*/src/domain/**/*.ts",
   "packages/context-*/src/application/**/*.ts",
+  "packages/*-adapters/*/src/**/*.ts",
+  "packages/persistence-postgres/*/src/**/*.ts",
+  "packages/llm-adapters/*/src/**/*.ts",
   "apps/*/src/**/*.ts",
 ];
 

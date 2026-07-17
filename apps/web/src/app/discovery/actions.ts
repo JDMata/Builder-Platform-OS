@@ -1,16 +1,13 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { stringField } from "@sap-app-factory/http-server-kit";
 import {
   answerClarifications,
   confirmDiscovery,
   startDiscovery,
 } from "../../lib/api-gateway-client";
 import { readCookieHeader } from "../../lib/cookie-header";
-
-function stringField(value: FormDataEntryValue | null, fallback = ""): string {
-  return typeof value === "string" ? value : fallback;
-}
 
 export async function startDiscoveryAction(formData: FormData): Promise<void> {
   const ideaText = stringField(formData.get("ideaText")).trim();

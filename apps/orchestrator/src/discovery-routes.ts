@@ -1,4 +1,5 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { readJsonBody, stringField } from "@sap-app-factory/http-server-kit";
 import { getTracer, withSpan } from "@sap-app-factory/observability";
 import type { RequestContext } from "@sap-app-factory/ports";
 import type { OrchestratorDependencies } from "./build-dependencies.js";
@@ -11,24 +12,11 @@ import {
 
 const tracer = getTracer("orchestrator");
 
-async function readJsonBody(req: IncomingMessage): Promise<Record<string, unknown>> {
-  const chunks: Buffer[] = [];
-  for await (const chunk of req) {
-    chunks.push(chunk as Buffer);
-  }
-  const raw = Buffer.concat(chunks).toString("utf8");
-  return raw.length > 0 ? (JSON.parse(raw) as Record<string, unknown>) : {};
-}
-
-function stringField(value: unknown): string {
-  return typeof value === "string" ? value : "";
-}
-
 function toRequestContext(body: Record<string, unknown>): RequestContext {
   return {
-    tenantId: typeof body.tenantId === "string" ? body.tenantId : "default-tenant",
-    actorId: typeof body.actorId === "string" ? body.actorId : "unknown-actor",
-    correlationId: typeof body.correlationId === "string" ? body.correlationId : "",
+    tenantId: stringField(body.tenantId, "default-tenant"),
+    actorId: stringField(body.actorId, "unknown-actor"),
+    correlationId: stringField(body.correlationId),
     tenancyTier: "pooled",
   };
 }
@@ -69,8 +57,8 @@ export async function handleStartDiscovery(
       const body = await readJsonBody(req);
       const ctx = toRequestContext(body);
       const state = await startDiscoveryWorkflow(ctx, deps, {
-        workspaceId: typeof body.workspaceId === "string" ? body.workspaceId : "",
-        ideaText: typeof body.ideaText === "string" ? body.ideaText : "",
+        workspaceId: stringField(body.workspaceId),
+        ideaText: stringField(body.ideaText),
         actorPermissions: Array.isArray(body.actorPermissions)
           ? (body.actorPermissions as string[])
           : [],
@@ -138,9 +126,8 @@ export async function handleGetDiscoveryState(
 ): Promise<void> {
   await withSpan(tracer, "orchestrator.discovery.get-state", { correlationId: "" }, async () => {
     await withErrorHandling(res, async () => {
-      const tenantId = req.headers["x-tenant-id"];
       const ctx: RequestContext = {
-        tenantId: typeof tenantId === "string" ? tenantId : "default-tenant",
+        tenantId: stringField(req.headers["x-tenant-id"], "default-tenant"),
         actorId: "unknown-actor",
         correlationId: "",
         tenancyTier: "pooled",

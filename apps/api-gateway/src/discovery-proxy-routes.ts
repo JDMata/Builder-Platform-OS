@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { unsealSession } from "@sap-app-factory/auth-core";
+import { readJsonBody, stringField } from "@sap-app-factory/http-server-kit";
 import { getTracer, injectTraceContext, withSpan } from "@sap-app-factory/observability";
 import type { ApiGatewayDependencies } from "./build-dependencies.js";
 import { readSessionCookie } from "./auth-routes.js";
@@ -39,15 +40,6 @@ function requireSession(
 ): AuthenticatedSession | undefined {
   const cookie = readSessionCookie(req);
   return cookie ? unsealSession(cookie, deps.sessionSecret) : undefined;
-}
-
-async function readJsonBody(req: IncomingMessage): Promise<Record<string, unknown>> {
-  const chunks: Buffer[] = [];
-  for await (const chunk of req) {
-    chunks.push(chunk as Buffer);
-  }
-  const raw = Buffer.concat(chunks).toString("utf8");
-  return raw.length > 0 ? (JSON.parse(raw) as Record<string, unknown>) : {};
 }
 
 function sendJson(res: ServerResponse, status: number, body: unknown): void {
@@ -96,8 +88,8 @@ export async function handleDiscoveryStart(
         body: {
           tenantId: session.tenantId,
           actorId: session.actorId,
-          workspaceId: typeof body.workspaceId === "string" ? body.workspaceId : "",
-          ideaText: typeof body.ideaText === "string" ? body.ideaText : "",
+          workspaceId: stringField(body.workspaceId),
+          ideaText: stringField(body.ideaText),
           actorPermissions: DEFAULT_ACTOR_PERMISSIONS,
         },
       });

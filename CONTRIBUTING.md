@@ -20,6 +20,18 @@ pnpm run test
 
 Redis and MinIO are deliberately not part of the stack yet — nothing currently scheduled consumes either; see infra/README.md § "Why Redis and MinIO aren't here yet" before assuming they should be added.
 
+### Runtime prerequisites
+
+Everything above except one item has a working default matching the `infra:up` docker-compose stack — you don't need to set it yourself for local dev. The one real, mandatory exception:
+
+| Variable | Required for | Local development | Testing | CI behavior |
+|---|---|---|---|---|
+| `ANTHROPIC_API_KEY` | `apps/orchestrator` (real `structure-business-requirement` calls) | **Mandatory, no default.** `EnvSecretsVaultAdapter` reads it at process boot (`apps/orchestrator/src/main.ts`); if unset, the process throws and exits immediately — before it ever binds its port. | Real-API tests are gated on `SAF_TEST_ANTHROPIC_API_KEY` (a separate variable, `adapter-llm-anthropic`'s own tests and `tools/sprint1-demo`) — they skip cleanly, printing why, if it's unset. Never fake this key; an unset key should mean "this real-API path doesn't run," not a fabricated response. | **Deliberately not set** in `.github/workflows/ci.yml`'s `integration` job — a real, paid third-party credential is never provisioned automatically; see that job's own inline comment. |
+
+Everything else (`SAF_POSTGRES_ADMIN_URL`/`SAF_POSTGRES_APP_URL`, `SAF_KEYCLOAK_ISSUER_URL`/`SAF_KEYCLOAK_CLIENT_ID`/`SAF_KEYCLOAK_CLIENT_SECRET`, `SAF_OPA_URL`, `SAF_SESSION_SECRET`, `SAF_ORCHESTRATOR_URL`, `SAF_OTEL_EXPORTER_URL`, per-app `SAF_*_PORT`) defaults to values matching the `infra:up` stack — override only for a non-default deployment. The `SAF_TEST_*` family (`SAF_TEST_POSTGRES_URL`, `SAF_TEST_POSTGRES_APP_URL`, `SAF_TEST_KEYCLOAK_ISSUER_URL`, `SAF_TEST_OPA_URL`, `SAF_TEST_ANTHROPIC_API_KEY`) gates real-infrastructure tests the same way: unset means that suite skips cleanly, never means a mocked stand-in runs silently in its place.
+
+**Expected failure mode if `ANTHROPIC_API_KEY` is missing:** `pnpm dev` (or `node apps/orchestrator/dist/main.js`) exits immediately with `Error: Secret "ANTHROPIC_API_KEY" is not set in the environment` — a clear failure, not a hang or a silent degraded mode. If you only need `apps/api-gateway`/`apps/web` for UI work, you can still run those independently; only `apps/orchestrator` (and anything that depends on it, like `tools/sprint1-demo`) requires the key.
+
 Use `tools/generators` to scaffold a new package, context, or plugin — it produces the correct `package.json`, `tsconfig`, lint config, dependency-cruiser registration, and README stub automatically. Don't hand-roll a new package's boilerplate; a hand-rolled package is how naming/layering conventions drift.
 
 ## Working on a change

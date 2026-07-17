@@ -21,6 +21,7 @@
     "@sap-app-factory/context-capability-registry": "workspace:*",
     "@sap-app-factory/context-project": "workspace:*",
     "@sap-app-factory/context-requirements": "workspace:*",
+    "@sap-app-factory/http-server-kit": "workspace:*",
     "@sap-app-factory/llm-core": "workspace:*",
     "@sap-app-factory/mcp-core": "workspace:*",
     "@sap-app-factory/observability": "workspace:*",

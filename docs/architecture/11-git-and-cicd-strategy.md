@@ -56,4 +56,17 @@ gitGraph
 - **`security`** — stage 7, `continue-on-error: true` (informational only; the required-checks list above doesn't name it, and SAST via CodeQL needs GitHub Advanced Security, whose licensing on this repo isn't decided yet). Uses OSV-Scanner, not `pnpm audit` — `pnpm audit` is not currently usable at all: verified by hand, it fails outright (`410 Gone`) because it calls npm's legacy per-package audit endpoint, which npm has retired in favor of a bulk endpoint pnpm doesn't yet call. OSV-Scanner (already named as the alternative in this doc's own "pnpm audit / OSV" wording) queries the OSV.dev database directly and, run locally against this lockfile, found 4 real, currently-unaddressed vulnerabilities (see the SAF-15 backlog entry) `pnpm audit` never got the chance to report.
 - **`deploy-dev`** — a deliberate placeholder, on push to `main` only: no Dockerfile, container registry, or real target environment exists yet for any app, so this job exists to keep the pipeline's *shape* real (merge to `main` triggers a dev deploy) without fabricating a target that isn't there.
 
-Stage 8 (architecture fitness checks beyond the dependency-cruiser boundary check already covered under Lint) is SAF-19's new content, not built here — this pipeline already has the slot (`build-lint-typecheck-test`'s Lint step) for it to land in.
+Stage 8 (architecture fitness checks) is built: the `build-lint-typecheck-test` job's own "Architecture fitness checks" step (`pnpm run fitness`) runs the banned-SAP-keyword guard and the package-README-required check named in [12](12-risks-and-technical-debt.md)'s fitness-function table.
+
+## What each job validates (as of Task 1.19's first real run, 2026-07-17)
+
+This pipeline ran for the first time on a real GitHub Actions runner on 2026-07-17 (`https://github.com/JDMata/Builder-Platform-OS`, all four jobs green — see the VS-1 Exit Gate Report, `docs/execution/sprint-1/10-vs1-exit-gate-report.md`). Added per the VS-1 Engineering Retrospective's `CIP-005`, as a single, unambiguous answer to "which job checks what":
+
+| Job | Build | Unit Tests | Integration Tests | Real Infrastructure Tests | Fitness Functions | Security Checks |
+|---|---|---|---|---|---|---|
+| `build-lint-typecheck-test` | ✅ (`pnpm run build`) | ✅ (`pnpm run test` — every package's own Vitest suite, including port/adapter contract tests) | — | — | ✅ (`pnpm run fitness`) | — |
+| `integration` | ✅ (its own fresh `pnpm run build` — separate runner, no `dist/` carried over) | — | ✅ | ✅ — the *same* thing: real Postgres/Keycloak/OPA via `infra:up`, then every `SAF_TEST_*`-gated suite run directly per-package (never `turbo run test`, which doesn't factor `SAF_TEST_*` into its cache hash) | — | — |
+| `security` | — | — | — | — | — | ✅ OSV dependency scan + Gitleaks secret scan (`continue-on-error: true` — informational for now, not a required merge check) |
+| `deploy-dev` | — | — | — | — | — | — (placeholder only, no real deploy target yet) |
+
+**Real Infrastructure Tests** and **Integration Tests** are the same job/step here, not two separate stages — "integration" in this pipeline specifically means *real infra*, never a mocked stand-in. **Not covered by any CI job today**: real-Anthropic-gated tests (`SAF_TEST_ANTHROPIC_API_KEY`) — deliberately never set in CI (a real, paid third-party credential), so they always skip cleanly in every run, CI included. See `CONTRIBUTING.md`'s Runtime Prerequisites section for the full local/testing/CI breakdown per variable.
