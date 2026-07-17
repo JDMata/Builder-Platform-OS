@@ -22,8 +22,8 @@ This document remains the frozen Sprint 0 snapshot below — not retroactively r
 |---|---|
 | Sprint identifier | Sprint 1 — Discovery Workspace (Release R0.2) |
 | Baseline version | `Sprint 1 Baseline v1.0` |
-| Git commit reference | `ef7017c44fae4ea0ceb2c338210a68b4cc116ace` (`main`, `https://github.com/JDMata/Builder-Platform-OS`) |
-| Git tag | `sprint1-baseline-v1.0` (created and pushed at this closure — see below; matches `sprint0-baseline-v1.0`'s established naming convention, kebab-case with a `v`-prefixed version, not the `Sprint-1.0` form) |
+| Git commit reference | `fb77a39550d5eeee57735cfef4b2fe29dac7a688` (`main`, `https://github.com/JDMata/Builder-Platform-OS`) — the closeout commit recording this baseline itself; `ef7017c44fae4ea0ceb2c338210a68b4cc116ace` is the last implementation commit (the CTO Improvement Pack), one commit prior |
+| Git tag | `sprint1-baseline-v1.0`, pointing at the commit above — pushed to `origin`; matches `sprint0-baseline-v1.0`'s established naming convention, kebab-case with a `v`-prefixed version, not the `Sprint-1.0` form |
 | Date created | 2026-07-17 |
 | Baseline approval | Sprint 1 Exit Gate: **PASSED**; CTO Review: **APPROVED**; this closeout: **Sprint 1 OFFICIALLY CLOSED** |
 
