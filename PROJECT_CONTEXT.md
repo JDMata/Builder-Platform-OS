@@ -81,9 +81,15 @@ Full detail: [Technical Debt Report](docs/governance/sprint-0-exit-gate/02-techn
 
 Every Sprint 1/2 carry-forward item (SAF-24 through SAF-38) — each has a named ADR and a stated trigger condition. Full list: [BASELINE.md](BASELINE.md)'s Deferred Decisions section. None is committed to a specific sprint beyond what [PLATFORM_MATURITY.md](PLATFORM_MATURITY.md)'s Official Roadmap projects.
 
-## Platform Experience Foundation
+## Constitutional documents
 
-**Established 2026-07-17**, before Sprint 2 planning begins — [docs/ux/00-platform-experience-foundation.md](docs/ux/00-platform-experience-foundation.md) is the UX equivalent of [00-vision-and-principles.md](docs/architecture/00-vision-and-principles.md): the long-term experience philosophy (vision, personas, information architecture, AI interaction model, design/interaction/accessibility/motion principles, design tokens strategy, governance, and a Definition of Done for UX) governing every screen built from Sprint 2 onward. Not a screen design or component library — those remain downstream, derived artifacts. Every future Vertical Slice's Product Design Review checks against it, the same way ADRs check against the architecture foundation.
+**Established 2026-07-17**, before Sprint 2 planning begins — three documents now govern the platform at the same authority level, none overridable without the same deliberate, recorded governance process used to change any one of them:
+
+- [docs/architecture/00-vision-and-principles.md](docs/architecture/00-vision-and-principles.md) — the Architecture Foundation.
+- [docs/ux/00-platform-experience-foundation.md](docs/ux/00-platform-experience-foundation.md) — the Platform Experience Foundation (PXF): the long-term experience philosophy (vision, personas, information architecture, AI interaction model, design/interaction/accessibility/motion principles, design tokens strategy, governance, and a Definition of Done for UX) governing every screen built from Sprint 2 onward.
+- [docs/product/00-engineering-canvas-specification.md](docs/product/00-engineering-canvas-specification.md) — the Engineering Canvas Specification (ECS v1.0): the product specification for the platform's living engineering workspace — the human experience layer over the Project Digital Twin ([ADR-0021](docs/adr/0021-project-digital-twin-knowledge-graph.md)), specifying its graph model, node/relationship taxonomy, the four synchronized views (Guided, Canvas, Documents, Executive), AI annotation behavior, keyboard-first interaction, inspector panels, timeline model, extensibility, and a Definition of Done.
+
+None of the three produces screen designs, component code, or implementation detail — all three are principle-first and technology-agnostic; downstream Figma/React work must be derivable from them, not an independent design exercise. Every future Vertical Slice's Product Design Review checks against all three.
 
 ## Upcoming Sprint Goal
 
