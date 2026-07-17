@@ -12,21 +12,92 @@
 
 ---
 
-## Sprint 1 Baseline Addendum (2026-07-17)
+## Sprint 1 Baseline v1.0
 
-This document remains the frozen Sprint 0 snapshot below — not retroactively rewritten. This addendum records Sprint 1's closure as a baseline event, the same way Sprint 0's did above, without altering Sprint 0's own content.
+This document remains the frozen Sprint 0 snapshot below — not retroactively rewritten. This section is Sprint 1's own baseline record, the same governance event as Sprint 0's above, additive to it, not a replacement.
 
-**Sprint 1 objective:** ship VS-1 (Discovery Workspace), the platform's first complete, user-visible vertical slice — a business idea becomes an approved, real `Project` through one continuous, AI-guided flow (Login → Idea Submission → Clarification loop → Project Charter → Project Ready).
+### Identification
 
-**What Sprint 1 accomplished:** all 19 engineering tasks complete — real domain/persistence for `RequirementDocument`/`Requirement`/`Clarification`/`AcceptanceCriterion`/`Project`; the `structure-business-requirement` capability backed by a real Anthropic integration; `CapabilityResolverPort`'s and `SecretsVaultPort`'s first real adapters; the Discovery `WorkflowDefinition` orchestrating a real, bounded workflow run; `api-gateway`'s Discovery proxy routes (session-derived identity); five real `apps/web` screens; `tools/sprint1-demo`'s end-to-end demonstration script; and the project's first real, fully green GitHub Actions CI run, including the real Postgres/Keycloak/OPA integration job. Full detail: [docs/execution/sprint-1/10-vs1-exit-gate-report.md](docs/execution/sprint-1/10-vs1-exit-gate-report.md).
+| Field | Value |
+|---|---|
+| Sprint identifier | Sprint 1 — Discovery Workspace (Release R0.2) |
+| Baseline version | `Sprint 1 Baseline v1.0` |
+| Git commit reference | `ef7017c44fae4ea0ceb2c338210a68b4cc116ace` (`main`, `https://github.com/JDMata/Builder-Platform-OS`) |
+| Git tag | `sprint1-baseline-v1.0` (created and pushed at this closure — see below; matches `sprint0-baseline-v1.0`'s established naming convention, kebab-case with a `v`-prefixed version, not the `Sprint-1.0` form) |
+| Date created | 2026-07-17 |
+| Baseline approval | Sprint 1 Exit Gate: **PASSED**; CTO Review: **APPROVED**; this closeout: **Sprint 1 OFFICIALLY CLOSED** |
 
-**Exit Gate verdict:** **PASSED** (2026-07-17) — see the Exit Gate Report above. Followed by a full Engineering Retrospective establishing [CONTINUOUS_IMPROVEMENT_BACKLOG.md](CONTINUOUS_IMPROVEMENT_BACKLOG.md) and [ENGINEERING_DECISION_LOG.md](ENGINEERING_DECISION_LOG.md) as ongoing, living artifacts (not one-time reports) — every future Vertical Slice close adds to both rather than creating new equivalents.
+### Sprint objective
 
-**What was correctly deferred, not missed:** plugin process/container isolation (SAF-25) and the Temporal durability spike (SAF-24) — VS-1 shipped an agent invocation, not third-party generation logic, so neither was a genuine Sprint 1 prerequisite. Plugin isolation is now a named hard blocker before Sprint 2 introduces real generation logic (`CONTINUOUS_IMPROVEMENT_BACKLOG.md`'s `CI-B6`).
+Ship VS-1 (Discovery Workspace), the platform's first complete, user-visible vertical slice: a business idea becomes an approved, real `Project` through one continuous, AI-guided flow — Login → Idea Submission → Clarification loop → Project Charter (review & confirm) → Project Ready.
 
-**VS-002/Sprint 2 readiness:** **NOT READY** as of this addendum — no Product Design Review, Execution Package, or ticket-numbered backlog exists yet for Sprint 2 (Documentation Factory). A real Sprint 2 planning pass, mirroring exactly what Sprint 1 itself went through before its own implementation began, is required first.
+### Business deliverables completed
 
-**Baseline version:** no new git tag cut yet for this addendum — consider `sprint1-baseline-v1.0` once Sprint 2 planning begins, mirroring `sprint0-baseline-v1.0`'s convention.
+- A user can sign in, describe a business idea in their own words, answer the AI agent's follow-up questions, review the structured result, and approve it into a real, named `Project` — no dashboard, no upfront project-creation form, matching the approved Product Design Review exactly.
+- Every step of that journey is real: a real LLM structures the idea, real clarifications are asked and answered, a real `Project` is created and persisted, nothing is mocked or simulated in the request path a user actually exercises.
+
+### Vertical Slices completed
+
+**VS-1 — Discovery Workspace.** The sprint's only Vertical Slice (VS-2 was merged into it during Sprint 1's own execution-package revision — there was never a second, separate slice this sprint). 19 of 19 engineering tasks complete. Full detail: [docs/execution/sprint-1/10-vs1-exit-gate-report.md](docs/execution/sprint-1/10-vs1-exit-gate-report.md).
+
+### CTO Improvement Pack completed
+
+CIP-001 through CIP-005, all completed 2026-07-17 (`ef7017c`):
+- **CIP-001** (extract `readJsonBody`/`stringField` duplication) — done, `packages/http-server-kit`.
+- **CIP-002** (capability declaration consistency) — verified already correct ("Provides capabilities" matches the real registry); "Consumed capabilities" is not implemented — it isn't a modeled concept in `ADR-0020`/`ADR-0022`, and adding one would be a new architectural field a Category A item isn't authorized to introduce; recorded as `CI-A8` for a future small ADR addendum instead.
+- **CIP-003** (fitness function adapter-package coverage) — done, 49 → 80 files scanned, 0 violations either way.
+- **CIP-004** (runtime prerequisite documentation) — done, `CONTRIBUTING.md`.
+- **CIP-005** (CI pipeline documentation) — done, `docs/architecture/11-git-and-cicd-strategy.md`.
+
+### ADR versions in force
+
+All **23** ADRs `Accepted`; none `Proposed`, `Superseded`, `Deprecated`, or `Rejected`. The 22 decided at the Sprint 0 baseline, plus [ADR-0023](docs/adr/0023-platform-kernel-and-platform-pack-architecture.md) (Platform Kernel and Platform Pack Architecture, 2026-07-15, a strategic pre-Sprint-1 alignment decision, no accompanying code change). No ADR was modified, superseded, or newly required by Sprint 1's implementation or by the CTO Improvement Pack. Full index: [ARCHITECTURE_DECISION_INDEX.md](ARCHITECTURE_DECISION_INDEX.md).
+
+### Capability Registry version
+
+No package in this monorepo has been versioned past `0.0.0` yet (no Changesets release has been cut) — `context-capability-registry`'s own package version is `0.0.0`, unchanged. The registry's *content* state is the meaningful figure: **one real, registered capability**, `structure-business-requirement` (provider `requirements-analyst`, `providerType: "agent"`, `priority: 1`), verified consistent between `.ai/agents/requirements-analyst/agent.md`'s "Provides capabilities" declaration and the real registration in `apps/orchestrator/src/plugin-loader.ts`.
+
+### Platform maturity summary
+
+Per [PLATFORM_MATURITY.md](PLATFORM_MATURITY.md) (updated at this closure): Sprint 1's row moved from "Execution Ready" to **Complete**. Six Capability Maturity Matrix rows moved from planned/not-started to 🟢 for Sprint 1: Workflow Engine, Capability Registry, LLM Gateway, Security, Observability, DevOps, Governance. Plugin SDK remains 🔒 (process/container isolation, unchanged, now a named Sprint 2 prerequisite).
+
+### CI status
+
+**Green.** Latest run on `main`: [29547878049](https://github.com/JDMata/Builder-Platform-OS/actions/runs/29547878049) (the CTO Improvement Pack commit) — all four jobs (`build-lint-typecheck-test`, `integration`, `security`, `deploy-dev`) passed. This is the second consecutive fully green run; the first ([29545999065](https://github.com/JDMata/Builder-Platform-OS/actions/runs/29545999065)) was Task 1.19's original real-CI proof.
+
+### Test status
+
+All suites passing across the full monorepo (63/63 Turborepo tasks at last full run). Notable: 23 `orchestrator` + 17 `api-gateway` + 20 `web` tests for the new Discovery workflow/screens, 7 new `http-server-kit` tests (100% coverage), plus every pre-existing package's own suite unchanged. Env-gated real-infrastructure suites (`SAF_TEST_POSTGRES_URL`/`SAF_TEST_OPA_URL`/`SAF_TEST_KEYCLOAK_ISSUER_URL`) ran for real in CI's `integration` job; `SAF_TEST_ANTHROPIC_API_KEY`-gated suites did not (deliberately never configured in CI — see `CONTRIBUTING.md`'s Runtime Prerequisites section) and remain unverified against the real Anthropic API in this environment.
+
+### Documentation status
+
+**Synchronized as of this closure** (see Validation below for what was found and fixed to get there): `PROJECT_CONTEXT.md`, `ROADMAP.md`, `PLATFORM_MATURITY.md`, `CHANGELOG.md`, this document, `CONTINUOUS_IMPROVEMENT_BACKLOG.md`, `ENGINEERING_DECISION_LOG.md`, `CONTRIBUTING.md`, `docs/architecture/11-git-and-cicd-strategy.md`, and `docs/execution/sprint-1/10-vs1-exit-gate-report.md`.
+
+### Known deferred backlog items (carried into Sprint 2 and beyond)
+
+- **SAF-24** (Temporal spike) and **SAF-25** (plugin isolation) — correctly not needed for VS-1 (an agent invocation, not third-party generation logic); SAF-25 is now a **named hard prerequisite** before Sprint 2 introduces real generation logic (`CONTINUOUS_IMPROVEMENT_BACKLOG.md`'s `CI-B6`).
+- **SAF-26 through SAF-38** — unchanged from the Sprint 0 baseline's Deferred Decisions list below; none newly triggered by Sprint 1.
+- **`CONTINUOUS_IMPROVEMENT_BACKLOG.md`'s Category B** (8 items: shared HTTP-handler kit, per-requirement confidence badges, real claims-to-permission mapping, staged progress messaging, "Request Changes" reopen path, plugin isolation, branch-coverage improvements, real workspace selector) and **Category C** (5 items, all pre-identified by the pre-Sprint-1 Platform Kernel review: `PlatformPack` aggregate, `PortCategory` rename, `.ai/knowledge/` relocation, workflow-engine durability revisit, feature-flag mechanism decision).
+
+### Open ADR candidates
+
+**None currently drafted.** All 23 existing ADRs are `Accepted`. Three items are pre-identified as *future* ADR candidates, not yet drafted, each requiring its own architecture-review pass before implementation (`CONTINUOUS_IMPROVEMENT_BACKLOG.md`'s `CI-C1`/`CI-C2`/`CI-C3`): the `PlatformPack` aggregate, the `PortCategory.sap-connectivity` rename, and the `.ai/knowledge/sap-domain/` relocation. A fourth, smaller candidate — a "Consumes capabilities" agent-template field — was surfaced by the CTO Improvement Pack (`CI-A8`) and is recorded for when a real multi-agent consumption scenario exists to design it against.
+
+### Risks carried into Sprint 2
+
+- **R17** (plugin isolation deferred) — **the single most important risk entering Sprint 2**; explicitly named as a hard blocker before real generation logic ships.
+- **R16** (in-house workflow engine durability) — VS-1 exercised it successfully but only at small, bounded scale (max 5 clarification rounds); the Temporal-class comparison spike remains genuinely open.
+- **R18** (no per-tenant feature-flag mechanism) — not urgent for VS-1's single-persona flow; will matter the moment Sprint 2 needs any tier-gated capability.
+- No new risk was introduced by Sprint 1 beyond what the existing register ([12-risks-and-technical-debt.md](docs/architecture/12-risks-and-technical-debt.md)) already tracked.
+
+### Definition of Done confirmation
+
+Checked against [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md) directly, not asserted from memory:
+
+- **Code, Tests, Quality gates, Observability** — ✅ satisfied: acceptance criteria implemented without undiscovered scope, `dependency-cruiser` clean, coverage present on every new file, all CI quality gates green, no fitness function weakened, every new port/HTTP call wrapped in `withSpan`, `requirements.document.captured.v1` emitted for the one new domain-meaningful transition.
+- **Documentation** — ✅ satisfied: every touched package has an accurate README (`fitness:readmes` passes, 36 packages), architecture docs updated where this work made them inaccurate (this baseline, `11-git-and-cicd-strategy.md`, `PLATFORM_MATURITY.md`).
+- **Security & compliance** — ✅ satisfied: no secret/PII introduced, `RequestContext` threaded through every new port call, session-derived identity verified by a real spoofing-attempt test, `PolicyEnginePort`/OPA authorization checks in place for every new use case.
+- **Review & delivery — two items honestly flagged, not silently claimed:** (1) *"At least one approval from someone other than the author"* — this sprint's review discipline took the form of staged human gate reviews (Readiness Review, Exit Gate approval, CTO Improvement Pack review, this closeout) rather than a traditional per-PR peer-engineer approval; no separate human engineer reviewed the diffs line by line. (2) *"Deployed to `dev` and manually verified... before the story is closed"* — `deploy-dev` remains a stated placeholder (no real target exists yet, unchanged from Sprint 0), and the five `apps/web` screens have been verified by automated test only in this environment — no human has clicked through them in a real browser, and `tools/sprint1-demo`'s full real-Anthropic run has never executed here (no key available). Recorded honestly rather than claimed.
 
 ---
 
@@ -261,12 +332,13 @@ The authoritative reference set for every future architecture review — nothing
 8. [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md)
 9. [CONTRIBUTING.md](CONTRIBUTING.md)
 10. [ADR_TEMPLATE.md](ADR_TEMPLATE.md)
-11. All 22 files under [docs/adr/](docs/adr/) — index: [ARCHITECTURE_DECISION_INDEX.md](ARCHITECTURE_DECISION_INDEX.md)
-12. All 19 files under [docs/architecture/](docs/architecture/) (`00` through `18`)
-13. [docs/backlog/sprint-0-backlog.md](docs/backlog/sprint-0-backlog.md)
+11. All 23 files under [docs/adr/](docs/adr/) — index: [ARCHITECTURE_DECISION_INDEX.md](ARCHITECTURE_DECISION_INDEX.md) *(was 22 at the Sprint 0 baseline; ADR-0023 added 2026-07-15, corrected here at Sprint 1's closure — see the Sprint 1 Baseline Validation notes)*
+12. All 20 files under [docs/architecture/](docs/architecture/) (`00` through `19`) *(was 19/`00`–`18` at the Sprint 0 baseline; `19-platform-kernel-and-platform-packs.md` added 2026-07-15, corrected here at Sprint 1's closure)*
+13. [docs/backlog/sprint-0-backlog.md](docs/backlog/sprint-0-backlog.md) and [docs/backlog/sprint-1-backlog.md](docs/backlog/sprint-1-backlog.md)
 14. [.ai/README.md](.ai/README.md) and its templates
-15. All 17 files under [docs/governance/sprint-0-exit-gate/](docs/governance/sprint-0-exit-gate/README.md)
+15. All 17 files under [docs/governance/sprint-0-exit-gate/](docs/governance/sprint-0-exit-gate/README.md), and all files under [docs/governance/sprint-1-product-design-review/](docs/governance/sprint-1-product-design-review/README.md) and [docs/execution/sprint-1/](docs/execution/sprint-1/README.md)
 16. This document, [ARCHITECTURE_DECISION_INDEX.md](ARCHITECTURE_DECISION_INDEX.md), [PLATFORM_MATURITY.md](PLATFORM_MATURITY.md), and [ARCHITECTURE_FREEZE.md](ARCHITECTURE_FREEZE.md)
 17. [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md), [ROADMAP.md](ROADMAP.md), [PROJECT_PLAYBOOK.md](PROJECT_PLAYBOOK.md), and [SESSION_STARTUP_POLICY.md](SESSION_STARTUP_POLICY.md) — added at the Sprint 0 → Sprint 1 governance transition; see [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) for how they relate to one another
+18. [CHANGELOG.md](CHANGELOG.md), [CONTINUOUS_IMPROVEMENT_BACKLOG.md](CONTINUOUS_IMPROVEMENT_BACKLOG.md), and [ENGINEERING_DECISION_LOG.md](ENGINEERING_DECISION_LOG.md) — added at Sprint 1's closure (the VS-1 Engineering Retrospective); living documents every future Vertical Slice/sprint close adds to, never recreated
 
 Any document not in this list that appears to describe an architectural decision is either draft material or an error — raise it for correction rather than treating it as authoritative.

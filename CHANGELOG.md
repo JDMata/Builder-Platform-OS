@@ -42,3 +42,7 @@ The five approved immediate improvements from the VS-1 Engineering Retrospective
 
 **Verified, no change needed**
 - `CIP-002`: the sole registered capability (`structure-business-requirement`, priority 1) already matches `.ai/agents/requirements-analyst/agent.md`'s "Provides capabilities" declaration exactly — the retrospective's earlier claim that this field was missing (`CI-A3`) was a false positive (a grep pattern mismatch on the reviewer's part, not a real gap) and is corrected in `CONTINUOUS_IMPROVEMENT_BACKLOG.md`. A "Consumed capabilities" field was requested but is not a modeled concept in ADR-0020/ADR-0022 and was not added — see the CTO Improvement Pack completion report for why, and the smallest recommended alternative.
+
+## Sprint 1 officially closed — Sprint 1 Baseline v1.0 (2026-07-17)
+
+Governance closeout: `sprint1-baseline-v1.0` tagged at `ef7017c`. Full record: `BASELINE.md`'s Sprint 1 Baseline section (identification, deliverables, ADR/Capability Registry state, CI/test/documentation status, deferred backlog, open ADR candidates, risks carried into Sprint 2, and a `DEFINITION_OF_DONE.md` confirmation — including two honestly-flagged, not-fully-satisfied items: no separate human peer review beyond staged gate reviews, and no manual browser verification of the five `apps/web` screens in this environment). `BASELINE.md`'s Architecture Checksum list was found stale (22 ADRs/19 architecture docs listed, actually 23/20) and corrected at this closure. **Sprint 1 status: OFFICIALLY CLOSED.**
