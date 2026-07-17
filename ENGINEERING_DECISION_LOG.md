@@ -177,3 +177,19 @@
 **Impact:** Task 1.19 (first real CI run) completed against the correct, history-preserving remote.
 
 **Lessons learned:** When multiple candidate remotes exist for what should be "one origin," verify ancestry (`git merge-base --is-ancestor`, `git log --oneline --graph --all`) before picking one — don't assume the most recently mentioned name is authoritative, and don't force-push to reconcile when a clean fast-forward is available.
+
+---
+
+### ED-012 — Fixing the OIDC nonce-validation defect found by real-browser verification, without expanding scope
+
+**Date:** 2026-07-17. **Affected packages:** `packages/auth-core`, `apps/api-gateway`.
+
+**Reason:** Manually driving VS-1's UI with a real headless browser (the first time this project ever had one) surfaced a real defect: `beginAuthorizationRequest()` generates a `nonce`, but `apps/api-gateway`'s `PendingAuthorizationRequest`/`handleCallback` never stored or forwarded it, so `openid-client` rejected every real login's ID token with `"unexpected JWT claim value encountered"`. No prior test could have caught this — every existing test/demo (`tools/sprint0-demo`, `tools/sprint1-demo`, `auth-core`'s own gated tests) deliberately uses Direct Grant specifically because no browser existed before this session.
+
+**Decision:** Fixed narrowly — added `nonce` to `PendingAuthorizationRequest`, added a required `expectedNonce` field to `ExchangeCodeOptions`, threaded through to `client.authorizationCodeGrant()`. Nothing else touched. A second, unrelated defect surfaced incidentally while verifying the fix (`api-gateway` crashes on a non-JSON response from an unreachable `apps/orchestrator`, triggered here by a local port collision) was **deliberately left unfixed** and only recorded (`CI-A9`) — it's a real, separate gap, but fixing it wasn't part of what was authorized for this pass.
+
+**Alternatives considered:** Fold the second (error-handling) defect into the same fix, since it was already found and understood — rejected; the user explicitly asked for the nonce fix with no out-of-scope changes, and DEFINITION_OF_DONE's "no undiscovered scope added" applies to bug fixes as much as features.
+
+**Impact:** Verified twice, independently: a real Keycloak login now logs `"session established"` with real claims, and a real, HttpOnly `saf_session` cookie is set in the browser after a genuine username/password login. Full monorepo validation suite re-run clean, including both real-Keycloak-gated test files.
+
+**Lessons learned:** A defect that "no test could have caught" isn't necessarily rare or exotic — it can be exactly this ordinary (a value generated in one function, silently dropped before the function that needs it). The fix for *that* is a real browser/E2E capability existing at all, not smarter unit tests of the same untested integration seam. Recorded, not actioned, as a testing-infrastructure gap — worth a deliberate future decision (an ADR or backlog item) on whether Playwright-based E2E coverage belongs in this project's standard test suite, rather than added ad hoc off the back of this one fix.

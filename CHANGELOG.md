@@ -2,6 +2,16 @@
 
 No `CHANGELOG.md` existed before this entry — rather than fabricate Sprint 0's and Sprint 1's history retroactively (low-value, risks inventing detail that isn't real), this starts now, at VS-1's close, per the VS-1 Engineering Retrospective's `CI-A5` recommendation. Every future Vertical Slice close adds an entry here. For anything before this point, `git log` and the frozen governance snapshots under `docs/governance/` remain authoritative.
 
+## Post-baseline defect fix: real OIDC login flow (2026-07-17)
+
+**Fixed:** the Authorization Code + PKCE login flow was broken for any real browser login — `beginAuthorizationRequest()` generates a `nonce` for replay protection, but `apps/api-gateway`'s `PendingAuthorizationRequest`/`handleCallback` never stored or forwarded it to `exchangeAuthorizationCode()`. `openid-client` correctly rejected the resulting ID token's unvalidated `nonce` claim with `"unexpected JWT claim value encountered"`, failing every real login attempt with a 401.
+
+**How this was found:** every existing automated test and demo script (`tools/sprint0-demo`, `tools/sprint1-demo`, `auth-core`'s own real-Keycloak-gated tests) deliberately uses Keycloak's Direct Grant instead of a real browser — explicitly because no browser was available in this environment before now. This is the first time the real Authorization Code flow was ever driven end-to-end by an actual browser (Playwright, launched to visually verify the VS-1 UI screens render), and it surfaced a defect no test in this suite could have caught until a browser existed to drive it.
+
+**Fix:** `PendingAuthorizationRequest` now stores `nonce` alongside `state`/`codeVerifier`; `ExchangeCodeOptions` gained a required `expectedNonce` field, threaded through to `client.authorizationCodeGrant()`'s checks. Verified by re-driving the real login flow against real Keycloak: a real, HttpOnly `saf_session` cookie is now set after a genuine username/password login. Full monorepo build/typecheck/test/lint/format/deps/fitness re-verified clean, including auth-core's and api-gateway's real-Keycloak-gated test suites.
+
+**New, separate finding — not fixed, out of scope for this fix:** `apps/api-gateway`'s Discovery proxy routes (`discovery-proxy-routes.ts`) have no top-level error handling — a non-JSON response from `apps/orchestrator` (e.g. if it's unreachable, or another process is occupying its port) crashes the whole `api-gateway` process instead of returning a clean error. Surfaced incidentally by a local port collision (Docker Desktop holding port 3000, so `apps/web`'s dev server fell back to port 3002 — `apps/orchestrator`'s own default port), not a defect in normal operation. Recorded for a future, separately-scoped fix.
+
 ## VS-1 — Discovery Workspace (2026-07-17)
 
 Sprint 1's single, complete Vertical Slice: a user turns a business idea into an approved, real `Project` through one continuous, AI-guided flow — Login → Idea Submission → Clarification loop → Project Charter (review & confirm) → Project Ready.

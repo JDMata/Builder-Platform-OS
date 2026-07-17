@@ -19,6 +19,7 @@ const SESSION_TTL_MS = 15 * 60 * 1000;
 interface PendingAuthorizationRequest {
   readonly state: string;
   readonly codeVerifier: string;
+  readonly nonce: string;
 }
 
 /**
@@ -44,7 +45,11 @@ export async function handleLogin(
   const request = await beginAuthorizationRequest(deps.oidcConfig, {
     redirectUri: redirectUriFor(req),
   });
-  pendingRequests.set(request.state, { state: request.state, codeVerifier: request.codeVerifier });
+  pendingRequests.set(request.state, {
+    state: request.state,
+    codeVerifier: request.codeVerifier,
+    nonce: request.nonce,
+  });
 
   res.writeHead(302, { location: request.url.toString() });
   res.end();
@@ -74,6 +79,7 @@ export async function handleCallback(
         callbackUrl,
         expectedState: pending.state,
         codeVerifier: pending.codeVerifier,
+        expectedNonce: pending.nonce,
       });
       const claims = await deps.validateAccessToken(tokens.access_token);
       // No tenant-id claim mapper is configured on the dev Keycloak realm yet

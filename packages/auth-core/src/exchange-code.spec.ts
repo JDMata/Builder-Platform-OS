@@ -30,6 +30,7 @@ describe.skipIf(!testKeycloakIssuerUrl)(
           callbackUrl,
           expectedState: "a-completely-different-expected-state",
           codeVerifier: "irrelevant-verifier",
+          expectedNonce: "irrelevant-nonce",
         }),
       ).rejects.toThrow();
     });
@@ -55,6 +56,7 @@ describe.skipIf(!testKeycloakIssuerUrl)(
           callbackUrl,
           expectedState: "s1",
           codeVerifier: "irrelevant-verifier",
+          expectedNonce: "irrelevant-nonce",
         }),
       ).rejects.toThrow();
     });
