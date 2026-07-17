@@ -1,6 +1,6 @@
-# 01 — Experience Language Specification (XLS v1.0)
+# 01 — Experience Language Specification (XLS v1.0.1)
 
-**Status:** Constitutional — the fourth document in the platform's constitutional set, governing at the same authority level as [00-vision-and-principles.md](../architecture/00-vision-and-principles.md) (Architecture Foundation, "AF"), [00-platform-experience-foundation.md](00-platform-experience-foundation.md) (Platform Experience Foundation, "PXF"), and [docs/product/00-engineering-canvas-specification.md](../product/00-engineering-canvas-specification.md) (Engineering Canvas Specification, "ECS"). None of the four may be contradicted by an ADR, a Product Design Review, or an implementation without the same deliberate, recorded governance process used to change any one of them (§38).
+**Status:** Constitutional — governing at the same authority level as [00-vision-and-principles.md](../architecture/00-vision-and-principles.md) (Architecture Foundation, "AF"), [00-platform-experience-foundation.md](00-platform-experience-foundation.md) (Platform Experience Foundation, "PXF"), and [docs/product/00-engineering-canvas-specification.md](../product/00-engineering-canvas-specification.md) (Engineering Canvas Specification, "ECS"). See [PROJECT_CONTEXT.md](../../PROJECT_CONTEXT.md)'s "Constitutional documents" section for the current, authoritative enumeration of the full constitutional set — this document does not restate a count inline, since it would go stale the next time a document is added. None of the set may be contradicted by an ADR, a Product Design Review, or an implementation without the same deliberate, recorded governance process used to change any one of them (§38).
 **Authored as:** Chief Design Officer / Enterprise Design Language Architect / Human Factors Specialist / Product Experience Strategist.
 **Scope:** the visual, interaction, motion, and communication *language* the platform expresses itself through — every screen, every component, every AI-produced surface, in the Guided flows, the Engineering Canvas, and everywhere else, present and future.
 **Explicitly not in scope:** Figma files, wireframes, React components, Tailwind configuration, CSS, HTML, or design tokens' actual implemented values. This document defines the principles a future implementation must obey (§36, §37) — it does not perform that implementation.
@@ -33,7 +33,7 @@ Five irreducible traits every other section in this document derives from. If a 
 
 ## 2. Brand Personality
 
-The platform's personality is a **senior delivery partner**, not an assistant, a tool, or a mascot — the same framing the PXF establishes for the product as a whole (PXF §1), restated here as a set of personality traits a design language can actually be checked against.
+The platform's personality metaphor — **a senior delivery partner**, not an assistant, a tool, or a mascot — is defined once, canonically, in PXF §1; it is not redefined here. This section only translates that single metaphor into personality traits a design language can actually be checked against.
 
 | Is | Is not |
 |---|---|
@@ -265,13 +265,13 @@ The visual expression of the ECS's structural rules (ECS §4, §5, §8), complet
 - **Each node category (ECS §4) has one consistent shape/visual identity**, applied to every node in that category regardless of its specific registered type — visual identity is a property of the category, never invented per node type.
 - **Edge visual weight communicates permanence, not decoration** — Structural and Traceability relationships (the graph's backbone, per ECS §5) render more visually stable and solid; Governance and Derivation relationships, which represent more live, evolving judgment, render lighter — exactly the rendering-weight guideline the ECS calls for, now given a concrete visual basis (weight and solidity, not arbitrary color).
 - **Semantic zoom (ECS §8) aggregates visually, not just numerically** — as detail aggregates into a cluster, the cluster's visual treatment communicates "this contains more," using the same elevation and material vocabulary (§11, §14) as the rest of the platform, not a bespoke Canvas-only visual system.
-- **The Canvas obeys every other section of this document** — its typography, color, spacing, and motion are the same language as the rest of the platform, applied to a graph-shaped surface; it is not a visually separate "tool" bolted onto the product.
+- **The Canvas view obeys every other section of this document** — its typography, color, spacing, and motion are the same language as the rest of the platform, applied to a graph-shaped surface; it is not a visually separate "tool" bolted onto the product.
 
 ---
 
-## 21. Workspace Shell Language
+## 21. Platform Shell Language
 
-The persistent chrome (PXF §8's minimal, stable global navigation) is visually the quietest part of the platform — its job is to almost disappear, so the user's actual work (a Guided flow, the Canvas, a Document) visually dominates every screen.
+This section governs the platform's *global* chrome — deliberately not named "Workspace Shell," since its content is about navigation shared across every Workspace, not a per-Workspace surface, and "Workspace" is a formally defined container object elsewhere in this constitutional set (PXF §7, ECS §3). The persistent chrome (PXF §8's minimal, stable global navigation) is visually the quietest part of the platform — its job is to almost disappear, so the user's actual work (a Guided flow, the Canvas, a Document) visually dominates every screen.
 
 - **Minimum visual weight for maximum functional stability** — the shell uses the neutral foundation (§8) almost exclusively, reserving the accent and semantic colors (§9) for the content it frames, never for itself.
 - **The shell never grows with feature count** — visually and structurally, exactly as PXF §8 requires functionally; a shell that visually accumulates more elements over time has failed this language, regardless of how justified each individual addition seemed.
@@ -428,24 +428,22 @@ Principles a future Figma implementation must satisfy — not files, not layer s
 
 ## 37. React Derivation Rules
 
-Principles a future React (or any future frontend stack's) implementation must satisfy:
+The PXF already states the general frontend engineering standards every implementation must satisfy — token-sourcing, component composition from the shared set, accessibility implemented at build time, and motion via shared tokens with a verified reduced-motion fallback (PXF §22) — and this document does not restate them. This section adds only what is specific to deriving an implementation from *this* document's visual/interaction language:
 
-1. **Every visual value flows from a design token (§35)** — no component hardcodes a color, spacing, radius, duration, or type value that has a corresponding token, enforced the same way the codebase's other fitness functions are enforced ([10-coding-standards-and-naming.md](../architecture/10-coding-standards-and-naming.md)), not left to code review discretion.
-2. **Components are composed from the shared set by default** (PXF §15, §22) — a new one-off component is a deliberate, reviewed exception.
-3. **Accessibility (§31) is implemented as the component is built**, not audited afterward — semantic markup, keyboard operability, and focus management are part of the component's definition, not a follow-up pass.
-4. **Motion (§15, §16) is implemented via shared motion tokens with a verified reduced-motion fallback** before any animated transition ships.
-5. **Implementation fidelity to this document is a review criterion, independent of whether the result "looks right"** — a screen that looks acceptable but was not actually derived from this language (e.g., an ad hoc spacing value that happens to look fine) has still failed this document's Definition of Done (§40).
+1. **Every visual value this document introduces (§7–§30) flows from the corresponding design token category (§35)** — completing, for this language's specifics, the general token-sourcing rule already stated in PXF §22.
+2. **Implementation fidelity to this document is a review criterion, independent of whether the result "looks right"** — a screen that looks acceptable but was not actually derived from this language (e.g., an ad hoc spacing value that happens to look fine) has still failed this document's Definition of Done (§40), even where it would pass PXF §22's more general standards.
 
 ---
 
 ## 38. Governance
 
-The XLS is governed exactly as the AF, the PXF, and the ECS are governed — the constitutional set now numbers four.
+The XLS is governed exactly as every other constitutional document is governed — see [PROJECT_CONTEXT.md](../../PROJECT_CONTEXT.md) for the current, authoritative enumeration of the full constitutional set.
 
-1. **Every Vertical Slice's Product Design Review checks proposed work against this document**, alongside the AF, the PXF, and (where applicable) the ECS.
+1. **Every Vertical Slice's Product Design Review checks proposed work against this document**, alongside every other constitutional document that applies.
 2. **A deviation from a "must"-tier rule here requires an explicit, recorded justification** in `ENGINEERING_DECISION_LOG.md`, at the point of decision.
-3. **This document changes only deliberately** — a new numbered revision (XLS v1.1, v2.0, …), reviewed with the same weight as an ADR or a PXF/ECS revision, never a silent edit incidental to shipping a feature.
+3. **This document changes only deliberately** — a new numbered revision (XLS v1.1, v2.0, …), reviewed with the same weight as an ADR or a PXF/ECS revision, never a silent edit incidental to shipping a feature. This document is versioned as XLS v1.0.1 as of the governance patch that added this sentence.
 4. **Ownership** sits with the same Design System Architect function that owns the PXF and coordinates with the ECS's ownership on anything touching the Canvas Visual Language (§20) specifically.
+5. **Constitutional precedence and conflict resolution:** this document is authoritative within its declared domain — the platform's visual, interaction, motion, and communication language. Where two constitutional documents both bear on a decision, the one whose declared domain most specifically covers that decision's subject matter governs; overlap is expected and is not itself a conflict. A genuine, irreconcilable conflict between two constitutional documents is escalated jointly to the owning functions of both, resolved by amending whichever document's claim was in error, and recorded in `ENGINEERING_DECISION_LOG.md` — never resolved by silently favoring one document over the other.
 
 ---
 

@@ -1,6 +1,8 @@
-# 00 — Engineering Canvas Specification (ECS v1.0)
+# 00 — Engineering Canvas Specification (ECS v1.0.1)
 
-**Status:** Constitutional — governs the Engineering Canvas for the life of the platform, on the same footing as [docs/architecture/00-vision-and-principles.md](../architecture/00-vision-and-principles.md) (the Architecture Foundation) and [docs/ux/00-platform-experience-foundation.md](../ux/00-platform-experience-foundation.md) (the Platform Experience Foundation, "PXF"). These three documents are the platform's constitutional set — no ADR, Product Design Review, or implementation may contradict them without the same deliberate, recorded governance process used to change any one of them (§13).
+**Status:** Constitutional — governs the Engineering Canvas for the life of the platform, on the same footing as [docs/architecture/00-vision-and-principles.md](../architecture/00-vision-and-principles.md) (the Architecture Foundation) and [docs/ux/00-platform-experience-foundation.md](../ux/00-platform-experience-foundation.md) (the Platform Experience Foundation, "PXF"). See [PROJECT_CONTEXT.md](../../PROJECT_CONTEXT.md)'s "Constitutional documents" section for the current, authoritative enumeration of the full constitutional set — this document does not restate a count or list of siblings inline, since either would go stale the next time a document is added. No ADR, Product Design Review, or implementation may contradict any document in that set without the same deliberate, recorded governance process used to change any one of them (§13).
+
+**A note on this document's central term:** "the Engineering Canvas" names the whole specification's subject — the graph, its four views, and everything in this document. "Canvas view" (never bare "the Canvas") names specifically the spatial, pannable/zoomable view of §6's table, one of four, standing alongside "Guided view," "Documents view," and "Executive view." Where earlier text in this document used bare "the Canvas" to mean the Canvas view specifically, this revision (v1.0.1) disambiguates it — see the governance patch recorded in `ENGINEERING_DECISION_LOG.md`.
 **Authored as:** the same Chief Experience Officer / Enterprise UX Architect / Design System Architect function that authored the PXF, specialized here to one object.
 **Scope:** the graph model, workspace objects, node taxonomy, relationship semantics, the four synchronized views, AI annotation behavior, interaction, keyboard, inspector, timeline, extensibility, and governance of the Engineering Canvas — the platform's living engineering workspace.
 **Explicitly not in scope:** Figma files, wireframes, React components, state-management choices, rendering libraries, or any other implementation detail. Those are downstream, derived artifacts — if a future design or implementation can't be justified by a principle in this document, the design is wrong, not the principle.
@@ -34,26 +36,26 @@ It is **not**:
 
 Timeless principles, binding on any future implementation:
 
-1. **Nothing is drawn on the Canvas that doesn't correspond to a real node or edge in the Digital Twin.** The Canvas has no private, view-only state for anything that represents project knowledge — layout position, zoom level, and panel arrangement are legitimate view-local state; the existence and content of a node or edge are never view-local.
+1. **Nothing is rendered in any of the four views (§6) that doesn't correspond to a real node or edge in the Digital Twin.** No view — the Canvas view included — has private, view-only state for anything that represents project knowledge; layout position, zoom level, and panel arrangement are legitimate view-local state, but the existence and content of a node or edge are never view-local.
 2. **A node is a thing; an edge is a fact about two things.** A node is opaque at the Canvas's core — its meaning comes from its registry-declared `nodeType` (§4) — and an edge is opaque the same way, meaning coming from its registry-declared `relationshipType` (§5). The Canvas does not hardcode behavior per specific type; it renders and interacts with nodes/edges through the same general contract regardless of type, exactly as the Digital Twin's own storage layer does.
-3. **The graph is append-only and provenance-carrying.** Every node has a version history; every edge is tagged `declared` or `ai-inferred` with a confidence score when inferred; nothing is ever silently overwritten. The Canvas surfaces this — it does not hide it for the sake of a cleaner-looking screen (see §11, Timeline Model).
-4. **The graph never leaks across projects or tenants.** Every Canvas session is scoped to exactly one project's Digital Twin, inheriting the same tenant-isolation guarantee already established for the underlying graph store ([08-authentication-and-rbac.md](../architecture/08-authentication-and-rbac.md)).
+3. **The graph is append-only and provenance-carrying.** Every node has a version history; every edge is tagged `declared` or `ai-inferred` with a confidence score when inferred; nothing is ever silently overwritten. The Engineering Canvas surfaces this in every view it appears in — it does not hide it for the sake of a cleaner-looking screen (see §11, Timeline Model).
+4. **The graph never leaks across projects or tenants.** Every Canvas Session (§3) is scoped to exactly one project's Digital Twin, inheriting the same tenant-isolation guarantee already established for the underlying graph store ([08-authentication-and-rbac.md](../architecture/08-authentication-and-rbac.md)).
 
 ---
 
 ## 3. Workspace Objects
 
-Distinct from graph *content* (nodes and edges, §2, §4, §5) are the *container* objects that scope and organize it — the same Workspace hierarchy the PXF already establishes (PXF §6, §7), specialized here:
+Distinct from graph *content* (nodes and edges, §2, §4, §5) are the *container* objects that scope and organize it — the same Workspace hierarchy the PXF already establishes (PXF §6, §7), specialized here. Note that "Workspace" below is the formal PXF-defined container object; where this document's title and scope line informally describe the Engineering Canvas as a "workspace," that is a loose, descriptive use of the word for the whole experience, not a claim that the Engineering Canvas *is* a Workspace object in this table's sense — the Canvas Session below is the object that actually corresponds to one instance of that experience.
 
 | Object | What it is | Relationship to the graph |
 |---|---|---|
 | **Workspace** | A durable, named context for one line of work (PXF §7) | Contains one or more Projects; not itself part of the graph |
 | **Project** | One idea's journey from capture to delivery | Owns exactly one Digital Twin graph |
-| **Canvas** | The interactive surface through which a human views and acts on a Project's graph | Not a copy of the graph — a live window onto it; a project has one graph and may be viewed through many simultaneous Canvas sessions (e.g., two reviewers), all reading and writing the same graph |
-| **Board (saved view)** | A named, reusable arrangement of Canvas state — which nodes are expanded, which filters/groupings are active, the last spatial layout | Purely view-local state (§2, principle 1); a Board never stores graph content, only how to look at it |
-| **Snapshot** | An immutable capture of the graph's full state at a milestone | The Canvas's Timeline Model (§11) is built directly on `DigitalTwinSnapshot` ([16-project-digital-twin.md](../architecture/16-project-digital-twin.md) §4) — the Canvas does not define its own snapshotting mechanism |
+| **Canvas Session** | The interactive session through which a human views and acts on a Project's graph, through any one of the four views (§6) at a time | Not a copy of the graph — a live window onto it; a project has one graph and may be viewed through many simultaneous Canvas Sessions (e.g., two reviewers), all reading and writing the same graph |
+| **Board (saved view)** | A named, reusable arrangement of Canvas view state — which nodes are expanded, which filters/groupings are active, the last spatial layout | Purely view-local state (§2, principle 1); a Board never stores graph content, only how to look at it |
+| **Snapshot** | An immutable capture of the graph's full state at a milestone | The Timeline Model (§11) is built directly on `DigitalTwinSnapshot` ([16-project-digital-twin.md](../architecture/16-project-digital-twin.md) §4) — the Engineering Canvas does not define its own snapshotting mechanism |
 
-A Board is the one workspace object that is genuinely local to the Canvas experience rather than inherited from the architecture — it exists because different reviewers legitimately want different habitual arrangements of the same real graph, and losing that arrangement between sessions would violate the PXF's resumability principle (PXF §5).
+A Board is the one workspace object that is genuinely local to the Canvas view experience rather than inherited from the architecture — it exists because different reviewers legitimately want different habitual arrangements of the same real graph, and losing that arrangement between sessions would violate the PXF's resumability principle (PXF §5).
 
 ---
 
@@ -84,9 +86,9 @@ Edges inherit their meaning from the Digital Twin's `relationshipType` registry 
 Binding experience rules:
 
 1. **An edge is never shown without its meaning being discoverable at a glance or one interaction away.** A line connecting two nodes with no legible label or affordance to reveal its `relationshipType` is not an acceptable rendering of an edge.
-2. **Every relationship type's inverse is a first-class reading, not a mental-math exercise for the user.** Because every registered type declares its inverse explicitly at the architecture level, the Canvas must let a user read a relationship in whichever direction they approached it from ("what does this implement" and "what implements this" are the same edge, and the Canvas must make both readings equally natural) — never force the user to remember which direction a label "usually" means.
+2. **Every relationship type's inverse is a first-class reading, not a mental-math exercise for the user.** Because every registered type declares its inverse explicitly at the architecture level, the Engineering Canvas must let a user read a relationship in whichever direction they approached it from, in whichever view they're using ("what does this implement" and "what implements this" are the same edge, and both readings must be equally natural) — never force the user to remember which direction a label "usually" means.
 3. **Provenance is always visible on the edge itself, not just on inspection.** `declared` and `ai-inferred` are visually distinguished at the graph level (§7), not only inside the Inspector Panel (§10) — a user scanning the whole Canvas must be able to tell, without clicking anything, which relationships are established fact and which are AI suggestion.
-4. **Structural and Traceability edges are the graph's backbone and should read as more visually stable/permanent than Governance or Derivation edges**, which more often represent live, evolving judgment. This is a rendering-weight guideline, not a new taxonomy — it exists to keep the Canvas legible as it grows dense, consistent with the PXF's "hierarchy over decoration" principle (PXF §10).
+4. **Structural and Traceability edges are the graph's backbone and should read as more visually stable/permanent than Governance or Derivation edges**, which more often represent live, evolving judgment. This is a rendering-weight guideline, not a new taxonomy — it exists to keep the Canvas view legible as it grows dense, consistent with the PXF's "hierarchy over decoration" principle (PXF §10).
 
 ---
 
@@ -101,7 +103,7 @@ Binding experience rules:
 | **Documents** | A linear, reading-order rendering of a coherent subset of the graph — the same content the Canvas holds, presented the way a person reads a specification rather than the way a graph is drawn | A user who needs to read, share, or export a coherent narrative account of the work, not navigate its structure |
 | **Executive** | A small number of honest, aggregated signals derived directly from the real graph's real state — never synthetic metrics invented for the view | A stakeholder (PXF §4, the Executive Stakeholder persona) who needs trustworthy status, not structure |
 
-**The synchronization principle, stated precisely:** an edit made in any view is an edit to the one underlying graph, and is instantly reflected — not "eventually," not "on refresh" — in every other view that would show it. Answering a Clarification in Guided view updates that node's state on the Canvas and in the Documents view immediately; approving a node's promotion in the Canvas updates the Guided view's next-step logic immediately. If two views can ever disagree about a node's current state, that is a defect in the implementation of this principle, not an acceptable inconsistency between "different tools for different audiences."
+**The synchronization principle, stated precisely:** an edit made in any view is an edit to the one underlying graph, and is instantly reflected — not "eventually," not "on refresh" — in every other view that would show it. Answering a Clarification in Guided view updates that node's state on the Canvas view and in the Documents view immediately; approving a node's promotion in the Canvas view updates the Guided view's next-step logic immediately. If two views can ever disagree about a node's current state, that is a defect in the implementation of this principle, not an acceptable inconsistency between "different tools for different audiences."
 
 This is the direct experience-layer resolution of a tension the PXF names but does not fully resolve on its own: a workspace needs to be usable both as a guided, bounded task flow (PXF §5, §7) and as an explorable structure (PXF §6) — the Engineering Canvas resolves this by making both simply different lenses on identical, always-current truth, rather than by building two separate products that happen to share a backend.
 
@@ -121,10 +123,10 @@ This section is the Canvas's specialization of the PXF's AI Interaction Model (P
 
 ## 8. Interaction Rules
 
-1. **Direct manipulation on the Canvas, constrained progression in Guided.** In the Canvas view, a user moves, connects, expands, and groups nodes directly (subject to §2's rule that this never fabricates ungrounded graph content — spatial layout is view-local, connecting two nodes with a new edge is a real graph write). In the Guided view, interaction is deliberately bounded to the current step, exactly as Sprint 1's existing flow already behaves — this asymmetry is intentional, not an inconsistency to resolve.
+1. **Direct manipulation on the Canvas view, constrained progression in Guided view.** In the Canvas view, a user moves, connects, expands, and groups nodes directly (subject to §2's rule that this never fabricates ungrounded graph content — spatial layout is view-local, connecting two nodes with a new edge is a real graph write). In the Guided view, interaction is deliberately bounded to the current step, exactly as Sprint 1's existing flow already behaves — this asymmetry is intentional, not an inconsistency to resolve.
 2. **Selection and focus are distinct.** Selecting a node (to act on it, e.g., delete, tag, connect) is a different state from focusing it (to inspect it, §10) — a single click should not simultaneously commit to both, since they answer different questions ("what do I want to act on" vs. "what do I want to understand").
 3. **Every state-changing interaction is undoable**, consistent with the PXF's reversibility principle (PXF §11) — connecting an edge, moving a node's Board-local position, retiring a node, and confirming an AI proposal are all reversible actions with a visible, immediate undo path.
-4. **Zoom is semantic, not merely optical.** As a user zooms out on the Canvas, detail aggregates into its owning category or cluster rather than simply shrinking illegibly — the same principle a well-made map applies, and the direct mechanism that keeps a large, mature project's graph legible instead of becoming visual noise (avoiding the "busy" feeling the PXF names as a failure mode, PXF §3).
+4. **Zoom is semantic, not merely optical.** As a user zooms out on the Canvas view, detail aggregates into its owning category or cluster rather than simply shrinking illegibly — the same principle a well-made map applies, and the direct mechanism that keeps a large, mature project's graph legible instead of becoming visual noise (avoiding the "busy" feeling the PXF names as a failure mode, PXF §3).
 5. **No interaction requires the user to know the underlying graph's technical vocabulary.** "Node," "edge," and `nodeType`/`relationshipType` are this document's and the architecture's working vocabulary — the Canvas's actual interface speaks in the user's own domain terms (a Requirement, a Decision, an Artifact), exactly as the PXF's Information Architecture principle already requires (PXF §6).
 
 ---
@@ -136,17 +138,17 @@ Graph-native, spatial tools are conventionally mouse- or touch-first; the Engine
 1. **Every node and edge reachable by pointer is reachable by keyboard.** Structured traversal (moving focus between connected nodes, entering and leaving a cluster) is a first-class keyboard operation, not a fallback for when a pointer is unavailable.
 2. **A command palette is the keyboard-first answer to "how do I do X"** across all four views — a single, consistent, searchable entry point to every action, so keyboard users are never required to memorize a large bespoke shortcut set to operate at parity with a mouse user.
 3. **Focus state is always visible and never ambiguous** between "this node is selected" and "this node has keyboard focus" (§8, principle 2) — a keyboard user must always be able to answer both "where is my focus" and "what is selected" without switching to the mouse to check.
-4. **No Canvas-native interaction has a keyboard-inaccessible equivalent invented instead.** Where a mouse gesture (drag-to-connect, drag-to-pan) has no natural keyboard analogue, the Canvas provides a genuinely equivalent keyboard path to the same graph action (e.g., "connect selected node to focused node" as a command), not a degraded substitute.
+4. **No Canvas-view-native interaction has a keyboard-inaccessible equivalent invented instead.** Where a mouse gesture (drag-to-connect, drag-to-pan) has no natural keyboard analogue, the Canvas view provides a genuinely equivalent keyboard path to the same graph action (e.g., "connect selected node to focused node" as a command), not a degraded substitute.
 
 ---
 
 ## 10. Inspector Panels
 
-The Canvas's spatial view shows **structure** — what exists and how it relates. The Inspector Panel shows **depth** — the full content, history, and detail of one focused node or edge. This division of labor is deliberate and load-bearing: it is what keeps the Canvas itself legible and calm (PXF §3) even as individual nodes carry substantial content.
+The Canvas view shows **structure** — what exists and how it relates. The Inspector Panel shows **depth** — the full content, history, and detail of one focused node or edge. This division of labor is deliberate and load-bearing: it is what keeps the Engineering Canvas legible and calm (PXF §3) even as individual nodes carry substantial content.
 
-1. **The Inspector is where content is actually read and edited.** The Canvas surface itself never attempts to render a node's full content inline — doing so would recreate the "busy," undifferentiated density the PXF explicitly rejects (PXF §3, §18).
+1. **The Inspector is where content is actually read and edited.** The Canvas view's surface itself never attempts to render a node's full content inline — doing so would recreate the "busy," undifferentiated density the PXF explicitly rejects (PXF §3, §18).
 2. **Exactly one Inspector context at a time**, tied to the current focus (§8, principle 2) — never multiple competing detail panels open simultaneously representing different foci, which would fragment attention rather than support it.
-3. **The Inspector shows the same real graph content the Canvas summarizes, never a separate, richer copy.** Consistent with §2's single-source-of-truth principle, opening the Inspector does not "load more detail from somewhere else" in a way that could disagree with what the Canvas already implied.
+3. **The Inspector shows the same real graph content the Canvas view summarizes, never a separate, richer copy.** Consistent with §2's single-source-of-truth principle, opening the Inspector does not "load more detail from somewhere else" in a way that could disagree with what the Canvas view already implied.
 4. **Provenance and history are always one Inspector view away**, never requiring a separate tool or export to answer "who or what produced this, and when" for any node or edge currently in view.
 
 ---
@@ -175,16 +177,17 @@ The Engineering Canvas must absorb new node types, new relationship types, and n
 
 ## 13. Governance
 
-The Engineering Canvas Specification is governed exactly as the Architecture Foundation and the PXF are governed — the three now form one constitutional set.
+The Engineering Canvas Specification is governed exactly as every other constitutional document is governed — see [PROJECT_CONTEXT.md](../../PROJECT_CONTEXT.md) for the current, authoritative enumeration of the full constitutional set this document is part of.
 
-1. **Every Vertical Slice that touches the Engineering Canvas is checked against this document at Product Design Review**, the same way it is already checked against the PXF and against the Architecture Foundation's non-negotiable principles.
+1. **Every Vertical Slice that touches the Engineering Canvas is checked against this document at Product Design Review**, the same way it is already checked against every other constitutional document.
 2. **A deviation from a "must"-tier rule in this document requires an explicit, recorded justification** in `ENGINEERING_DECISION_LOG.md`, at the point of decision — not an undocumented judgment call, exactly the standard already established for architecture and UX deviations.
-3. **This document changes only deliberately**, via a new numbered revision (ECS v1.1, v2.0, …), reviewed with the same weight as an ADR or a PXF revision — never as a silent edit incidental to shipping one feature.
-4. **Ownership** sits with the same Design System Architect function that owns the PXF, in coordination with whoever owns [ADR-0021](../adr/0021-project-digital-twin-knowledge-graph.md) at the architecture level — a proposed Canvas-side change that would require a new node/relationship category, or a change to the graph model itself, must be reviewed on both sides before acceptance, since it touches both constitutional documents.
+3. **This document changes only deliberately**, via a new numbered revision (ECS v1.1, v2.0, …), reviewed with the same weight as an ADR or a PXF revision — never as a silent edit incidental to shipping one feature. This document is versioned as ECS v1.0.1 as of the governance patch that added this sentence.
+4. **Ownership** sits with the same Design System Architect function that owns the PXF, in coordination with the Distinguished Enterprise Architect / Principal Systems Engineer function that owns [ADR-0021](../adr/0021-project-digital-twin-knowledge-graph.md) and the Architecture Foundation (see that document's own Governance section) — a proposed Canvas-side change that would require a new node/relationship category, or a change to the graph model itself, must be reviewed on both sides before acceptance, since it touches both constitutional documents.
+5. **Constitutional precedence and conflict resolution:** this document is authoritative within its declared domain — the Engineering Canvas's work model: the graph model, node/relationship taxonomy, views, and interaction rules. Where two constitutional documents both bear on a decision, the one whose declared domain most specifically covers that decision's subject matter governs; overlap is expected and is not itself a conflict. A genuine, irreconcilable conflict between two constitutional documents is escalated jointly to the owning functions of both, resolved by amending whichever document's claim was in error, and recorded in `ENGINEERING_DECISION_LOG.md` — never resolved by silently favoring one document over the other.
 
 ---
 
-## 14. Design & Engineering Review Checklist
+## 14. Design Review Checklist
 
 | # | Check | Reference |
 |---|---|---|
@@ -193,8 +196,8 @@ The Engineering Canvas Specification is governed exactly as the Architecture Fou
 | 3 | Would an edit made in one view be instantly correct in all three others? | §6 |
 | 4 | Is every relationship's meaning and inverse legible without the user doing mental math? | §5 |
 | 5 | Is every action reachable by keyboard, with unambiguous, visible focus state? | §9 |
-| 6 | Does the Canvas surface stay legible (not "busy") as the graph grows — is zoom semantic, not just optical shrinking? | §8 |
-| 7 | Is detail content deferred to the Inspector rather than crammed onto the Canvas surface itself? | §10 |
+| 6 | Does the Canvas view stay legible (not "busy") as the graph grows — is zoom semantic, not just optical shrinking? | §8 |
+| 7 | Is detail content deferred to the Inspector rather than crammed onto the Canvas view's surface itself? | §10 |
 | 8 | Can the user always ask "what did this look like before," and get a real, replayable past state? | §11 |
 | 9 | Does a new node/relationship type introduced by this change inherit existing category behavior, rather than requiring bespoke Canvas work? | §4, §12 |
 | 10 | Could this addition be mistaken for a chat interface, a dashboard, or a diagramming tool? | §1 |
@@ -217,7 +220,7 @@ A Canvas feature or view is complete only when **all** of the following are true
 8. A new node or relationship type, if introduced, is shown to inherit its category's existing behavior without bespoke Canvas code (§12).
 9. Checked against the PXF's emotional design goals (PXF §3) and this document's own definition of what the Canvas is not (§1) — does it still read as calm, trustworthy, and structured, not busy, gimmicky, or chat-wrapper-like?
 
-This Definition of Done is additive to both the PXF's Definition of Done for UX (PXF §25) and this project's engineering Definition of Done (build/typecheck/test/lint/format/deps/fitness) — all three apply, and none substitutes for another.
+This Definition of Done is additive to the PXF's Definition of Done for UX (PXF §25), the Experience Language Specification's Definition of Done (XLS §40, for anything touching the Canvas Visual Language), and this project's engineering Definition of Done (build/typecheck/test/lint/format/deps/fitness) — all that apply are required, and none substitutes for another.
 
 ---
 

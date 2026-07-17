@@ -1,6 +1,6 @@
-# 00 — Platform Experience Foundation (PXF)
+# 00 — Platform Experience Foundation (PXF v1.0.1)
 
-**Status:** Foundational — governs UX for the life of the platform, on the same footing as [docs/architecture/00-vision-and-principles.md](../architecture/00-vision-and-principles.md).
+**Status:** Constitutional — governs UX for the life of the platform, on the same footing as [docs/architecture/00-vision-and-principles.md](../architecture/00-vision-and-principles.md) (Architecture Foundation, "AF") and every other document since declared its peer. See [PROJECT_CONTEXT.md](../../PROJECT_CONTEXT.md)'s "Constitutional documents" section for the current, authoritative enumeration of that set — this document does not restate a count or list of siblings inline, since either would go stale the next time a document is added.
 **Authored as:** Chief Experience Officer / Enterprise UX Architect / Design System Architect function.
 **Scope:** Every screen, workflow, interaction, and component built on this platform, present and future.
 **Explicitly not in scope:** screen designs, wireframes, Figma files, React components, Tailwind configuration. Those are downstream artifacts that must be *derivable* from this document — if a mockup can't be justified by a principle in here, the mockup is wrong, not the principle.
@@ -41,6 +41,8 @@ The vision is not "an AI tool." The vision is **a calm, structured, trustworthy 
 | **Every AI action is a proposal until a human confirms it** | Silent AI-driven state changes with no visible confirmation step |
 
 This is a direct, deliberate rejection of three failure modes named in the brief: the **dashboard-heavy** enterprise tool (state exposed for its own sake), the **chat wrapper** (a raw conversation log standing in for a product), and the **traditional ERP** (menu trees standing in for information architecture). All three are symptoms of the same underlying mistake: designing around what the *system* can show, instead of what the *user* is trying to accomplish next. Every principle in this document traces back to avoiding that mistake.
+
+"Depth over density" here means never cramming a screen's fields/actions together instead of sequencing them — a distinct sense from the legitimate scanning density named in §18 and formalized as the Reference/Focus density model in the Experience Language Specification (XLS §5); the two are not in tension, and XLS §5 is the canonical resolution if the two ever read as conflicting in isolation.
 
 ---
 
@@ -243,7 +245,7 @@ Enterprise delivery work of the kind this platform supports is overwhelmingly **
 
 ## 18. Enterprise UX Guidelines
 
-- **Density appropriate to the work, never cramped.** Enterprise users often review substantial structured information (a full requirement, a full document) — the platform should present that information with real density where it genuinely helps scanning, but density must always still respect whitespace-as-hierarchy (§14); density and clutter are not the same thing, and confusing them produces "busy," one of the explicitly rejected feelings.
+- **Density appropriate to the work, never cramped.** Enterprise users often review substantial structured information (a full requirement, a full document) — the platform should present that information with real density where it genuinely helps scanning, but density must always still respect whitespace-as-hierarchy (§14); density and clutter are not the same thing, and confusing them produces "busy," one of the explicitly rejected feelings. This is the same density this document names in §2's "depth over density" from the opposite side — see XLS §5 for the formal two-mode model resolving both.
 - **Error prevention over error messaging.** The best error message is the one never shown because the interface made the error impossible (e.g., disabling a submit action until its preconditions are met) — this is preferred over allowing an error and then explaining it well.
 - **State is never silently lost.** Enterprise trust depends on the user never wondering "did that save?" — every state-changing action has an unambiguous, honest confirmation.
 - **Destructive or irreversible actions require deliberate, proportionate confirmation** — proportionate meaning a single low-risk action needs a lighter confirmation than an action affecting an entire project or tenant.
@@ -309,8 +311,9 @@ UX governance mirrors this project's existing architecture governance model deli
 
 - **Every Vertical Slice's Product Design Review** (the same review type already established — see [docs/governance/sprint-1-product-design-review/](../governance/sprint-1-product-design-review/)) must explicitly check its proposed screens against this document's principles, section by section where relevant, the same way an ADR is checked against [00-vision-and-principles.md](../architecture/00-vision-and-principles.md)'s non-negotiable list.
 - **A deviation from a "must" principle in this document requires an explicit, recorded justification** at the point of decision — recorded in the same Engineering/Decision-Log discipline already used for architecture (`ENGINEERING_DECISION_LOG.md`), not left as an undocumented judgment call.
-- **This document itself changes only deliberately**, not incrementally as a side effect of building one screen. A genuine change to a principle here should be proposed, reviewed, and recorded with the same weight as an ADR — a new numbered revision of this document, not a silent edit.
+- **This document itself changes only deliberately**, not incrementally as a side effect of building one screen. A genuine change to a principle here should be proposed, reviewed, and recorded with the same weight as an ADR — a new numbered revision of this document (PXF v1.1, v2.0, …), not a silent edit. This document is versioned as PXF v1.0.1 as of the governance patch that added this sentence.
 - **Ownership:** the Design System Architect function (this document's own authoring voice) is accountable for this document's currency and for arbitrating disputes between a proposed screen and a stated principle here.
+- **Constitutional precedence and conflict resolution:** this document is authoritative within its declared domain — experience philosophy: vision, personas, journeys, and information architecture. Where two constitutional documents both bear on a decision, the one whose declared domain most specifically covers that decision's subject matter governs; overlap is expected and is not itself a conflict. A genuine, irreconcilable conflict between two constitutional documents is escalated jointly to the owning functions of both, resolved by amending whichever document's claim was in error, and recorded in `ENGINEERING_DECISION_LOG.md` — never resolved by silently favoring one document over the other.
 
 ---
 
@@ -353,7 +356,7 @@ A screen or workflow is UX-complete only when **all** of the following are true:
 8. Responsive behavior has been checked at the platform's defined breakpoints (§17), not just at one reference resolution.
 9. The change has been checked against this document's emotional design goals (§3) — does it produce the target feelings, and does it avoid the rejected ones?
 
-This Definition of Done is additive to, not a replacement for, this project's existing engineering Definition of Done (build/typecheck/test/lint/format/deps/fitness) — a screen can pass every engineering check and still fail this one, and both are required.
+This Definition of Done is additive to, not a replacement for, this project's existing engineering Definition of Done (build/typecheck/test/lint/format/deps/fitness) — a screen can pass every engineering check and still fail this one, and both are required. Where a screen also touches the Engineering Canvas or is built after the Experience Language Specification's adoption, the ECS's Definition of Done (ECS §15) and the XLS's Definition of Done (XLS §40) apply additively as well — none of the four constitutional documents' Definitions of Done substitutes for another.
 
 ---
 

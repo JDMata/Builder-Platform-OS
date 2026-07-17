@@ -1,4 +1,9 @@
-# 00 — Vision & Principles
+# 00 — Vision & Principles (Architecture Foundation, AF v1.0.1)
+
+**Status:** Constitutional — the founding document of the platform's constitutional set, governing at the same authority level as every document that has since been declared its peer. See [PROJECT_CONTEXT.md](../../PROJECT_CONTEXT.md)'s "Constitutional documents" section for the current, authoritative enumeration of that set — this document does not restate a count or list of siblings inline, since either would go stale the next time a document is added.
+**Authored as:** Distinguished Enterprise Architect / Principal Systems Engineer function.
+**Scope:** the engineering domain — architecture, code structure, data/domain modeling, service boundaries, and infrastructure — for the life of the platform.
+**Explicitly not in scope:** experience philosophy, the Engineering Canvas's work model, and visual/interaction language, each governed by its own constitutional document within its own declared domain (see Governance, below).
 
 ## Vision
 
@@ -38,6 +43,16 @@ These are cross-cutting constraints, not features. Every ADR and every later fea
 | 16 | Everything configurable | Hardcoded tenant, model, or environment assumptions |
 | 17 | No vendor lock-in | Core code that only runs on one cloud/LLM/MCP vendor |
 | 18 | No SAP-specific logic inside the core platform | Any of the above, specifically for SAP concepts |
+
+## Governance
+
+This document is governed on the same footing as every other constitutional document, following the standard added to all of them by the same governance patch (v1.0.1) that added this section.
+
+- **Ownership:** the Distinguished Enterprise Architect / Principal Systems Engineer function is accountable for this document's currency and for arbitrating disputes between a proposed ADR or implementation and a principle stated here — the same role that owns architecture-level decisions such as [ADR-0021](../adr/0021-project-digital-twin-knowledge-graph.md), coordinated on Canvas-touching matters with the Engineering Canvas Specification's ownership (see that document's Governance section).
+- **Amendment process:** this document changes only deliberately, via a new numbered revision (AF v1.1, v2.0, …), reviewed with the same weight as an ADR — never a silent edit incidental to shipping one feature.
+- **Review process:** every ADR and every later feature is checked against this document's non-negotiable principles before being accepted, exactly as stated above.
+- **Constitutional precedence and conflict resolution:** each constitutional document is authoritative within its own declared domain (this document's is the engineering domain, stated above). Where two constitutional documents both bear on a decision, the one whose declared domain most specifically covers that decision's subject matter governs — overlap between documents is expected and is not itself a conflict. A genuine, irreconcilable conflict between two constitutional documents — not merely overlapping emphasis — is escalated jointly to the owning functions of both documents, resolved by amending whichever document's claim was in error, and recorded in `ENGINEERING_DECISION_LOG.md`; it is never resolved by silently favoring one document over the other.
+- **Versioning:** this document is versioned independently of the other constitutional documents (AF v1.0.1, next AF v1.1, …) — a revision to one constitutional document does not itself require revising the others, unless the change actually affects a claim made in them.
 
 ## Explicit Sprint 0 non-goals
 
